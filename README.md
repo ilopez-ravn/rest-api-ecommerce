@@ -7,7 +7,7 @@ A general porpuse e-commerce REST API built with Spring Boot 4.0.1 and Java 21, 
 - [Overview](#overview)
 - [Features](#features)
 - [Technology Stack](#technology-stack)
-- [Database Schema](#database-schema)
+- [Diagrams](#diagrams)
 - [API Documentation](#api-documentation)
 - [Getting Started](#getting-started)
 
@@ -67,9 +67,13 @@ This is a production-ready RESTful API for an e-commerce platform that provides 
 - **Payment Gateway:** Stripe
 - **Database Migration:** Hibernate DDL Auto
 
-## Database Schema
+## Diagrams
 
+**Entity Relationship Diagram (ERD)**
 ![ERD Diagram](documentation/ERD-Ecommerce.png)
+
+**Use Case Diagram**
+![Use Case Diagram](documentation/use_case_diagram.png)
 
 
 ## API Documentation
@@ -89,8 +93,8 @@ http://localhost:8080/api/v1
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/ilopez-ravn/ecommerce-rest-api.git
-   cd ecommerce-rest-api/ecommerce
+   git clone https://github.com/ilopez-ravn/rest-api-ecommerce.git
+   cd rest-api-ecommerce/ecommerce
    ```
 
 2. **Configure database connection**
