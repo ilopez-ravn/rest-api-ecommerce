@@ -14,13 +14,13 @@ CREATE TABLE IF NOT EXISTS person (
     last_name VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     phone VARCHAR(20),
-    user_id INT REFERENCES system_user(id) ON DELETE SET NULL,
+    user_id INT REFERENCES sys_user(id) ON DELETE SET NULL,
     role_id INT REFERENCES role(id) ON DELETE RESTRICT,
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS system_user (
+CREATE TABLE IF NOT EXISTS sys_user (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     password TEXT NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS system_user (
 
 CREATE TABLE IF NOT EXISTS user_refresh_token (
     id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES system_user(id) ON DELETE CASCADE,
+    user_id INT REFERENCES sys_user(id) ON DELETE CASCADE,
     refresh_token VARCHAR(255) UNIQUE NOT NULL,
     token_expiry TIMESTAMP NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS category (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     description TEXT,
-    created_by INT REFERENCES system_user(id) ON DELETE SET NULL,
+    created_by INT REFERENCES sys_user(id) ON DELETE SET NULL,
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS product (
     id SERIAL PRIMARY KEY,
     name VARCHAR(500) NOT NULL,
     description TEXT,
-    created_by INT REFERENCES system_user(id) ON DELETE SET NULL,
+    created_by INT REFERENCES sys_user(id) ON DELETE SET NULL,
     price DECIMAL(10, 2) NOT NULL,
     category_id INT REFERENCES category(id) ON DELETE SET NULL,
     is_active BOOLEAN DEFAULT TRUE,
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS product_changes_log (
     product_id INT REFERENCES product(id) ON DELETE CASCADE,
     change_description TEXT NOT NULL,
 
-    changed_by INT REFERENCES system_user(id) ON DELETE SET NULL,
+    changed_by INT REFERENCES sys_user(id) ON DELETE SET NULL,
     changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS product_image (
     is_primary_image BOOLEAN DEFAULT FALSE,
     is_active BOOLEAN DEFAULT TRUE,
     
-    created_by INT REFERENCES system_user(id) ON DELETE SET NULL,
+    created_by INT REFERENCES sys_user(id) ON DELETE SET NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -115,7 +115,7 @@ CREATE TABLE IF NOT EXISTS warehouse (
 
     is_active BOOLEAN DEFAULT TRUE,
 
-    created_by INT REFERENCES system_user(id) ON DELETE SET NULL,
+    created_by INT REFERENCES sys_user(id) ON DELETE SET NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -274,7 +274,7 @@ CREATE TABLE IF NOT EXISTS delivery_tracking (
     address_id INT REFERENCES client_address(id) ON DELETE SET NULL,
     tracking_number VARCHAR(100) UNIQUE NOT NULL,
     carrier_id INT REFERENCES carrier(id) ON DELETE SET NULL,
-    assigned_to INT REFERENCES system_user(id) ON DELETE SET NULL,
+    assigned_to INT REFERENCES sys_user(id) ON DELETE SET NULL,
 
     status_id  INT REFERENCES delivery_status(id) ON DELETE SET NULL,
     estimated_delivery_date TIMESTAMP,
@@ -310,7 +310,7 @@ CREATE TABLE IF NOT EXISTS email_log (
 
 CREATE TABLE IF NOT EXISTS password_recovery_token (
     id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES system_user(id) ON DELETE CASCADE,
+    user_id INT REFERENCES sys_user(id) ON DELETE CASCADE,
     recovery_token VARCHAR(255) UNIQUE NOT NULL,
     token_expiry TIMESTAMP NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
