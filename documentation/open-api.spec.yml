@@ -42,7 +42,7 @@ paths:
       tags:
         - clients
       summary: Get all clients
-      description: Retrieve a list of all clients in the ecommerce system
+      description: Retrieve a list of all clients
       operationId: getClients
       responses:
         '200':
@@ -53,7 +53,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Client'
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -69,7 +69,7 @@ paths:
       description: Create a new client
       operationId: createClient
       requestBody:
-        description: Client object that needs to be added to the ecommerce system
+        description: Client object that needs to be added
         content:
           application/json:
             schema:
@@ -84,7 +84,12 @@ paths:
                 $ref: '#/components/schemas/Client'
         '400':
           description: Invalid input
-        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -118,9 +123,13 @@ paths:
                 $ref: '#/components/schemas/Client'
         '400':
           description: Invalid ID supplied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
         '404':
           description: Client not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -141,7 +150,7 @@ paths:
             type: integer
             format: int64
       requestBody:
-        description: Client object that needs to be updated in the ecommerce system
+        description: Client object that needs to be updated
         content:
           application/json:
             schema:
@@ -156,9 +165,13 @@ paths:
                 $ref: '#/components/schemas/Client'
         '400':
           description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
         '404':
           description: Client not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -194,9 +207,13 @@ paths:
                     example: Client deleted successfully
         '400':
           description: Invalid ID supplied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
         '404':
           description: Client not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -234,7 +251,7 @@ paths:
           description: Invalid ID supplied
         '404':
           description: Client not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -271,9 +288,13 @@ paths:
                 $ref: '#/components/schemas/Address'
         '400':
           description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
         '404':
           description: Client not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -312,9 +333,13 @@ paths:
                 $ref: '#/components/schemas/Address'
         '400':
           description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
         '404':
           description: Client or Address not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -353,9 +378,13 @@ paths:
                     example: Address deleted successfully
         '400':
           description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
         '404':
           description: Client or Address not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -368,7 +397,7 @@ paths:
       tags:
         - products
       summary: Get active products by filters
-      description: Get, filter and search active products available in the ecommerce
+      description: Get, filter and search active products available
       operationId: getProducts
       parameters:
         - name: filter
@@ -385,11 +414,13 @@ paths:
           explode: true
           schema:
             type: string
-        - name: category_id
+        - name: categories_id
           in: query
           schema:
-            type: integer
-            format: int64
+            type: array
+            items:
+              type: integer
+              format: int64
           description: Filter products by category ID
           required: false
         - name: tags_id
@@ -465,7 +496,11 @@ paths:
                   $ref: '#/components/schemas/Product'
         '400':
           description: Invalid filter value
-        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -475,10 +510,10 @@ paths:
       tags:
         - products
       summary: Create a new product
-      description: Create a new product in the ecommerce
+      description: Create a new product
       operationId: createProduct
       requestBody:
-        description: Product object that needs to be added to the ecommerce
+        description: Product object that needs to be added
         content:
           application/json:
             schema:
@@ -493,7 +528,11 @@ paths:
                 $ref: '#/components/schemas/Product'
         '400':
           description: Invalid input
-        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -542,9 +581,13 @@ paths:
                 $ref: '#/components/schemas/ProductImage'
         '400':
           description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
         '404':
           description: Product not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -580,9 +623,13 @@ paths:
           description: Image deleted successfully
         '400':
           description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
         '404':
           description: Product or Image not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -623,7 +670,7 @@ paths:
           description: Invalid ID supplied
         '404':
           description: Product not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -632,9 +679,6 @@ paths:
       security:
         - bearerAuth : []
 
-      
-
-  
   /products/{productId}:
     get:
       tags:
@@ -659,9 +703,13 @@ paths:
                 $ref: '#/components/schemas/Product'
         '400':
           description: Invalid ID supplied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
         '404':
           description: Product not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -671,10 +719,10 @@ paths:
       tags:
         - products
       summary: Update an existing product
-      description: Update an existing product in the ecommerce
+      description: Update an existing product
       operationId: updateProduct
       requestBody:
-        description: Product object that needs to be updated in the ecommerce
+        description: Product object that needs to be updated
         content:
           application/json:
             schema:
@@ -689,9 +737,13 @@ paths:
                 $ref: '#/components/schemas/Product'
         '400':
           description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
         '404':
           description: Product not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -705,7 +757,7 @@ paths:
       tags:
         - products
       summary: Delete a product
-      description: Delete a product from the ecommerce
+      description: Delete a product
       operationId: deleteProduct
       parameters:
         - name: productId
@@ -731,14 +783,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/InvalidQueryResponse"
         '404':
           description: Product not found
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -793,9 +845,13 @@ paths:
                     example: Product liked successfully
         '400':
           description: Invalid ID supplied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
         '404':
           description: Product not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -808,7 +864,7 @@ paths:
       tags:
         - products
       summary: Update stock levels for multiple products
-      description: Update stock levels for multiple products in the ecommerce
+      description: Update stock levels for multiple products
       operationId: updateProductStocks
       requestBody:
         description: List of product stock updates
@@ -843,7 +899,11 @@ paths:
                     example: Product stocks updated successfully
         '400':
           description: Invalid input
-        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -857,55 +917,28 @@ paths:
       tags:
         - users
       summary: Create a new user
-      description: Create a new user in the ecommerce system
+      description: Create a new user
       operationId: createUser
       requestBody:
-        description: User object that needs to be added to the ecommerce system
+        description: User object that needs to be added
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                password:
-                  type: string
-                role_id:
-                  type: integer
-                  format: int64
-                phone:
-                  type: string
-                email:
-                  type: string
-                first_name:
-                  type: string
-                last_name:
-                  type: string
-        required: true
+              $ref: '#/components/schemas/CreateUser'
       responses:
         '201':
           description: User created successfully
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                    format: int64
-                  username:
-                    type: string
-                  phone:
-                    type: string
-                  email:
-                    type: string
-                  first_name:
-                    type: string
-                  last_name:
-                    type: string
+                $ref: '#/components/schemas/User'
         '400':
           description: Invalid input
-        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -958,7 +991,12 @@ paths:
 
         '400':
           description: Invalid username/password supplied
-        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -991,9 +1029,13 @@ paths:
                 $ref: '#/components/schemas/User'
         '400':
           description: Invalid username supplied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
         '404':
           description: User not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -1030,7 +1072,15 @@ paths:
       responses:
         '200':
           description: Successful operation
-        default:
+        '400':
+          description: Invalid username supplied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '404':
+          description: User not found
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -1057,14 +1107,19 @@ paths:
           description: Successful operation
         '400':
           description: Invalid username supplied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
         '404':
           description: User not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+        
       security:
         - bearerAuth: []
 
@@ -1095,9 +1150,20 @@ paths:
                 properties:
                   access_token:
                     type: string
+        '401':
+          description: Unauthorized - Invalid or expired token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedResponse"
         '400':
           description: Invalid refresh token supplied
-        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -1134,7 +1200,12 @@ paths:
                     example: Password reset link sent to email
         '400':
           description: Invalid email supplied
-        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+          
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -1173,7 +1244,11 @@ paths:
                     example: Password has been reset successfully
         '400':
           description: Invalid reset token or password supplied
-        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -1196,7 +1271,7 @@ paths:
             type: integer
             format: int64
       requestBody:
-        description: User object that needs to be updated in the ecommerce system
+        description: User object that needs to be updated
         content:
           application/json:
             schema:
@@ -1239,9 +1314,13 @@ paths:
                     type: string
         '400':
           description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
         '404':
           description: User not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -1277,9 +1356,13 @@ paths:
                     example: User deleted successfully
         '400':
           description: Invalid ID supplied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
         '404':
           description: User not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -1328,9 +1411,13 @@ paths:
                     example: User status updated successfully
         '400':
           description: Invalid ID supplied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
         '404':
           description: User not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -1344,7 +1431,7 @@ paths:
       tags:
         - orders
       summary: Get all orders
-      description: Retrieve a list of all orders placed in the ecommerce
+      description: Retrieve a list of all orders placed
       operationId: getOrders
       parameters:
         - name: client_id
@@ -1423,7 +1510,11 @@ paths:
                   $ref: '#/components/schemas/Order'
         '400':
           description: Invalid filter value
-        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -1434,7 +1525,7 @@ paths:
       tags:
         - orders
       summary: Create a new order
-      description: Create a new order in the ecommerce based on the cart choosing the address and the warehouse where products will come from
+      description: Create a new order based on the cart choosing the address and the warehouse where products will come from
       operationId: createOrder
       requestBody:
         description: Order data needed for billing and tracking
@@ -1452,7 +1543,11 @@ paths:
                 $ref: '#/components/schemas/Order'
         '400':
           description: Invalid input
-        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -1484,9 +1579,13 @@ paths:
                 $ref: '#/components/schemas/Order'
         '400':
           description: Invalid ID supplied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
         '404':
           description: Order not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -1520,9 +1619,13 @@ paths:
                     example: Order deleted successfully
         '400':
           description: Invalid ID supplied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
         '404':
           description: Order not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -1536,7 +1639,7 @@ paths:
       tags:
         - carts
       summary: Create a new cart
-      description: Create a new cart in the ecommerce
+      description: Create a new cart
       operationId: createCart
 
       responses:
@@ -1548,7 +1651,11 @@ paths:
                 $ref: '#/components/schemas/Cart'
         '400':
           description: Invalid input
-        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -1579,9 +1686,13 @@ paths:
                 $ref: '#/components/schemas/Cart'
         '400':
           description: Invalid ID supplied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
         '404':
           description: Cart not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -1602,7 +1713,7 @@ paths:
             type: integer
             format: int64
       requestBody:
-        description: Cart object that needs to be updated in the ecommerce
+        description: Cart object that needs to be updated
         content:
           application/json:
             schema:
@@ -1620,9 +1731,13 @@ paths:
                     example: Cart updated successfully
         '400':
           description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
         '404':
           description: Cart not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -1658,9 +1773,13 @@ paths:
                 $ref: '#/components/schemas/Cart'
         '400':
           description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
         '404':
           description: Cart or Product not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -1701,9 +1820,13 @@ paths:
                 $ref: '#/components/schemas/Cart'
         '400':
           description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
         '404':
           description: Cart or Product not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -1739,9 +1862,13 @@ paths:
                 $ref: '#/components/schemas/Cart'
         '400':
           description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
         '404':
           description: Cart or Product not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -1772,9 +1899,13 @@ paths:
                 $ref: '#/components/schemas/Cart'
         '400':
           description: Invalid ID supplied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
         '404':
           description: Cart not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -1784,14 +1915,12 @@ paths:
         - bearerAuth : []
 
 
-  #/payments
-
   /categories:
     get:
       tags:
         - categories
       summary: Get all product categories
-      description: Retrieve a list of all product categories available in the ecommerce
+      description: Retrieve a list of all product categories available
       operationId: getCategories
       responses:
         '200':
@@ -1802,7 +1931,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Category'
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -1812,10 +1941,10 @@ paths:
       tags:
         - categories
       summary: Create a new product category
-      description: Create a new category for products in the ecommerce
+      description: Create a new category for products
       operationId: createCategory
       requestBody:
-        description: Category object that needs to be added to the ecommerce
+        description: Category object that needs to be added
         content:
           application/json:
             schema:
@@ -1833,7 +1962,11 @@ paths:
                 $ref: '#/components/schemas/Category'
         '400':
           description: Invalid input
-        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -1847,7 +1980,7 @@ paths:
       tags:
         - categories
       summary: Update an existing product category
-      description: Update an existing category in the ecommerce
+      description: Update an existing category
       operationId: updateCategory
       parameters:
         - name: categoryId
@@ -1858,7 +1991,7 @@ paths:
             type: integer
             format: int64
       requestBody:
-        description: Category object that needs to be updated in the ecommerce
+        description: Category object that needs to be updated
         content:
           application/json:
             schema:
@@ -1876,9 +2009,13 @@ paths:
                 $ref: '#/components/schemas/Category'
         '400':
           description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
         '404':
           description: Category not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -1891,7 +2028,7 @@ paths:
       tags:
         - categories
       summary: Delete a product category
-      description: Delete a category from the ecommerce
+      description: Delete a category
       operationId: deleteCategory
       parameters:
         - name: categoryId
@@ -1914,9 +2051,13 @@ paths:
                     example: Category deleted successfully
         '400':
           description: Invalid ID supplied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
         '404':
           description: Category not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -1931,7 +2072,7 @@ paths:
       tags:
         - tags
       summary: Get all product tags
-      description: Retrieve a list of all product tags available in the ecommerce
+      description: Retrieve a list of all product tags available
       operationId: getTags
       responses:
         '200':
@@ -1942,7 +2083,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Tag'
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -1952,10 +2093,10 @@ paths:
       tags:
         - tags
       summary: Create a new product tag
-      description: Create a new tag for products in the ecommerce
+      description: Create a new tag for products
       operationId: createTag
       requestBody:
-        description: Tag object that needs to be added to the ecommerce
+        description: Tag object that needs to be added
         content:
           application/json:
             schema:
@@ -1973,7 +2114,11 @@ paths:
                 $ref: '#/components/schemas/Tag'
         '400':
           description: Invalid input
-        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -1987,7 +2132,7 @@ paths:
       tags:
         - tags
       summary: Update an existing product tag
-      description: Update an existing tag in the ecommerce
+      description: Update an existing tag
       operationId: updateTag
       parameters:
         - name: tagId
@@ -1998,7 +2143,7 @@ paths:
             type: integer
             format: int64
       requestBody:
-        description: Tag object that needs to be updated in the ecommerce
+        description: Tag object that needs to be updated
         content:
           application/json:
             schema:
@@ -2016,9 +2161,13 @@ paths:
                 $ref: '#/components/schemas/Tag'
         '400':
           description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
         '404':
           description: Tag not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -2031,7 +2180,7 @@ paths:
       tags:
         - tags
       summary: Delete a product tag
-      description: Delete a tag from the ecommerce
+      description: Delete a tag
       operationId: deleteTag
       parameters:
         - name: tagId
@@ -2054,9 +2203,13 @@ paths:
                     example: Tag deleted successfully
         '400':
           description: Invalid ID supplied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
         '404':
           description: Tag not found
-        default:
+        '500':
           description: Unexpected error
           content:
             application/json:
@@ -2089,10 +2242,14 @@ components:
         price:
           type: number
           examples: [19.99] 
-        category_id:
-          type: integer
-          format: int64
-          examples: [1]
+        category_list:
+          type: array
+          xml:
+            name: categories
+            wrapped: true
+          items:
+            type: integer
+            format: int64
         tag_list:
           type: array
           xml:
@@ -2125,10 +2282,14 @@ components:
         price:
           type: number
           examples: [19.99] 
-        category_id:
-          type: integer
-          format: int64
-          examples: [1]
+        category_list:
+          type: array
+          xml:
+            name: categories
+            wrapped: true
+          items:
+            type: integer
+            format: int64
         tag_list: 
           type: array
           xml:
@@ -2320,7 +2481,7 @@ components:
           examples: [Electronics]
       xml:
         name: category
-    EmployeeUser:
+    User:
       type: object
       properties:
         id:
@@ -2343,6 +2504,35 @@ components:
           type: integer
           format: int64
           examples: [5]
+
+    CreateUser:
+      type: object
+      properties:
+        username:
+          type: string
+          examples: [admin]
+        password:
+          type: string
+          examples: [StrongPassword123]
+        first_name:
+          type: string
+          examples: [Israel]
+        last_name:
+          type: string
+          examples: [Lopez]
+        email:
+          type: string
+          examples: [israellopez@ravn.co]
+        phone:
+          type: string
+          examples: ['12345']
+        user_id: 
+          type: integer
+          format: int64
+          examples: [5]
+    
+    
+        
     Client: 
       type: object
       properties:
@@ -2355,9 +2545,10 @@ components:
           examples: ["Israel"]
         last_name:
           type: string
+          examples: ["Lopez"]
         email:
           type: string
-          examples: ["example@test.com"]
+          examples: ["israellopez@ravn.co"]
         phone:
           type: string
           examples: ["12345"]
@@ -2379,7 +2570,7 @@ components:
           examples: ["Lopez"]
         email:
           type: string
-          examples: ["example@test.com"]
+          examples: ["israellopez@ravn.co"]
         phone:
           type: string
           examples: ["12345"]
@@ -2485,7 +2676,6 @@ components:
         country:
           type: string
           examples: ["Peru"]
-          default: "Peru"
         created_at:
           type: string
           format: date-time
@@ -2515,19 +2705,6 @@ components:
           type: string
           format: date-time
         
-    User:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          examples: [10]
-        username:
-          type: string
-          examples: ['username']
-        password:
-          type: string
-          examples: ['12345']
     Tag:
       type: object
       properties:
@@ -2549,8 +2726,6 @@ components:
           type: string
         message:
           type: string
-      xml:
-        name: '##default'
     Error:
       type: object
       properties:
@@ -2558,6 +2733,32 @@ components:
           type: string
         message:
           type: string
+      required:
+        - code
+        - message
+    InvalidQueryResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+          examples: [400]
+        message:
+          type: string
+          examples: [Invalid query parameter]
+      required:
+        - code
+        - message
+    UnauthorizedResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+          examples: [401]
+        message:
+          type: string
+          examples: [Unauthorized - Invalid or expired token]
       required:
         - code
         - message
