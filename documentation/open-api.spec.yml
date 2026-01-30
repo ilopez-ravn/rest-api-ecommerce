@@ -25,6 +25,8 @@ tags:
     description: Access to product data
   - name: orders
     description: Manage client's orders
+  - name: payments
+    description: Manage Stripe's payment intents and confirmation
   - name: carts
     description: Operations on carts
   - name: users
@@ -1388,7 +1390,7 @@ paths:
             type: integer
             format: int64
       requestBody:
-        description: Status to set for the user (true for enable, false for disable)
+        description: Status to set for the user
         content:
           application/json:
             schema:
@@ -1426,6 +1428,127 @@ paths:
       security:
         - bearerAuth : []
 
+  /stripe/payment:
+    post:
+      tags:
+        - payments
+      summary: Create a Stripe Payment Intent
+      description: Create a new Stripe Payment Intent for processing payments
+      operationId: createPaymentIntent
+      requestBody:
+        description: Payment intent data
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                shopping_cart_id:
+                  type: integer
+                  format: int64
+                  
+        required: true
+      responses:
+        '201':
+          description: Payment Intent created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentIntent'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '500':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - bearerAuth : []
+
+  /order/status/{shoppingCartId}:
+    get:
+      tags:
+        - orders
+      summary: Get payment status for an order
+      description: Retrieve the payment status of an order using the shopping cart ID
+      operationId: getPaymentStatus
+      parameters:
+        - name: shoppingCartId
+          in: path
+          description: ID of the shopping cart to retrieve payment status for
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Payment status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          description: Invalid ID supplied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '404':
+          description: Order not found
+        '500':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - bearerAuth : []
+
+
+  /stripe/webhook:
+    post:
+      tags:
+        - payments
+      summary: Stripe Webhook Endpoint
+      description: Endpoint to handle payment intent status
+      operationId: handleStripeWebhook
+      requestBody:
+        description: Stripe webhook event data
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StripeWebhookEvent'
+        required: true
+      responses:
+        '200':
+          description: Webhook event processed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Webhook event processed successfully
+        '400':
+          description: Invalid webhook event data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '500':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - bearerAuth : []
+    
   /orders:
     get:
       tags:
@@ -2736,6 +2859,100 @@ components:
       required:
         - code
         - message
+    PaymentIntent:
+      type: object
+      description: Returns the client secret to the frontend to show the payment popup
+      properties:
+        client_secret:
+          type: string
+          examples: [pi_1FHeJ2Lz0qyl6XeWz1XqL8jT_secret_123]
+
+
+    StripeWebhookEvent:
+      type: object
+      properties:
+        id:
+          type: string
+          examples: [evt_1FHeJ2Lz0qyl6XeWz1XqL8jT]
+        object:
+          type: string
+          examples: [event]
+        api_version:
+          type: string
+          examples: [2020-08-27]
+        created:
+          type: integer
+          examples: [1700000000]
+        data:
+          type: object
+          properties:
+            object:
+              $ref: '#/components/schemas/StripeWebhookData'
+        livemode:
+          type: boolean
+          examples: [false]
+        type:
+          type: string
+          examples: [payment_intent.succeeded]
+    StripeWebhookData:
+      type: object
+      properties:
+        id:
+          type: string
+          examples: [evt_1FHeJ2Lz0qyl6XeWz1XqL8jT]
+        object:
+          type: string
+          examples: [payment_intent]
+        amount:
+          type: float
+          examples: [2000]
+        amount_received:
+          type: float
+          examples: [2000]
+        confirmation_method:
+          type: string
+          examples: [automatic_async]
+        created:
+          type: integer
+          examples: [1700000000]
+        currency:
+          type: string
+          examples: [usd]
+        customer:
+          type: string
+          examples: [null]
+        customer_account:
+          type: string
+          examples: [null]
+        description:
+          type: string 
+          examples: [(Created by Stripe CI)]
+        latest_charge:
+          type: string
+          examples: [ch_1FHeJ2Lz0qyl6XeWz1XqL8jT]
+        payment_method:
+          type: string
+          examples: [pm_card_visa]
+        livemode:
+          type: boolean
+          examples: [false]
+        payment_method_options:
+          type: object
+        last_payment_error:
+          type: object
+        
+        payment_method_types:
+          type: array
+          items:
+            type: string
+          examples: [card]
+        shipping:
+          type: object
+        status: 
+          type: string
+          examples: [succeeded]
+        
+
     InvalidQueryResponse:
       type: object
       properties:
