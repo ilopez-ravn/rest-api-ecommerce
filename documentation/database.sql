@@ -15,7 +15,6 @@ CREATE TABLE IF NOT EXISTS role (
 CREATE TABLE IF NOT EXISTS person (
     id SERIAL PRIMARY KEY,
     user_id INT REFERENCES sys_user(id) ON DELETE SET NULL,
-    role_id INT REFERENCES role(id) ON DELETE RESTRICT,
 
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
@@ -33,6 +32,7 @@ CREATE TABLE IF NOT EXISTS sys_user (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     hashed_password TEXT NOT NULL,
+    role_id INT REFERENCES role(id) ON DELETE RESTRICT,
 
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -307,6 +307,7 @@ CREATE TABLE IF NOT EXISTS order_tracking_log (
 CREATE TABLE IF NOT EXISTS email_log (
     id SERIAL PRIMARY KEY,
     user_id INT REFERENCES sys_user(id) ON DELETE CASCADE,
+    created_by INT REFERENCES sys_user(id) ON DELETE SET NULL,
 
     recipient_email VARCHAR(100) NOT NULL,
     cc VARCHAR(100),
