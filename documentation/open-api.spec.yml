@@ -23,6 +23,8 @@ servers:
 tags:
   - name: products
     description: Access to product data
+  - name: warehouses
+    description: Manage warehouses and stock
   - name: orders
     description: Manage client's orders
   - name: payments
@@ -83,7 +85,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Client'
+                $ref: '#/components/schemas/FullClient'
         '400':
           description: Invalid input
           content:
@@ -122,7 +124,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Client'
+                $ref: '#/components/schemas/FullClient'
         '400':
           description: Invalid ID supplied
           content:
@@ -164,7 +166,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Client'
+                $ref: '#/components/schemas/FullClient'
         '400':
           description: Invalid input
           content:
@@ -224,175 +226,6 @@ paths:
       security:
         - bearerAuth: []
 
-  /clients/{clientId}/addresses:
-
-    get:
-      tags:
-        - clients
-      summary: Get addresses of a client
-      description: Retrieve a list of addresses for a specific client
-      operationId: getClientAddresses
-      parameters:
-        - name: clientId
-          in: path
-          description: ID of client to retrieve addresses for
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: List of addresses for the client
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Address'
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Client not found
-        '500':
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
-    post:
-      tags:
-        - clients
-      summary: Add address to client
-      description: Add a new address to an existing client
-      operationId: addAddressToClient
-      parameters:
-        - name: clientId
-          in: path
-          description: ID of client to add the address to
-          required: true
-          schema:
-            type: integer
-            format: int64
-      requestBody:
-        description: Address object that needs to be added to the client
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PostAddress'
-        required: true
-      responses:
-        '201':
-          description: Address added to client successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Address'
-        '400':
-          description: Invalid input
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/InvalidQueryResponse"
-        '404':
-          description: Client not found
-        '500':
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
-                
-  /clients/{clientId}/addresses/{addressId}:
-    put:
-      tags:
-        - clients
-      summary: Update address of a client
-      description: Update an existing address of a client
-      operationId: updateClientAddress
-      parameters:
-        - name: clientId
-          in: path
-          description: ID of client to update the address for
-          required: true
-          schema:
-            type: integer
-            format: int64
-      requestBody:
-        description: Address object that needs to be updated for the client
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PostAddress'
-        required: true
-      responses:
-        '200':
-          description: Address updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Address'
-        '400':
-          description: Invalid input
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/InvalidQueryResponse"
-        '404':
-          description: Client or Address not found
-        '500':
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-    delete: 
-      tags:
-        - clients
-      summary: Delete address of a client
-      description: Delete an existing address of a client
-      operationId: deleteClientAddress
-      parameters:
-        - name: clientId
-          in: path
-          description: ID of client to delete the address from
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: addressId
-          in: path
-          description: ID of address to delete
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '204':
-          description: Address deleted successfully
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-                    example: Address deleted successfully
-        '400':
-          description: Invalid input
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/InvalidQueryResponse"
-        '404':
-          description: Client or Address not found
-        '500':
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
                 
   /products:
     get:
@@ -405,13 +238,6 @@ paths:
         - name: filter
           in: query
           description: Allows search the product by custom text on name or description
-          required: false
-          explode: true
-          schema:
-            type: string
-        - name: name
-          in: query
-          description: Filter products by name
           required: false
           explode: true
           schema:
@@ -640,46 +466,6 @@ paths:
       security:
         - bearerAuth : []
 
-  /products/{productId}/status:
-    patch:
-      tags:
-        - products
-      summary: Disable or enable a product by ID
-      description: Disable or enable a single product by its unique identifier
-      operationId: disableOrEnableProductById
-      parameters:
-        - name: productId
-          in: path
-          description: ID of product to disable or enable
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: status
-          in: query
-          description: Status to set for the product (true for enable, false for disable)
-          required: true
-          schema:
-            type: boolean
-      responses:
-        '200':
-          description: Product status updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Product'
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Product not found
-        '500':
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-      security:
-        - bearerAuth : []
 
   /products/{productId}:
     get:
@@ -717,6 +503,51 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+    patch:
+      tags:
+        - products
+      summary: Update a product partially
+      description: Update a single product by its unique identifier
+      operationId: updateProductPartially
+      parameters:
+        - name: productId
+          in: path
+          description: ID of product to disable or enable
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Fields to set for the product
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                is_active:
+                  type: boolean
+        required: true
+        
+      responses:
+        '200':
+          description: Product status updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Product not found
+        '500':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - bearerAuth : []
+
     put:
       tags:
         - products
@@ -802,28 +633,22 @@ paths:
         - bearerAuth : []
 
   /products/{productId}/liked:
-    patch:
+    post:
       tags:
         - products
-      summary: Like or unlike a product for a specific client
-      description: Like or unlike for a specific client 
-      operationId: likeOrUnlikeProduct
+      summary: Like a product for a specific client
+      description: Like for a specific client 
+      operationId: likeProduct
       parameters:
         - name: productId
           in: path
-          description: ID of product to like or unlike
+          description: ID of product to like
           required: true
           schema:
             type: integer
             format: int64
-        - name: liked
-          in: query
-          description: Like status to set for the product (true for like, false for unlike)
-          required: true
-          schema:
-            type: boolean
       requestBody:
-        description: User object that performs the like or unlike action
+        description: User id that likes the product
         content:
           application/json:
             schema:
@@ -861,10 +686,188 @@ paths:
                 $ref: "#/components/schemas/Error"
 
                 
-  /products/stock:
-    patch:
+    delete:
       tags:
         - products
+      summary: Unlike a product for a specific client
+      description: Unlike a product for a specific client 
+      operationId: unlikeProduct
+      parameters:
+        - name: productId
+          in: path
+          description: ID of product to unlike
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: User id that unlikes the product
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                client_id:
+                  type: integer
+                  format: int64
+        required: true
+
+      responses:
+        '204':
+          description: Product unlike status updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Product unliked successfully
+        '400':
+          description: Invalid ID supplied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '404':
+          description: Product not found
+        '500':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+                
+  /warehouse:
+    post:
+      tags:
+        - warehouses
+      summary: Create a new warehouse
+      description: Create a new warehouse
+      operationId: createWarehouse
+      requestBody:
+        description: Warehouse object that needs to be added
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostWarehouse'
+        required: true
+      responses:
+        '201':
+          description: Warehouse created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Warehouse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '500':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - bearerAuth : []
+  
+  /warehouse/{warehouseId}:
+    put:
+      tags:
+        - warehouses
+      summary: Update an existing warehouse
+      description: Update an existing warehouse by its unique identifier
+      operationId: updateWarehouse
+      parameters:
+        - name: warehouseId
+          in: path
+          description: ID of warehouse to update
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Warehouse object that needs to be updated
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostWarehouse'
+        required: true
+      responses:
+        '200':
+          description: Warehouse updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Warehouse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '404':
+          description: Warehouse not found
+        '500':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - bearerAuth : []
+
+    delete:
+      tags:
+        - warehouses
+      summary: Delete a warehouse by ID
+      description: Delete a single warehouse by its unique identifier
+      operationId: deleteWarehouseById
+      parameters:
+        - name: warehouseId
+          in: path
+          description: ID of warehouse to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      
+      responses:
+        '204':
+          description: Warehouse deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Warehouse deleted successfully
+        '400':
+          description: Invalid ID supplied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '404':
+          description: Warehouse not found
+        '500':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - bearerAuth : []
+
+  /warehouse/{warehouseId}/stock:
+    post:
+      tags:
+        - warehouses
       summary: Update stock levels for multiple products
       description: Update stock levels for multiple products
       operationId: updateProductStocks
@@ -1005,126 +1008,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
   
-  /users/{username}:
-    get:
-      tags:
-        - users
-      summary: Get user by user name.
-      description: Get user details based on username.
-      operationId: getUserByName
-      parameters:
-        - name: username
-          in: path
-          description: The name that needs to be fetched. Use user1 for testing
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/User'
-        '400':
-          description: Invalid username supplied
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/InvalidQueryResponse"
-        '404':
-          description: User not found
-        '500':
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-      security:
-        - bearerAuth: []
-
-    put:
-      tags:
-        - users
-      summary: Update user.
-      description: This can only be done by the logged in user.
-      operationId: updateUser
-      parameters:
-        - name: username
-          in: path
-          description: The name that needs to be updated
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: Update an existent user in the store
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User'
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/User'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/User'
-      responses:
-        '200':
-          description: Successful operation
-        '400':
-          description: Invalid username supplied
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/InvalidQueryResponse"
-        '404':
-          description: User not found
-        '500':
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-      security:
-        - bearerAuth: []
-
-    delete:
-      tags:
-        - users
-      summary: Delete user.
-      description: This can only be done by the logged in user.
-      operationId: deleteUser
-      parameters:
-        - name: username
-          in: path
-          description: The name that needs to be deleted
-          required: true
-          schema:
-            type: string
-      responses:
-        '204':
-          description: Successful operation
-        '400':
-          description: Invalid username supplied
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/InvalidQueryResponse"
-        '404':
-          description: User not found
-        '500':
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        
-      security:
-        - bearerAuth: []
-
   /users/refresh:
     post:
       tags:
@@ -1258,6 +1141,46 @@ paths:
                 $ref: "#/components/schemas/Error"
 
   /users/{userId}:
+    get:
+      tags:
+        - users
+      summary: Get user by user name.
+      description: Get user details based on username.
+      operationId: getUserByName
+      parameters:
+        - name: username
+          in: path
+          description: The name that needs to be fetched. Use user1 for testing
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid username supplied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '404':
+          description: User not found
+        '500':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - bearerAuth: []
+
     put: 
       tags:
         - users
@@ -1374,7 +1297,6 @@ paths:
         - bearerAuth : []
 
 
-  /users/{userId}/status:
     patch:
       tags:
         - users
@@ -1474,7 +1396,7 @@ paths:
       tags:
         - orders
       summary: Get payment status for an order
-      description: Retrieve the payment status of an order using the shopping cart ID
+      description: After a payment is made, the client will wait for the payment to be processed and then retrieve the order details using the shopping cart ID
       operationId: getPaymentStatus
       parameters:
         - name: shoppingCartId
@@ -1765,6 +1687,13 @@ paths:
       description: Create a new cart
       operationId: createCart
 
+      requestBody:
+        description: Cart object that needs to be added
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewCart'
+        required: true
       responses:
         '201':
           description: Cart created successfully
@@ -1848,10 +1777,7 @@ paths:
           content:
             application/json:
               schema:
-                properties:
-                  message: 
-                    type: string
-                    example: Cart updated successfully
+                $ref: '#/components/schemas/Cart'
         '400':
           description: Invalid input
           content:
@@ -1868,136 +1794,6 @@ paths:
                 $ref: "#/components/schemas/Error"
 
 
-  /carts/{cartId}/products:
-    post:
-      tags:
-        - carts
-      summary: Add product to cart
-      description: Add a product to an existing cart
-      operationId: addProductToCart
-      requestBody:
-        description: Product and cart information to add the product to the cart
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                product_id:
-                  type: integer
-                  format: int64
-                quantity:
-                  type: integer
-      responses:
-        '201':
-          description: Product added to cart successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Cart'
-        '400':
-          description: Invalid input
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/InvalidQueryResponse"
-        '404':
-          description: Cart or Product not found
-        '500':
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
-  /carts/{cartId}/products/{cardDetailId}:
-    patch:
-      tags:
-        - carts
-      summary: Update product quantity in cart
-      description: Update the quantity of a specific product in an existing cart
-      operationId: updateProductQuantityInCart
-      parameters:
-        - name: productId
-          in: path
-          description: ID of product to update in the cart
-          required: true
-          schema:
-            type: integer
-            format: int64
-      requestBody:
-        description: Cart ID and new quantity for the product
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                quantity:
-                  type: integer
-        required: true
-      responses:
-        '200':
-          description: Product quantity updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Cart'
-        '400':
-          description: Invalid input
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/InvalidQueryResponse"
-        '404':
-          description: Cart or Product not found
-        '500':
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-    delete:
-      tags:
-        - carts
-      summary: Remove product from cart
-      description: Remove a specific product from an existing cart
-      operationId: removeProductFromCart
-      parameters:
-        - name: cartId
-          in: path
-          description: ID of product to remove from the cart
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: cardDetailId
-          in: path
-          description: ID of cart to remove the product from
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '204':
-          description: Product removed from cart successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Cart'
-        '400':
-          description: Invalid input
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/InvalidQueryResponse"
-        '404':
-          description: Cart or Product not found
-        '500':
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-                
   /carts/clients/{clientId}:
     get:
       tags:
@@ -2351,41 +2147,32 @@ components:
         id:
           type: integer
           format: int64
-          examples: [10]
+          example: 10
         name:
           type: string
-          examples: ["Lavadora"]
+          example: "Lavadora"
         description:
           type: string
-          examples: ["Lorem ipsum"] 
+          example: "Lorem ipsum" 
         created_by:
           type: integer
           format: int64
-          examples: [1]
+          example: 1
         price:
           type: number
-          examples: [19.99] 
+          example: 19.99 
         category_list:
           type: array
-          xml:
-            name: categories
-            wrapped: true
           items:
             type: integer
             format: int64
         tag_list:
           type: array
-          xml:
-            name: tags
-            wrapped: true
           items:
             type: integer
             format: int64
         product_images:
           type: array
-          xml:
-            name: product_images
-            wrapped: true
           items:
             $ref: '#/components/schemas/ProductImage'
     
@@ -2394,30 +2181,24 @@ components:
       properties:
         name:
           type: string
-          examples: ["Lavadora"]
+          example: "Lavadora"
         description:
           type: string
-          examples: ["Lorem ipsum"] 
+          example: "Lorem ipsum" 
         created_by:
           type: integer
           format: int64
-          examples: [1]
+          example: 1
         price:
           type: number
-          examples: [19.99] 
+          example: 19.99 
         category_list:
           type: array
-          xml:
-            name: categories
-            wrapped: true
           items:
             type: integer
             format: int64
         tag_list: 
           type: array
-          xml:
-            name: tags
-            wrapped: true
           items:
             type: integer
             format: int64
@@ -2428,17 +2209,17 @@ components:
         id:
           type: integer
           format: int64
-          examples: [1]
+          example: 1
         product_id:
           type: integer
           format: int64
-          examples: [10]
+          example: 10
         image_url:
           type: string
-          examples: ["https://example.com/image.jpg"]
+          example: "https://example.com/image.jpg"
         is_primary_image:
           type: boolean
-          examples: [true]
+          example: true
         
       
     NewOrder:
@@ -2447,21 +2228,19 @@ components:
         id:
           type: integer
           format: int64
-          examples: [10]
+          example: 10
         warehouse_id:
           type: integer
           format: int64
-          examples: [1]
+          example: 1
         cart_id:
           type: integer
           format: int64
-          examples: [5]
+          example: 5
         address_id:
           type: integer
           format: int64
-          examples: [3]
-      xml:
-        name: order
+          example: 3
 
 
     Order:
@@ -2470,41 +2249,26 @@ components:
         id:
           type: integer
           format: int64
-          examples: [10]
+          example: 10
         client_id:
           type: integer
           format: int64
-          examples: [32]
+          example: 32
         warehouse_id:
           type: integer
           format: int64
-          examples: [1]
+          example: 1
         order_date:
           type: string
           format: date-time
-        document_number:
-          type: string
-          examples: ["FA123"]
-        total_amount:
-          type: number
-          format: float
-          examples: [150.75]
-        tax_amount:
-          type: number
-          format: float
-          examples: [27.14]
-        delivery_fee:
-          type: number
-          format: float
-          examples: [5.00]
+        bill_info:
+          $ref: "#/components/schemas/BillingInformation"
         address_info:
           $ref: '#/components/schemas/Address'
         delivery_info:
           $ref: '#/components/schemas/DeliveryTracking'
         payment_info:
           $ref: '#/components/schemas/stripePayment'
-      xml:
-        name: order
    
     UpdateCart:
       type: object
@@ -2512,18 +2276,14 @@ components:
         client_id:
           type: integer
           format: int64
-          examples: [10]
+          example: 10
         status: 
           type: string
-          examples: [open]
-          xml:
-            name: products
-            wrapped: true
-        clear_products:
-          type: boolean
-          examples: [false]
-      xml:
-        name: cart
+          example: open
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartDetailUpdate'
 
     NewCart:
       type: object
@@ -2531,42 +2291,34 @@ components:
         id:
           type: integer
           format: int64
-          examples: [1]
+          example: 1
         status: 
           type: string
-          examples: [open]
+          example: open
         products:
           type: array
-          xml:
-            name: products
-            wrapped: true
           items:
-            $ref: '#/components/schemas/Product'
-      xml:
-        name: cart
+            $ref: '#/components/schemas/NewCartDetail'
+
     Cart:
       type: object
       properties:
         id:
           type: integer
           format: int64
-          examples: [1]
+          example: 1
         client_id:
           type: integer
           format: int64
-          examples: [10]
+          example: 10
         status: 
           type: string
-          examples: [open]
+          example: open
         products:
           type: array
-          xml:
-            name: products
-            wrapped: true
           items:
             $ref: '#/components/schemas/CartDetail'
-      xml:
-        name: cart
+    
     
     CartDetail: 
       type: object
@@ -2574,23 +2326,58 @@ components:
         id:
           type: integer
           format: int64
-          examples: [1]
+          example: 1
         price:
           type: number
           format: float
-          examples: [19.99]
+          example: 19.99
         quantity:
           type: integer
-          examples: [3] 
+          example: 3 
         total:
           type: number
           format: float
-          examples: [59.97]
+          example: 59.97
 
         product:
             $ref: '#/components/schemas/Product'
-      xml:
-        name: cartDetail
+
+    NewCartDetail: 
+      type: object
+      properties:
+        price:
+          type: number
+          format: float
+          example: 19.99
+        quantity:
+          type: integer
+          example: 3 
+
+        product_id:
+          type: integer
+          format: int64
+          example: 10
+            
+    CartDetailUpdate: 
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        price:
+          type: number
+          format: float
+          example: 19.99
+        quantity:
+          type: integer
+          example: 3 
+
+        product_id:
+          type: integer
+          format: int64
+          example: 10
+            
 
     Category:
       type: object
@@ -2598,61 +2385,60 @@ components:
         id:
           type: integer
           format: int64
-          examples: [1]
+          example: 1
         name:
           type: string
-          examples: [Electronics]
-      xml:
-        name: category
+          example: Electronics
+
     User:
       type: object
       properties:
         id:
           type: integer
           format: int64
-          examples: [10]
+          example: 10
         first_name:
           type: string
-          examples: [theEmployee]
+          example: theEmployee
         last_name:
           type: string
-          examples: [Jane]
+          example: Jane
         email:
           type: string
-          examples: [Doe]
+          example: Doe
         phone:
           type: string
-          examples: ['12345']
+          example: '12345'
         user_id: 
           type: integer
           format: int64
-          examples: [5]
+          example: 5
 
     CreateUser:
       type: object
       properties:
         username:
           type: string
-          examples: [admin]
+          example: admin
         password:
           type: string
-          examples: [StrongPassword123]
+          example: StrongPassword123
         first_name:
           type: string
-          examples: [Israel]
+          example: Israel
         last_name:
           type: string
-          examples: [Lopez]
+          example: Lopez
         email:
           type: string
-          examples: [israellopez@ravn.co]
+          example: israellopez@ravn.co
         phone:
           type: string
-          examples: ['12345']
+          example: '12345'
         user_id: 
           type: integer
           format: int64
-          examples: [5]
+          example: 5
     
     
         
@@ -2662,72 +2448,102 @@ components:
         id:
           type: integer
           format: int64
-          examples: [10]
+          example: 10
         first_name:
           type: string
-          examples: ["Israel"]
+          example: Israel
         last_name:
           type: string
-          examples: ["Lopez"]
+          example: Lopez
         email:
           type: string
-          examples: ["israellopez@ravn.co"]
+          example: israellopez@ravn.co
         phone:
           type: string
-          examples: ["12345"]
+          example: "12345"
         document:
           type: string
-          examples: ["DNI"]
+          example: "DNI"
         document_type:
           type: string
-          examples: ["123"]
+          example: "123"
+
+    FullClient: 
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        first_name:
+          type: string
+          example: Israel
+        last_name:
+          type: string
+          example: "Lopez"
+        email:
+          type: string
+          example: "israellopez@ravn.co"
+        phone:
+          type: string
+          example: "12345"
+        document:
+          type: string
+          example: "DNI"
+        document_type:
+          type: string
+          example: "123"
+        address: 
+          $ref: '#/components/schemas/Address'
 
     PostClient:
       type: object
       properties:
         first_name:
           type: string
-          examples: ["Israel"]
+          example: Israel
         last_name:
           type: string
-          examples: ["Lopez"]
+          example: "Lopez"
         email:
           type: string
-          examples: ["israellopez@ravn.co"]
+          example: "israellopez@ravn.co"
         phone:
           type: string
-          examples: ["12345"]
+          example: "12345"
         document:
           type: string
-          examples: ["DNI"]
+          example: "DNI"
         document_type:
           type: string
-          examples: ["12345678"]
+          example: "12345678"
+        address: 
+          $ref: '#/components/schemas/PostAddress'
     DeliveryTracking:
       type: object
       properties:
         id:
           type: integer
           format: int64
-          examples: [1]
+          example: 1
         order_id:
           type: integer
           format: int64
-          examples: [10]
+          example: 10
         address_id:
           type: integer
           format: int64
-          examples: [3]
+          example: 3
         tracking_number:
           type: string
-          examples: [TRK123456]
+          example: TRK123456
         assigned_to:
           type: integer
           format: int64
-          examples: [5]
+          example: 5
         status:
           type: string
-          examples: [pending]
+          example: pending
           enum:
             - pending
             - approved
@@ -2738,37 +2554,60 @@ components:
           type: string
           format: date-time
 
+    BillingInformation:
+      type: object
+      properties:
+        document_number:
+          type: string
+          example: "FA123"
+        document_type:
+          type: string
+          example: "invoice"
+        total_amount:
+          type: number
+          format: float
+          example: 150.75
+        tax_amount:
+          type: number
+          format: float
+          example: 27.14
+        delivery_fee:
+          type: number
+          format: float
+          example: 5.00
+
+
     stripePayment:
       type: object
       properties:
         id:
           type: integer
           format: int64
-          examples: [1]
+          example: 1
         order_id:
           type: integer
           format: int64
-          examples: [10]
+          example: 10
         payment_type:
           type: string
-          examples: [stripe]
+          example: stripe
         amount:
           type: number
           format: float
-          examples: [150.75]
+          example: 150.75
         currency:
           type: string
-          examples: [USD]
+          example: USD
         status:
           type: string
-          examples: [succeeded]
+          example: succeeded
           enum:
             - succeeded
             - pending
             - failed
         payment_method:
           type: string
-          examples: [card]
+          example: card
 
     Address:
       type: object
@@ -2776,29 +2615,29 @@ components:
         id:
           type: integer
           format: int64
-          examples: [1]
+          example: 1
         client_id:
           type: integer
           format: int64
-          examples: [10]
+          example: 10 
         address_line1:
           type: string
-          examples: ["123 Main Street"]
+          example: "123 Main Street"
         address_line2:
           type: string
-          examples: ["Apt 4B"]
+          example: "Apt 4B"
         city:
           type: string
-          examples: ["Lima"]
+          example: "Lima"
         state:
           type: string
-          examples: ["Lima"]
+          example: "Lima"
         postal_code:
           type: string
-          examples: ["15001"]
+          example: "15001"
         country:
           type: string
-          examples: ["Peru"]
+          example: "Peru"
         created_at:
           type: string
           format: date-time
@@ -2807,27 +2646,51 @@ components:
       properties:
         address_line1:
           type: string
-          examples: ["123 Main Street"]
+          example: "123 Main Street"
         address_line2:
           type: string
-          examples: ["Apt 4B"]
+          example: "Apt 4B"
         city:
           type: string
-          examples: ["Lima"]
+          example: "Lima"
         state:
           type: string
-          examples: ["Lima"]
+          example: "Lima"
         postal_code:
           type: string
-          examples: ["15001"]
+          example: "15001"
         country:
           type: string
-          examples: ["Peru"]
+          example: "Peru"
           default: "Peru"
         created_at:
           type: string
           format: date-time
-        
+
+    Warehouse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: "Main Warehouse"
+        location:
+          type: string
+          example: "123 Warehouse St, City, Country"
+    
+    PostWarehouse:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Main Warehouse"
+        location:
+          type: string
+          example: "123 Warehouse St, City, Country"
+
     Tag:
       type: object
       properties:
@@ -2836,8 +2699,6 @@ components:
           format: int64
         name:
           type: string
-      xml:
-        name: tag
 
     ApiResponse:
       type: object
@@ -2853,9 +2714,11 @@ components:
       type: object
       properties:
         code:
-          type: string
+          type: number
+          example: 500
         message:
           type: string
+          example: "Internal server error"
       required:
         - code
         - message
@@ -2865,7 +2728,7 @@ components:
       properties:
         client_secret:
           type: string
-          examples: [pi_1FHeJ2Lz0qyl6XeWz1XqL8jT_secret_123]
+          example: "pi_1FHeJ2Lz0qyl6XeWz1XqL8jT_secret_123"
 
 
     StripeWebhookEvent:
@@ -2873,16 +2736,16 @@ components:
       properties:
         id:
           type: string
-          examples: [evt_1FHeJ2Lz0qyl6XeWz1XqL8jT]
+          example: "evt_1FHeJ2Lz0qyl6XeWz1XqL8jT"
         object:
           type: string
-          examples: [event]
+          example: "event"
         api_version:
           type: string
-          examples: [2020-08-27]
+          example: "2020-08-27"
         created:
           type: integer
-          examples: [1700000000]
+          example: 1700000000
         data:
           type: object
           properties:
@@ -2890,52 +2753,52 @@ components:
               $ref: '#/components/schemas/StripeWebhookData'
         livemode:
           type: boolean
-          examples: [false]
+          example: false
         type:
           type: string
-          examples: [payment_intent.succeeded]
+          example: "payment_intent.succeeded"
     StripeWebhookData:
       type: object
       properties:
         id:
           type: string
-          examples: [evt_1FHeJ2Lz0qyl6XeWz1XqL8jT]
+          example: "evt_1FHeJ2Lz0qyl6XeWz1XqL8jT"
         object:
           type: string
-          examples: [payment_intent]
+          example: "payment_intent"
         amount:
-          type: float
-          examples: [2000]
+          type: number
+          example: 2000
         amount_received:
-          type: float
-          examples: [2000]
+          type: number
+          example: 2000
         confirmation_method:
           type: string
-          examples: [automatic_async]
+          example: "automatic_async"
         created:
           type: integer
-          examples: [1700000000]
+          example: 1700000000
         currency:
           type: string
-          examples: [usd]
+          example: [usd]
         customer:
           type: string
-          examples: [null]
+          example: null
         customer_account:
           type: string
-          examples: [null]
+          example: null
         description:
           type: string 
-          examples: [(Created by Stripe CI)]
+          example: "Created by Stripe CI"
         latest_charge:
           type: string
-          examples: [ch_1FHeJ2Lz0qyl6XeWz1XqL8jT]
+          example: "ch_1FHeJ2Lz0qyl6XeWz1XqL8jT"
         payment_method:
           type: string
-          examples: [pm_card_visa]
+          example: "pm_card_visa"
         livemode:
           type: boolean
-          examples: [false]
+          example: false
         payment_method_options:
           type: object
         last_payment_error:
@@ -2945,12 +2808,12 @@ components:
           type: array
           items:
             type: string
-          examples: [card]
+          example: card
         shipping:
           type: object
         status: 
           type: string
-          examples: [succeeded]
+          example: succeeded
         
 
     InvalidQueryResponse:
@@ -2959,10 +2822,10 @@ components:
         code:
           type: integer
           format: int32
-          examples: [400]
+          example: 400
         message:
           type: string
-          examples: [Invalid query parameter]
+          example: "Invalid query parameter"
       required:
         - code
         - message
@@ -2972,10 +2835,10 @@ components:
         code:
           type: integer
           format: int32
-          examples: [401]
+          example: 401
         message:
           type: string
-          examples: [Unauthorized - Invalid or expired token]
+          example: "Unauthorized - Invalid or expired token"
       required:
         - code
         - message
