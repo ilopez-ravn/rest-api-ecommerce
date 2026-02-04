@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: Ecommerce
   description: |-
-    This is the API documentation for our general porpuse ecommerce REST API
+    This is the API documentation for our general purpose ecommerce REST API
 
     Some useful links:
     - [RESTful API repository](https://github.com/ilopez-ravn/ecommerce)
@@ -19,7 +19,7 @@ externalDocs:
   url: https://github.com/ilopez-ravn/ecommerce
 servers:
   - url: http://localhost:8080/api/v1
-  - url: https://ecomerce-api.pacasoft.app/api/v1
+  - url: https://ecommerce-api.pacasoft.app/api/v1
 tags:
   - name: products
     description: Access to product data
@@ -201,14 +201,6 @@ paths:
       responses:
         '204':
           description: Client deleted successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Client deleted successfully
         '400':
           description: Invalid ID supplied
           content:
@@ -603,14 +595,6 @@ paths:
       responses:
         '204':
           description: Product deleted successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Product deleted successfully
         '400':
           description: Invalid ID supplied
           content:
@@ -715,14 +699,6 @@ paths:
       responses:
         '204':
           description: Product unlike status updated successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Product unliked successfully
         '400':
           description: Invalid ID supplied
           content:
@@ -839,14 +815,6 @@ paths:
       responses:
         '204':
           description: Warehouse deleted successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Warehouse deleted successfully
         '400':
           description: Invalid ID supplied
           content:
@@ -1271,14 +1239,6 @@ paths:
       responses:
         '204':
           description: User deleted successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: User deleted successfully
         '400':
           description: Invalid ID supplied
           content:
@@ -1654,14 +1614,6 @@ paths:
       responses:
         '204':
           description: Order deleted successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Order deleted successfully
         '400':
           description: Invalid ID supplied
           content:
@@ -1792,7 +1744,164 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+    delete: 
+      tags:
+        - carts
+      summary: Delete cart by ID
+      description: Delete a single cart by its unique identifier
+      operationId: deleteCartById
+      parameters:
+        - name: cartId
+          in: path
+          description: ID of cart to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Cart deleted successfully
+        '400':
+          description: Invalid ID supplied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '404':
+          description: Cart not found
+        '500':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
+  /carts/{cartId}/items:
+    post:
+      tags:
+        - carts
+      summary: Add product to cart
+      description: Add a product to an existing cart
+      operationId: addProductToCart
+      requestBody:
+        description: Product and cart information to add the product to the cart
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_id:
+                  type: integer
+                  format: int64
+                quantity:
+                  type: integer
+      responses:
+        '201':
+          description: Product added to cart successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '404':
+          description: Cart or Product not found
+        '500':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /carts/{cartId}/items/{itemId}:
+    patch:
+      tags:
+        - carts
+      summary: Update product quantity in cart
+      description: Update the quantity of a specific product in an existing cart
+      operationId: updateProductQuantityInCart
+      parameters:
+        - name: itemId
+          in: path
+          description: ID of item to update in the cart
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Cart ID and new quantity for the cart item
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+        required: true
+      responses:
+        '200':
+          description: Product quantity updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '404':
+          description: Cart or Product not found
+        '500':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      tags:
+        - carts
+      summary: Remove product from cart
+      description: Remove a specific product from an existing cart
+      operationId: removeProductFromCart
+      parameters:
+        - name: cartId
+          in: path
+          description: ID of product to remove from the cart
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: cardDetailId
+          in: path
+          description: ID of cart to remove the product from
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Product removed from cart successfully
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '404':
+          description: Cart or Product not found
+        '500':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+                
 
   /carts/clients/{clientId}:
     get:
@@ -1960,14 +2069,6 @@ paths:
       responses:
         '204':
           description: Category deleted successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Category deleted successfully
         '400':
           description: Invalid ID supplied
           content:
@@ -2112,14 +2213,6 @@ paths:
       responses:
         '204':
           description: Tag deleted successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Tag deleted successfully
         '400':
           description: Invalid ID supplied
           content:
@@ -2280,11 +2373,7 @@ components:
         status: 
           type: string
           example: open
-        products:
-          type: array
-          items:
-            $ref: '#/components/schemas/CartDetailUpdate'
-
+       
     NewCart:
       type: object
       properties:
