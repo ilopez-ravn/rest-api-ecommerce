@@ -1548,7 +1548,7 @@ paths:
                 $ref: "#/components/schemas/Error"
       
 
-  /order/status/{shoppingCartId}:
+  /orders/status/{shoppingCartId}:
     get:
       tags:
         - orders
