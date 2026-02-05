@@ -296,6 +296,7 @@ CREATE TABLE IF NOT EXISTS order_tracking_log (
     delivery_tracking_id INT REFERENCES delivery_tracking(id) ON DELETE CASCADE,
     previous_status_id INT REFERENCES delivery_status(id) ON DELETE SET NULL,
     new_status_id INT REFERENCES delivery_status(id) ON DELETE SET NULL,
+    changed_by INT REFERENCES sys_user(id) ON DELETE SET NULL,
     
     changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
