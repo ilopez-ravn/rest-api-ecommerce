@@ -1,0 +1,50 @@
+extend type Query {
+    getOrderShippingDetails(id: ID!): DeliveryTrackingDetails!
+}
+
+extend type Mutation {
+    updateShippingStatus(deliveryId: ID!, newStatusId: ID!): DeliveryTracking!
+}
+
+
+type DeliveryTracking {
+    id: ID!
+    trackingNumber: String!
+    estimatedDeliveryDate: LocalDateTime
+    address: Address!
+    carrier: Carrier!
+    assignedTo: User!
+    orderTrackingLogs: [DeliveryTrackingLog!]!
+    status: DeliveryStatus!
+    createdAt: LocalDateTime!
+    updatedAt: LocalDateTime!
+}
+
+type DeliveryTrackingDetails {
+    deliveryTracaking: DeliveryTracking!
+    history: [DeliveryTrackingLog!]!
+    address: Address!
+
+}
+
+type DeliveryStatus {
+    id: ID!
+    name: String!
+    stepOrder: Int!
+    description: String
+}
+
+type DeliveryTrackingLog {
+    id: ID!
+    deliveryTracking: DeliveryTracking!
+    previousStatus: DeliveryStatus
+    changedBy: User
+    newStatus: DeliveryStatus!
+    createdAt: LocalDateTime!
+}
+
+type Carrier {
+    id: ID!
+    name: String!
+    contactInfo: String
+}

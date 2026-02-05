@@ -1,0 +1,102 @@
+
+extend type Query {
+    getProductById(id: ID): Product
+    products(
+        filter: ProductFilter
+        pagination: CursorPaginationInput
+    ): ProductsConnection!
+}
+
+extend type Mutation {
+    createProduct(newProduct: NewProductInput): Product!
+    updateProduct(updatedProduct: UpdateProductInput): Product!
+    deleteProduct(id: ID!): Boolean!
+    updateProductStatus(id: ID!, status: Boolean!): Product!
+
+    likeAProduct(productId: ID!, userId: ID!): Boolean!
+    removeLikeFromProduct(productId: ID!, userId: ID!): Boolean!
+}
+
+
+input NewProductInput {
+    name: String!
+    description: String
+    createdBy: Int
+    price: Float
+    categoryList: [Int!]
+    tagList: [Int!]
+    imageList: [ProductImageInput!]
+}
+
+input UpdateProductInput {
+    id: ID!
+    name: String
+    description: String
+    updatedBy: Int
+    price: Float
+    categoryList: [Int!]
+    tagList: [Int!]
+    imageList: [ProductImageInput!]
+}
+
+type ProductImageInput {
+    imageUrl: String!
+    isPrimary: Boolean!
+    isActive: Boolean!
+}
+
+
+
+type ProductEdge {
+    cursor: ID!
+    node: Product!
+}
+
+type ProductsConnection {
+    edges: [ProductEdge!]!
+    pageInfo: PageInfo!
+}
+
+
+input ProductFilter {
+    filter: String
+    minPrice: Float
+    maxPrice: Float
+    isActive: Boolean
+    categoryIds: [ID!]
+    tagIds: [ID!]
+}
+
+type ProductImage {
+    id: ID!
+    product: Product!
+    createdBy: User!
+    imageUrl: String!
+    isPrimary: Boolean!
+    isActive: Boolean!
+    createdAt: LocalDateTime!
+}
+
+
+type Product {
+    id: ID!
+    name: String!
+    description: String
+    price: Float!
+    isActive: Boolean!
+    categories: [Category!]
+    tags: [Tag!]
+    images: [ProductImage!]
+    stockByWarehouse: [ProductStock!]
+    createdAt: LocalDateTime!
+    updatedAt: LocalDateTime!
+    deletedAt: LocalDateTime
+}
+
+type ProductChangesLog {
+    product: Product!
+    changedBy: User!
+
+    changeDescription: String!
+    changedAt: LocalDateTime!
+}

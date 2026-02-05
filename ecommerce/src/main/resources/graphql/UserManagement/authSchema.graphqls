@@ -1,0 +1,32 @@
+extend type Query {
+    loginUser(username: String!, password: String!): AuthResponse!
+    refreshToken(refreshToken: String!): AuthResponse!
+}
+
+extend type Mutation {
+    initiatePasswordRecovery(email: String!): MessageResponse!
+    resetPassword(token: String!, newPassword: String!): MessageResponse!
+}
+
+
+
+
+type AuthResponse {
+    accessToken: String!
+    refreshToken: String!
+}
+
+type UserRefreshToken {
+    id: ID!
+    refreshToken: String!
+    tokenExpiry: LocalDateTime!
+    deviceInfo: JSON
+}
+
+type PasswordRecoveryToken {
+    id: ID!
+    user: User!
+    token: String!
+    expiryDate: LocalDateTime!
+    createdAt: LocalDateTime!
+}

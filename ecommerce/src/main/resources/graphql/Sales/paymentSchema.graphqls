@@ -1,0 +1,34 @@
+extend type Mutation {
+    createPaymentIntent(shoppingCartId: ID!): PaymentIntentResponse!
+}
+
+
+type Subscription {
+    checkOrderPaymentStatus(shoppingCartId: ID!): Order!
+}
+
+type PaymentIntentResponse {
+    clientSecret: String!
+    paymentIntentId: String!
+}
+
+type StripePayment {
+    id: ID!
+    stripePaymentId: String!
+    paymentLogs: [StripePaymentLog!]!
+    clientSecretKey: String!
+    paymentMethod: String!
+    paymentMethodTypes: JSON!
+    amount: Float!
+    currency: String!
+    paymentStatus: String!
+    createdAt: LocalDateTime!
+}
+
+type StripePaymentLog {
+    id: ID!
+    eventType: String!
+    status: String
+    eventData: JSON
+    createdAt: LocalDateTime!
+}

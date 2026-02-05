@@ -1,0 +1,30 @@
+extend type Query {
+    getWarehouseById(id: ID!): Warehouse!
+    warehouses: [Warehouse!]
+}
+
+extend type Mutation {
+    createWarehouse(name: String!, location: String!): Warehouse!
+    updateWarehouse(id: ID!, name: String, location: String, isActive: Boolean): Warehouse!
+    deleteWarehouse(id: ID!): Boolean!
+    updateProductStock(productId: ID!, warehouseId: ID!, quantity: Int!, type: String!): ProductStock!
+}
+
+
+type Warehouse {
+    id: ID!
+    createdBy: User!
+    name: String!
+    location: String!
+    isActive: Boolean!
+    createdAt: LocalDateTime!
+    lastUpdated: LocalDateTime!
+}
+
+type ProductStock {
+    id: ID!
+    product: Product!
+    warehouse: Warehouse!
+    quantity: Int!
+    lastUpdated: LocalDateTime!
+}

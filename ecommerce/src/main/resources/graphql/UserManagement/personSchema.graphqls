@@ -1,0 +1,53 @@
+extend type Query {
+    getPersonById(id: ID!): Person!
+    people(page: Int, size: Int): PersonPage!
+}
+
+extend type Mutation {
+    createPerson(newPerson: NewPersonInput!): Person!
+    updatePerson(id: ID!, person: UpdatePersonInput!): Person!
+    deletePerson(id: ID!): MessageResponse!
+}
+
+input NewPersonInput {
+    firstName: String!
+    lastName: String!
+    email: String!
+    phone: String
+    document: String
+    documentType: String
+}
+
+type PersonPage {
+    content: [Person!]!
+    totalPages: Int!
+    totalElements: Int!
+    number: Int!
+    size: Int!
+}
+
+type Person {
+    id: ID!
+    firstName: String!
+    lastName: String!
+    email: String!
+    phone: String
+    document: String
+    documentType: String
+    adresses: [Address!]!
+    user: User!
+    isActive: Boolean!
+}
+
+type Address {
+    id: ID!
+    person: Person!
+    addressLine1: String!
+    addressLine2: String
+    city: String!
+    state: String!
+    postalCode: String!
+    country: String!
+    createdAt: LocalDateTime!
+    updatedAt: LocalDateTime!
+}

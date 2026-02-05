@@ -1,0 +1,48 @@
+extend type Query {
+    getUserById(id: ID!): User!
+	users(page: Int!, size: Int!): UserPage!
+}
+
+extend type Mutation {
+    createUser(newUser: NewUserInput!): User!
+    deleteUser(id: ID!): MessageResponse!
+    disableUser(id: ID!): MessageResponse!
+	enableUser(id: ID!): MessageResponse!
+    updateUser(id: ID!, user: UpdateUserInput!): User!
+}
+
+
+
+
+input NewUserInput {
+    username: String!
+    password: String!
+    role: String!
+    firstName: String
+    lastName: String
+    email: String!
+    phone: String
+}
+
+input UpdateUserInput {
+    username: String!
+    password: String
+    role: String!
+    firstName: String
+    lastName: String
+    email: String!
+    phone: String
+}
+
+type Role {
+	id: ID!
+	name: RoleEnum!
+}
+
+type User {
+	id: ID!
+	username: String!
+	role: Role!
+	isActive: Boolean!
+	createdAt: LocalDateTime!
+}

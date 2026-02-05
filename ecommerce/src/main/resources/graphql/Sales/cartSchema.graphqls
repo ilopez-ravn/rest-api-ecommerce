@@ -1,0 +1,30 @@
+extend type Query {
+
+    getCartById(id: ID!): Cart
+    getClientCart(clientId: ID!): Cart
+}
+
+extend type Mutation {
+    createCart(clientId: ID!): Cart!
+    addItemToCart(cartId: ID!, productId: ID!, quantity: Int!): Cart!
+    updateCartItem(cartId: ID!, productId: ID!, quantity: Int!): Cart!
+    removeItemFromCart(cartId: ID!, productId: ID!): Cart!
+    clearCart(cartId: ID!): Cart!
+}
+
+type Cart {
+    id: ID!
+    client: Person!
+    status: CartStatus!
+    createdAt: LocalDateTime!
+    updatedAt: LocalDateTime!
+    items: [CartItem!]!
+}
+
+type CartItem {
+    id: ID!
+    product: Product!
+    price: Float!
+    quantity: Int!
+    addedAt: LocalDateTime!
+}
