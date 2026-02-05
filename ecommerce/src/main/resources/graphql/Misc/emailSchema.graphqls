@@ -1,0 +1,27 @@
+extend type Query {
+    getEmailLogs(page: Int!, size: Int!): EmailLogPage!
+}
+
+
+type EmailLogPage {
+    emails: [EmailLog!]!
+    totalPages: Int!
+    totalElements: Int!
+    number: Int!
+    size: Int!
+}
+
+
+type EmailLog {
+    id: ID!
+    user: User!
+    createdBy: User
+    recipientEmail: String!
+    cc: String
+    bcc: String
+    subject: String!
+    body: String!
+    status: EmailStatus!
+    emailType: EmailType!
+    sentAt: LocalDateTime!
+}

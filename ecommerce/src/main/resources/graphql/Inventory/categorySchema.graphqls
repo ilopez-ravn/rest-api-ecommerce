@@ -1,0 +1,17 @@
+type Query {
+    categoryById(id: ID): Category
+    categories: [Category!]
+}
+
+type Mutation {
+    addCategory(name: String!, description: String, userId: Int): Category!
+    removeCategory(id: ID!): MessageResponse!
+}
+
+type Category {
+    id: ID!
+    name: String!
+    user: User
+    description: String
+    isActive: Boolean!
+}

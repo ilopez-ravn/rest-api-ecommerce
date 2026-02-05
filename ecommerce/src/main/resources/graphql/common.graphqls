@@ -1,0 +1,48 @@
+scalar LocalDateTime
+scalar JSON
+
+enum RoleEnum {
+    MANAGER
+    CLIENT
+    WAREHOUSE
+    SHIPPING
+}
+
+enum CartStatus {
+    ACTIVE
+    DELETED
+    PROCESSED
+}
+
+enum EmailStatus {
+    sent
+    not_sent
+}
+
+enum EmailType {
+    password_recovery
+    product_liked_alert
+}
+
+
+input PaginationInput{
+    first: Int
+    last: Int
+    after: String
+    before: String
+}
+
+input CursorPaginationInput {
+    cursor: ID
+    limit: Int!
+}
+
+type PageInfo {
+  endCursor: ID
+  hasNextPage: Boolean!
+}
+
+type MessageResponse {
+    code: Int!
+    message: String!
+}

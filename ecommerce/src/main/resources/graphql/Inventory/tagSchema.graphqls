@@ -1,0 +1,17 @@
+extend type Query {
+    tags: [Tag!]
+    getTagById(id: ID!): Tag
+}
+
+extend type Mutation {
+    createTag(name: String!): Tag!
+    updateTag(id: ID!, name: String!, isActive: Boolean!): Tag!
+    deleteTag(id: ID!): MessageResponse!
+}
+
+type Tag {
+    id: ID!
+    name: String!
+    isActive: Boolean!
+    createdAt: LocalDateTime!
+}

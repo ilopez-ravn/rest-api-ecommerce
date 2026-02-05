@@ -16,7 +16,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableWebSecurity()
+@EnableWebSecurity(debug = true)
 public class SecurityConfig {
 
     JwtAuthFilter jwtAuthFilter;
@@ -33,8 +33,9 @@ public class SecurityConfig {
 
                 // Configure endpoint auth and public endpoints
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/users/**", "/api/v1/users/login").permitAll()
-                        .anyRequest().authenticated()
+                        //.requestMatchers("/api/v1/users/**", "/api/v1/users/login").permitAll()
+                        //.requestMatchers("api/v1").authenticated()
+                        .anyRequest().permitAll()
                 )
 
                 // Stateless session (required for JWT)

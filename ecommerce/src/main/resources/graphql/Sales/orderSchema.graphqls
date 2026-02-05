@@ -1,0 +1,60 @@
+extend type Query {
+    orders(page: Int, size: Int): OrderPage!
+    getOrderById(id: ID!): SaleOrder!
+}
+
+extend type Mutation {
+    createOrderByShoppingCart(newOrder: NewOrderInput): SaleOrder!
+
+    deleteOrder(id: ID!): Boolean!
+}
+
+type NewOrderInput {
+    cartId: ID!
+    warehouseId: ID!
+    addressId: ID!
+}
+
+type OrderPage {
+    content: [SaleOrder!]!
+    totalPages: Int!
+    totalElements: Int!
+    number: Int!
+    size: Int!
+}
+
+
+type SaleOrder {
+    id: ID!
+    client: Person!
+    orderBill: OrderBill!
+    warehouse: Warehouse!
+    orderItems: [SaleOrderItem!]!
+    stripePayment: StripePayment!
+    deliveryTracking: DeliveryTracking
+    createdAt: LocalDateTime!
+    orderDate: LocalDateTime!
+    isActive: Boolean!
+}
+
+
+
+type OrderBill {
+    id: ID!
+    documentType: String!
+    documentNumber: String!
+    taxPercentage: Int!
+    totalAmount: Float!
+    deliveryFee: Float!
+    taxAmount: Float!
+}
+
+type SaleOrderItem {
+    id: ID!
+    product: Product!
+    price: Float!
+    quantity: Int!
+    taxPercentage: Float!
+    taxAmount: Float!
+    totalAmount: Float!
+}
