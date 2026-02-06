@@ -4,7 +4,7 @@ extend type Mutation {
 
 
 type Subscription {
-    checkOrderPaymentStatus(shoppingCartId: ID!): Order!
+    checkOrderPaymentStatus(shoppingCartId: ID!): SaleOrder!
 }
 
 type PaymentIntentResponse {

@@ -3,6 +3,14 @@ extend type Query {
 	users(page: Int!, size: Int!): UserPage!
 }
 
+type UserPage {
+    content: [User!]!
+    totalPages: Int!
+    totalElements: Int!
+    number: Int!
+    size: Int!
+}
+
 extend type Mutation {
     createUser(newUser: NewUserInput!): User!
     deleteUser(id: ID!): MessageResponse!

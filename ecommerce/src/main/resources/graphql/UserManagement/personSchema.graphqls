@@ -6,10 +6,28 @@ extend type Query {
 extend type Mutation {
     createPerson(newPerson: NewPersonInput!): Person!
     updatePerson(id: ID!, person: UpdatePersonInput!): Person!
+    updatePersonAddress(personId: ID!, address: UpdateAddressInput!): Person!
     deletePerson(id: ID!): MessageResponse!
 }
 
+input UpdateAddressInput {
+    addressLine1: String!
+    addressLine2: String
+    city: String!
+    state: String!
+    postalCode: String!
+    country: String!
+}
+
 input NewPersonInput {
+    firstName: String!
+    lastName: String!
+    email: String!
+    phone: String
+    document: String
+    documentType: String
+}
+input UpdatePersonInput {
     firstName: String!
     lastName: String!
     email: String!
@@ -34,7 +52,7 @@ type Person {
     phone: String
     document: String
     documentType: String
-    adresses: [Address!]!
+    addresses: [Address!]!
     user: User!
     isActive: Boolean!
 }
