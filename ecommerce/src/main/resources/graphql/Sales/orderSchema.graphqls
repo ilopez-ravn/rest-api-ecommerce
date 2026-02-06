@@ -9,7 +9,7 @@ extend type Mutation {
     deleteOrder(id: ID!): Boolean!
 }
 
-type NewOrderInput {
+input NewOrderInput {
     cartId: ID!
     warehouseId: ID!
     addressId: ID!

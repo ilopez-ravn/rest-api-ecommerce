@@ -1,4 +1,3 @@
-
 extend type Query {
     getProductById(id: ID): Product
     products(
@@ -39,7 +38,7 @@ input UpdateProductInput {
     imageList: [ProductImageInput!]
 }
 
-type ProductImageInput {
+input ProductImageInput {
     imageUrl: String!
     isPrimary: Boolean!
     isActive: Boolean!
