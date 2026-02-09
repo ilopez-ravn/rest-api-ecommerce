@@ -1,11 +1,25 @@
 extend type Query {
+    """
+    Retrieve a page of orders with the whole list metadata
+    """
     orders(page: Int, size: Int): OrderPage!
+    """
+    Retrieve an order details by its ID
+    """
     getOrderById(id: ID!): SaleOrder!
 }
 
 extend type Mutation {
+    """
+    Create an order based on a cart
+    """
+
     createOrderByShoppingCart(newOrder: NewOrderInput): SaleOrder!
 
+    """
+    Deletes an order by its ID.
+    This action will return the stock to the warehouse
+    """
     deleteOrder(id: ID!): Boolean!
 }
 

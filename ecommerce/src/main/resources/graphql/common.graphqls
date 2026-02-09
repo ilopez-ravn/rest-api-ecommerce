@@ -1,6 +1,9 @@
 scalar LocalDateTime
 scalar JSON
 
+"""
+Enum for the user role
+"""
 enum RoleEnum {
     MANAGER
     CLIENT
@@ -8,28 +11,34 @@ enum RoleEnum {
     SHIPPING
 }
 
+"""
+Enum for a shopping cart status
+ACTIVE=The client is still shopping
+DELETED=The client has emptied this cart and retrieved a new empty one
+PROCESSED=An order has been created based on this cart
+"""
 enum CartStatus {
     ACTIVE
     DELETED
     PROCESSED
 }
 
+"""
+Enum for an email sent status
+"""
 enum EmailStatus {
     sent
     not_sent
 }
 
+"""
+Enum for the email type
+password_recovery=Used for password recovery flow
+product_liked_alert=Used for liked products alert when a products reaches a stock of 3 or less and the client has not yet been notified
+"""
 enum EmailType {
     password_recovery
     product_liked_alert
-}
-
-
-input PaginationInput{
-    first: Int
-    last: Int
-    after: String
-    before: String
 }
 
 input CursorPaginationInput {
@@ -38,10 +47,13 @@ input CursorPaginationInput {
 }
 
 type PageInfo {
-  endCursor: ID
-  hasNextPage: Boolean!
+    endCursor: ID
+    hasNextPage: Boolean!
 }
 
+"""
+Generic message response for updates or deletes
+"""
 type MessageResponse {
     code: Int!
     message: String!

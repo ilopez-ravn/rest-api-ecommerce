@@ -1,14 +1,34 @@
 extend type Query {
-
+    """
+    Get a client's cart by its ID
+    """
     getCartById(id: ID!): Cart
+    """
+    This query will serve when a client is logged in and we want to search if he has a pending cart in another session so he can continue with his purchase
+    """
     getClientCart(clientId: ID!): Cart
 }
 
 extend type Mutation {
+    """
+    Create a cart for a specific client
+    """
     createCart(clientId: ID!): Cart!
+    """
+    Add an item to a cart
+    """
     addItemToCart(cartId: ID!, productId: ID!, quantity: Int!): Cart!
+    """
+    Change the quantity of an item inside a cart
+    """
     updateCartItem(cartId: ID!, productId: ID!, quantity: Int!): Cart!
+    """
+    Remove an item from a cart
+    """
     removeItemFromCart(cartId: ID!, productId: ID!): Cart!
+    """
+    Clear the items from a cart
+    """
     clearCart(cartId: ID!): Cart!
 }
 

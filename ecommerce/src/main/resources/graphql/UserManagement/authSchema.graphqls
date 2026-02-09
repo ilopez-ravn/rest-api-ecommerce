@@ -1,10 +1,23 @@
 extend type Query {
+    """
+    Allows user login and returns JWT tokens
+    """
     loginUser(username: String!, password: String!): AuthResponse!
+    """
+    When a access token has expired we can call refreshToken query to get a new access token
+    """
     refreshToken(refreshToken: String!): AuthResponse!
 }
 
 extend type Mutation {
+    """
+    For a password recovery we first call this function.
+    This will send an email with the link to change the password
+    """
     initiatePasswordRecovery(email: String!): MessageResponse!
+    """
+    With the token send to the email, we will send a new password for the corresponding user
+    """
     resetPassword(token: String!, newPassword: String!): MessageResponse!
 }
 

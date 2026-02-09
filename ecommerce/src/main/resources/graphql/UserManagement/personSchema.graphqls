@@ -1,12 +1,32 @@
 extend type Query {
+    """
+    Get a person by its ID.
+    The person can be a client or the user details
+    """
     getPersonById(id: ID!): Person!
+    """
+    Get a page of people with its metadata
+    """
     people(page: Int, size: Int): PersonPage!
 }
 
 extend type Mutation {
+    """
+    Allows the creation of a person.
+    Typically this will be for a client that doesn't want to create a User
+    """
     createPerson(newPerson: NewPersonInput!): Person!
+    """
+    Update a person information
+    """
     updatePerson(id: ID!, person: UpdatePersonInput!): Person!
+    """
+    Update a person's address
+    """
     updatePersonAddress(personId: ID!, address: UpdateAddressInput!): Person!
+    """
+    Delete a person by its ID
+    """
     deletePerson(id: ID!): MessageResponse!
 }
 

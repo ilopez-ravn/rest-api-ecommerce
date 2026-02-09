@@ -1,14 +1,29 @@
 extend type Query {
+    """
+    Retrieve one or more tags
+    """
     tags: [Tag!]
     getTagById(id: ID!): Tag
 }
 
 extend type Mutation {
+    """
+    Creates a simple tag for products
+    """
     createTag(name: String!): Tag!
+    """
+    Updates a tag by its ID
+    """
     updateTag(id: ID!, name: String!, isActive: Boolean!): Tag!
+    """
+    Delete a tag by its ID
+    """
     deleteTag(id: ID!): MessageResponse!
 }
 
+"""
+A tag is a classifier for one or more products. Every product can have zero to n tags.
+"""
 type Tag {
     id: ID!
     name: String!

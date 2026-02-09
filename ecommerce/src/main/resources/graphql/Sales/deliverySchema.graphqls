@@ -1,8 +1,15 @@
 extend type Query {
+    """
+    Get the shipping details from an order, including the status changes like 'pending' or 'in_transit'
+    """
     getOrderShippingDetails(id: ID!): DeliveryTrackingDetails!
 }
 
 extend type Mutation {
+    """
+    Update the status of an order from status A to status B.
+    This will create a change log visible in the getOrderShippingDetails
+    """
     updateShippingStatus(deliveryId: ID!, newStatusId: ID!): DeliveryTracking!
 }
 
@@ -21,7 +28,7 @@ type DeliveryTracking {
 }
 
 type DeliveryTrackingDetails {
-    deliveryTracaking: DeliveryTracking!
+    deliveryTracking: DeliveryTracking!
     history: [DeliveryTrackingLog!]!
     address: Address!
 
