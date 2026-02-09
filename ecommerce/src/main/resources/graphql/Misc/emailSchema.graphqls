@@ -1,4 +1,7 @@
 extend type Query {
+    """
+    Retrieve a page of the emails sent
+    """
     getEmailLogs(page: Int!, size: Int!): EmailLogPage!
 }
 

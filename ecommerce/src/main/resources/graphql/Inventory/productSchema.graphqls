@@ -1,5 +1,13 @@
 extend type Query {
+    """
+    Get a product by its ID
+    """
     getProductById(id: ID): Product
+    """
+    Retrieve one or more products in an array using filters
+    and pagination. This will return a Cursor pagination
+    for infinite scrolling
+    """
     products(
         filter: ProductFilter
         pagination: CursorPaginationInput
@@ -7,12 +15,30 @@ extend type Query {
 }
 
 extend type Mutation {
+    """
+    Creates a product with its corresponding categories, tags and images
+    """
     createProduct(newProduct: NewProductInput): Product!
+    """
+    Updates a product with its corresponding categories, tags and images
+    """
     updateProduct(updatedProduct: UpdateProductInput): Product!
+    """
+    Soft deletes a product
+    """
     deleteProduct(id: ID!): Boolean!
+    """
+    Change the status of the product to active/disabled
+    """
     updateProductStatus(id: ID!, status: Boolean!): Product!
 
+    """
+    Register the product a clients likes
+    """
     likeAProduct(productId: ID!, userId: ID!): Boolean!
+    """
+    Unregisters the product a clients removes the like
+    """
     removeLikeFromProduct(productId: ID!, userId: ID!): Boolean!
 }
 

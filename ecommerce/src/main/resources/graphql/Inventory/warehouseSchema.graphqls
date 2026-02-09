@@ -1,16 +1,38 @@
 extend type Query {
+    """
+    Get a warehouse by its ID
+    """
     getWarehouseById(id: ID!): Warehouse!
+    """
+    Retrieve all active warehouses
+    """
     warehouses: [Warehouse!]
 }
 
 extend type Mutation {
+    """
+    Create a warehouse by its name and location.
+    When a warehouse is created, a trigger will create the stock register for this warehouse and each products
+    """
     createWarehouse(name: String!, location: String!): Warehouse!
+    """
+    Update a warehouse by its ID
+    """
     updateWarehouse(id: ID!, name: String, location: String, isActive: Boolean): Warehouse!
+    """
+    Delete a warehouse by its ID
+    """
     deleteWarehouse(id: ID!): Boolean!
+    """
+    This query allows to add or subtract stock to a product for an specific warehouse
+    """
     updateProductStock(productId: ID!, warehouseId: ID!, quantity: Int!, type: String!): ProductStock!
 }
 
-
+"""
+A warehouse is a physical location where products are stored.
+Each warehouse contains a number of products that will we used/reduced when an order is created
+"""
 type Warehouse {
     id: ID!
     createdBy: User!
@@ -21,6 +43,10 @@ type Warehouse {
     lastUpdated: LocalDateTime!
 }
 
+"""
+ProductStock is the register that tracks the stock for a product in a warehouse.
+This stock will be used up when an order is created
+"""
 type ProductStock {
     id: ID!
     product: Product!
