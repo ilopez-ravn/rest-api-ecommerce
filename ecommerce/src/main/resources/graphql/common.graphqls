@@ -27,18 +27,18 @@ enum CartStatus {
 Enum for an email sent status
 """
 enum EmailStatus {
-    sent
-    not_sent
+    SENT
+    NOT_SENT
 }
 
 """
 Enum for the email type
-password_recovery=Used for password recovery flow
-product_liked_alert=Used for liked products alert when a products reaches a stock of 3 or less and the client has not yet been notified
+PASSWORD_RECOVERY=Used for password recovery flow
+PRODUCT_LIKED_ALERT=Used for liked products alert when a products reaches a stock of 3 or less and the client has not yet been notified
 """
 enum EmailType {
-    password_recovery
-    product_liked_alert
+    PASSWORD_RECOVERY
+    PRODUCT_LIKED_ALERT
 }
 
 input CursorPaginationInput {

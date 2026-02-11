@@ -33,15 +33,11 @@ public class SecurityConfig {
 
                 // Configure endpoint auth and public endpoints
                 .authorizeHttpRequests(auth -> auth
-                        //.requestMatchers("/api/v1/users/**", "/api/v1/users/login").permitAll()
-                        //.requestMatchers("api/v1").authenticated()
                         .anyRequest().permitAll()
                 )
 
                 // Stateless session (required for JWT)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-                // Set custom authentication provider
 
                 // Add JWT filter before Spring Security's default filter
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
