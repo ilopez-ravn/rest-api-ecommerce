@@ -1,0 +1,1371 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: Ecommerce endpoints
+meta:
+  id: wrk_ef9f20021ce54978be39c0bcf3618bd4
+  created: 1769034087604
+  modified: 1769437630802
+  description: ""
+collection:
+  - name: CLIENTS
+    meta:
+      id: fld_584325f3e1a54930a34864f758490f31
+      created: 1769205611502
+      modified: 1769205611502
+      sortKey: -1769205611502
+      description: ""
+    children:
+      - url: "{{ _.local }}clients/"
+        name: Get All Clients
+        meta:
+          id: req_833abde9843f4de0a20509d146e65e54
+          created: 1769034087646
+          modified: 1769537259462
+          isPrivate: false
+          description: ""
+          sortKey: -1769205614983
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}/clients{clientId}"
+        name: Get Specific Client
+        meta:
+          id: req_99b0ba331a1c4b3487cfebca44d45a6e
+          created: 1769466841233
+          modified: 1769466937821
+          isPrivate: false
+          description: ""
+          sortKey: -1765311000841
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}/clients{clientId}"
+        name: Update Client
+        meta:
+          id: req_890a128c6030492e9f1a2000a97321e7
+          created: 1769466966384
+          modified: 1769466994865
+          isPrivate: false
+          description: ""
+          sortKey: -1763363693770
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "first_name": "Israel",
+              "last_name": "Lopez",
+              "email": "example@test.com",
+              "phone": "12345",
+              "document": "DNI",
+              "document_type": "12345678"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}/clients{clientId}"
+        name: Delete Client
+        meta:
+          id: req_ee929ea7a95e4569bded8ae511d65601
+          created: 1769467013912
+          modified: 1769467020529
+          isPrivate: false
+          description: ""
+          sortKey: -1762390040234.5
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}/clients{clientId}/addresses"
+        name: Get All Address for a Client
+        meta:
+          id: req_b3019df9b7304eda89bb0afb548af6e5
+          created: 1769467046507
+          modified: 1769467150712
+          isPrivate: false
+          description: ""
+          sortKey: -1762390040134.5
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}/clients{clientId}/addresses/{addressId}"
+        name: Get Specific Address for a Client
+        meta:
+          id: req_1afde56e43ad47e4a0420b3c6dd050fa
+          created: 1769467122937
+          modified: 1769467279322
+          isPrivate: false
+          description: ""
+          sortKey: -1761903213416.75
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}/clients{clientId}/addresses"
+        name: Create an Address for a Client
+        meta:
+          id: req_5ea09217f2714d0fb3bfa0ee3d2b6ff5
+          created: 1769467170297
+          modified: 1769467203500
+          isPrivate: false
+          description: ""
+          sortKey: -1761659800057.875
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "address_line1": "123 Main Street",
+              "address_line2": "Apt 4B",
+              "city": "Lima",
+              "state": "Lima",
+              "postal_code": "15001",
+              "country": "Peru",
+              "created_at": "2026-01-26T22:39:54.930Z"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}/clients{clientId}/addresses/{addressId}"
+        name: Update an Address for a Client
+        meta:
+          id: req_0aa2baf9fba34f9dba4313593fbd0462
+          created: 1769467235287
+          modified: 1769467260770
+          isPrivate: false
+          description: ""
+          sortKey: -1761538093378.4375
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "address_line1": "123 Main Street",
+              "address_line2": "Apt 4B",
+              "city": "Lima",
+              "state": "Lima",
+              "postal_code": "15001",
+              "country": "Peru",
+              "created_at": "2026-01-26T22:39:54.930Z"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}/clients{clientId}/addresses/{addressId}"
+        name: Delete an Address for a Client
+        meta:
+          id: req_37859d222bcd474f95be14a30cfdabf8
+          created: 1769467248326
+          modified: 1769467301025
+          isPrivate: false
+          description: ""
+          sortKey: -1761477240038.7188
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: PRODUCTS
+    meta:
+      id: fld_9e702c7f31354dd5aae8c8d8d98557b0
+      created: 1769437655490
+      modified: 1769437655490
+      sortKey: -1769437655490
+      description: ""
+    children:
+      - url: "{{ _.local }}products"
+        name: Search products
+        meta:
+          id: req_087c9d5d24514034b6f50d4c10e971f0
+          created: 1769457430115
+          modified: 1769457447188
+          isPrivate: false
+          description: ""
+          sortKey: -1769447590460
+        method: GET
+        parameters:
+          - name: filter
+            value: Lavadora
+            description: ""
+            disabled: false
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}products"
+        name: Get Filtered products
+        meta:
+          id: req_ff37f239c9c14f55adea1cecbdedb6dd
+          created: 1769457466194
+          modified: 1769457546682
+          isPrivate: false
+          description: ""
+          sortKey: -1769442834213
+        method: GET
+        parameters:
+          - name: filter
+            value: Lavadora
+            description: ""
+            disabled: false
+          - name: page
+            value: "1"
+            description: ""
+            disabled: false
+          - name: page_size
+            value: "10"
+            description: ""
+            disabled: false
+          - name: sort_by
+            value: name
+            description: ""
+            disabled: false
+          - name: price_min
+            value: "32"
+            description: ""
+            disabled: false
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}products"
+        name: Create a product
+        meta:
+          id: req_7567b0b02e2c4091a340070dd221aef4
+          created: 1769457585329
+          modified: 1769458135147
+          isPrivate: false
+          description: ""
+          sortKey: -1769440456089.5
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "name": "Lavadora",
+              "description": "Lavadora LG Pro Max 3000 Plus",
+              "created_by": 1,
+              "price": 99.9,
+              "category_id": 1,
+              "tag_list": []
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}products/{product_id}"
+        name: Update a product
+        meta:
+          id: req_9f910b95721142488ba578e08f57280e
+          created: 1769457660008
+          modified: 1769617373730
+          isPrivate: false
+          description: ""
+          sortKey: -1769439267027.75
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "name": "Lavadora",
+              "description": "Lavadora LG Pro Max 3000 Plus",
+              "created_by": 1,
+              "price": 99.9,
+              "category_id": 1,
+              "tag_list": []
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}products/{product_id}"
+        name: Delete a product
+        meta:
+          id: req_93ba58ca44104775ae93d3efea85c882
+          created: 1769458045472
+          modified: 1769458129923
+          isPrivate: false
+          description: ""
+          sortKey: -1769438672496.875
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}products/{product_id}/status"
+        name: Enable or disable a product
+        meta:
+          id: req_f7fd5f05c8a74ef6bbdafb2b492ff31f
+          created: 1769458156415
+          modified: 1769551370779
+          isPrivate: false
+          description: ""
+          sortKey: -1769438969762.3125
+        method: PATCH
+        parameters:
+          - name: status
+            value: "true"
+            description: ""
+            disabled: false
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}products/{product_id}/liked"
+        name: Like or remove like a product
+        meta:
+          id: req_bb0078a42c42402294eccd2abebd62a2
+          created: 1769458321424
+          modified: 1769458353860
+          isPrivate: false
+          description: ""
+          sortKey: -1769438821129.5938
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"client_id": 1
+            }
+        parameters:
+          - name: liked
+            value: "true"
+            description: ""
+            disabled: false
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}products"
+        name: Get All products
+        meta:
+          id: req_8fcfeb621c5f440a847b1ff95d650ece
+          created: 1769459896983
+          modified: 1769536723773
+          isPrivate: false
+          description: ""
+          sortKey: -1769452346707
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}products/stock"
+        name: Modify products stock
+        meta:
+          id: req_6bf9cd00bea342c58b0e3ce5c76f79de
+          created: 1769523511124
+          modified: 1769551348646
+          isPrivate: false
+          description: ""
+          sortKey: -1769439118395.0312
+        method: PATCH
+        body:
+          mimeType: application/json
+          text: |-
+            [
+            	{
+            		"product_id": 1,
+            		"type": "increase",
+            		"quantity": 5
+            	}
+            ]
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: AUTH
+    meta:
+      id: fld_fd8c582ef6d44b348dee423538f2eb68
+      created: 1769437659566
+      modified: 1769551270491
+      sortKey: -1769437659566
+      description: ""
+    children:
+      - url: "{{ _.local }}users/login"
+        name: LOGIN
+        meta:
+          id: req_5a6ba0b3ade4430ca32415593736b1c1
+          created: 1769438074323
+          modified: 1769551196611
+          isPrivate: false
+          description: ""
+          sortKey: -1769438077966
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"username": "ravn",
+            	"password": "ravn"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        scripts:
+          afterResponse: >-
+            insomnia.test('Check if status is 201', () => {
+                 insomnia.expect(insomnia.response.code).to.eql(201);
+                  
+                 if (insomnia.response.code) {
+                   const jsonBody = insomnia.response.json();
+                   insomnia.environment.set("access_token", jsonBody.access_token);
+                 }
+             });
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}users"
+        name: Register user
+        meta:
+          id: req_f78b9e429e9d4617b6be2e12ecedf220
+          created: 1769440289224
+          modified: 1769617268632
+          isPrivate: false
+          description: ""
+          sortKey: -1769321846474.5
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"username": "ravn",
+            	"password": "ravn",
+            	"roleId": 1
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: ORDERS
+    meta:
+      id: fld_0ac9b8c17e7e451ba844bdb9832b2feb
+      created: 1769437668912
+      modified: 1769459885449
+      sortKey: -1769437668912
+      description: ""
+    children:
+      - url: "{{ _.local }}orders"
+        name: Get All Order
+        meta:
+          id: req_941ea0d7e67645428b1870188cb47133
+          created: 1769457102954
+          modified: 1769528673693
+          isPrivate: false
+          description: ""
+          sortKey: -1769528673672
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}orders"
+        name: Get Filtered Orders
+        meta:
+          id: req_ba8b8b54cdde4819a68ac012da78dad5
+          created: 1769459917412
+          modified: 1769528678047
+          isPrivate: false
+          description: ""
+          sortKey: -1769528673684.5
+        method: GET
+        parameters:
+          - name: client_
+            value: "1"
+            description: ""
+            disabled: false
+          - name: status
+            value: pending
+            description: ""
+            disabled: false
+          - name: page
+            value: "1"
+            description: ""
+            disabled: false
+          - name: page_size
+            value: "10"
+            description: ""
+            disabled: false
+          - name: sort_by
+            value: name
+            description: ""
+            disabled: false
+          - name: date_from
+            value: 2026-01-01
+            description: ""
+            disabled: false
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}orders"
+        name: Create Order
+        meta:
+          id: req_6c96998456374fa38e044c80a6718601
+          created: 1769460172197
+          modified: 1769528676126
+          isPrivate: false
+          description: ""
+          sortKey: -1769528673722
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "id": 10,
+              "warehouse_id": 1,
+              "cart_id": 5,
+              "address_id": 3
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}orders/{orderId}"
+        name: Delete Order
+        meta:
+          id: req_c6838813868a4cf09e689f6d388a84e7
+          created: 1769460219572
+          modified: 1769528677068
+          isPrivate: false
+          description: ""
+          sortKey: -1769528673697
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}orders/{orderId}"
+        name: Get Specific Order
+        meta:
+          id: req_2a8aafbb4354456f9d4e74d9ccf5e29d
+          created: 1769460367819
+          modified: 1769528674992
+          isPrivate: false
+          description: ""
+          sortKey: -1769528673772
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: CARTS
+    meta:
+      id: fld_53a9c78e42164a35bfb0a00d665990e2
+      created: 1769437683172
+      modified: 1769437683172
+      sortKey: -1769437683172
+      description: ""
+    children:
+      - url: "{{ _.local }}carts/clients/{clientId}"
+        name: Get User Cart
+        meta:
+          id: req_2fd30d372d504fbe815c61954bd091ff
+          created: 1769460467276
+          modified: 1769528647905
+          isPrivate: false
+          description: ""
+          sortKey: -1769528647654
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}carts/{cartId}"
+        name: Update User Cart
+        meta:
+          id: req_dcf049bf149d46cba566e281d131eff9
+          created: 1769462327058
+          modified: 1769528657802
+          isPrivate: false
+          description: ""
+          sortKey: -1769528647579
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "client_id": 10,
+              "status": "open",
+              "clear_products": false
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}carts/{cartId}/products/{cardDetailId}"
+        name: Update quantity of product from cart
+        meta:
+          id: req_44c4841daec84fbf85c92c7e2868db2d
+          created: 1769462378994
+          modified: 1769528659912
+          isPrivate: false
+          description: ""
+          sortKey: -1769528647585.25
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "quantity": 0
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}carts/{cartId}/products/{cardDetailId}"
+        name: Delete Product from Cart
+        meta:
+          id: req_f2e6b054f2b84db6a7f309744169a1e0
+          created: 1769462588600
+          modified: 1769528656833
+          isPrivate: false
+          description: ""
+          sortKey: -1769528647604
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}carts/{cartId}/products/{cardDetailId}"
+        name: Add product to cart
+        meta:
+          id: req_5413c2bb7d604338adc612b759a92012
+          created: 1769462672460
+          modified: 1769528661958
+          isPrivate: false
+          description: ""
+          sortKey: -1769528647580.5625
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"product_id": 1,
+              "quantity": 3
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}carts/{cartId}/products/{cardDetailId}"
+        name: Remove product from cart
+        meta:
+          id: req_6df3d1a90e7542a981c2ef043cb86c08
+          created: 1769463138568
+          modified: 1769528660989
+          isPrivate: false
+          description: ""
+          sortKey: -1769528647582.125
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}carts/clients/{clientId}"
+        name: Get or Create Cart for Client
+        meta:
+          id: req_280c2fe2eb5f41998e0423251268207c
+          created: 1769463229133
+          modified: 1769528658823
+          isPrivate: false
+          description: ""
+          sortKey: -1769528647591.5
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: TAGS
+    meta:
+      id: fld_e75cb157ff9f469f84011dc56df11030
+      created: 1769437690515
+      modified: 1769437690515
+      sortKey: -1769437690515
+      description: ""
+    children:
+      - url: "{{ _.local }}tags"
+        name: Get All Tags
+        meta:
+          id: req_b8da393770ba40a6abbbce79364cfc16
+          created: 1769464144414
+          modified: 1769464220690
+          isPrivate: false
+          description: ""
+          sortKey: -1769464147320
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}tags"
+        name: Create a Tag
+        meta:
+          id: req_a070d2bf4194474bace3464b577efc1a
+          created: 1769464158376
+          modified: 1769464214201
+          isPrivate: false
+          description: ""
+          sortKey: -1769463745161
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "name": "string"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}tags/{tagId}"
+        name: Update a Tag
+        meta:
+          id: req_a2bb4d5c73804bfbae2ac211d4302333
+          created: 1769464191669
+          modified: 1769464217288
+          isPrivate: false
+          description: ""
+          sortKey: -1769463544081.5
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "name": "string"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}tags/{tagId}"
+        name: Delete a Tag
+        meta:
+          id: req_6fec4d0503144b37b35a581a1943421b
+          created: 1769464231538
+          modified: 1769464237958
+          isPrivate: false
+          description: ""
+          sortKey: -1769463443541.75
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: CATEGORIES
+    meta:
+      id: fld_9e52d7c2c1f14cd2bf4991d454849207
+      created: 1769437701783
+      modified: 1769437701783
+      sortKey: -1769437701783
+      description: ""
+    children:
+      - url: "{{ _.local }}categories"
+        name: Get All Categories
+        meta:
+          id: req_004ed880fbe44cc3b2ef2435a7228342
+          created: 1769463339220
+          modified: 1769463365832
+          isPrivate: false
+          description: ""
+          sortKey: -1769463343002
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}categories"
+        name: Create new Category
+        meta:
+          id: req_16826d6dd5a940c8a0b9fe68af80cc53
+          created: 1769463390543
+          modified: 1769463404279
+          isPrivate: false
+          description: ""
+          sortKey: -1769457844854.5
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "name": "string"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}categories/{categoryId}"
+        name: Update a Category
+        meta:
+          id: req_a58004428be74727bcd611540fe3ac29
+          created: 1769463445188
+          modified: 1769463461268
+          isPrivate: false
+          description: ""
+          sortKey: -1769455095780.75
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "name": "string"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.local }}categories/{categoryId}"
+        name: Delete a Category
+        meta:
+          id: req_6168267f4e1947ea8a1b34c8118b1491
+          created: 1769464117655
+          modified: 1769464131389
+          isPrivate: false
+          description: ""
+          sortKey: -1769453721243.875
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_f8237226320695f1d6207b2093b14d7612eac9b7
+    created: 1769034087631
+    modified: 1769551270094
+  cookies:
+    - id: 9373e471-de7e-49a3-b33b-2bd6fa669ac6
+      key: JSESSIONID
+      value: 0AFD9269ACE72DC54E89672265EC4CCF
+      domain: localhost
+      path: /
+      secure: false
+      httpOnly: true
+      hostOnly: true
+environments:
+  name: Base Environment
+  meta:
+    id: env_f8237226320695f1d6207b2093b14d7612eac9b7
+    created: 1769034087625
+    modified: 1769551270451
+    isPrivate: false
+  data:
+    local: http://localhost:8080/api/v1/
+    access_token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJyYXZuIiwiaWF0IjoxNzY5NTM2NzA3LCJleHAiOjE3Njk1Mzc2MDd9.dJDjbhTOl98f5yeHbhrQyr22GLEUVx0Ts5eUqFzkqLA
