@@ -2,30 +2,15 @@
 
 CREATE TYPE role_enum AS ENUM ('MANAGER', 'CLIENT', 'WAREHOUSE', 'SHIPPING');
 CREATE TYPE shopping_cart_status_enum AS ENUM ('ACTIVE', 'DELETED', 'PROCESSED');
-CREATE TYPE email_status_enum AS ENUM ('sent', 'not_sent');
+CREATE TYPE email_status_enum AS ENUM ('SENT', 'NOT_SENT');
 CREATE TYPE person_document_type_enum AS ENUM ('PERSON', 'BUSINESS');
-CREATE TYPE email_type_enum AS ENUM ('password_recovery', 'product_liked_alert');
+CREATE TYPE bill_document_type_enum AS ENUM ('RECEIPT', 'BILL');
+CREATE TYPE email_type_enum AS ENUM ('PASSWORD_RECOVERY', 'PRODUCT_LIKED_ALERT', 'ORDER_CONFIRMATION', 'DELIVERY_STATUS_UPDATE', 'REFUND_PROCESSED');
 
 CREATE TABLE IF NOT EXISTS role (
     id SERIAL PRIMARY KEY,
     name role_enum NOT NULL,
     is_active BOOLEAN DEFAULT TRUE
-);
-
-CREATE TABLE IF NOT EXISTS person (
-    id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES sys_user(id) ON DELETE SET NULL,
-
-    first_name VARCHAR(100) NOT NULL,
-    last_name VARCHAR(100) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    phone VARCHAR(20),
-
-    document VARCHAR(20)
-    document_type
-    
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS sys_user (
@@ -38,6 +23,23 @@ CREATE TABLE IF NOT EXISTS sys_user (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_updated_password TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS person (
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES sys_user(id) ON DELETE SET NULL,
+
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    phone VARCHAR(20),
+
+    document VARCHAR(20),
+    document_type person_document_type_enum NOT NULL DEFAULT 'PERSON',
+    
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 
 CREATE TABLE IF NOT EXISTS user_refresh_token (
     id SERIAL PRIMARY KEY,
@@ -63,14 +65,6 @@ CREATE TABLE IF NOT EXISTS category (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS product_category (
-    product_id INT REFERENCES product(id) ON DELETE CASCADE,
-    category_id INT REFERENCES category(id) ON DELETE CASCADE,
-
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (product_id, category_id)
-)
-
 CREATE TABLE IF NOT EXISTS product (
     id SERIAL PRIMARY KEY,
     created_by INT REFERENCES sys_user(id) ON DELETE SET NULL,
@@ -84,6 +78,15 @@ CREATE TABLE IF NOT EXISTS product (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP DEFAULT NULL -- "Hard delete" flag
 );
+
+CREATE TABLE IF NOT EXISTS product_category (
+    product_id INT REFERENCES product(id) ON DELETE CASCADE,
+    category_id INT REFERENCES category(id) ON DELETE CASCADE,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (product_id, category_id)
+);
+
 
 CREATE TABLE IF NOT EXISTS tag (
     id SERIAL PRIMARY KEY,
@@ -213,7 +216,7 @@ CREATE TABLE IF NOT EXISTS order_bill (
     id SERIAL PRIMARY KEY,
     order_id INT REFERENCES sale_order(id) ON DELETE CASCADE NOT NULL,
 
-    document_type document_type_enum NOT NULL,
+    document_type bill_document_type_enum NOT NULL,
     document_number VARCHAR(100) UNIQUE NOT NULL,
     tax_percent INT NOT NULL DEFAULT 18,
     total_amount DECIMAL(10, 2) NOT NULL,
@@ -356,7 +359,7 @@ BEGIN
     FROM warehouse w;
     RETURN NEW;
 END;
-$$
+$$;
 
 CREATE TRIGGER trigger_create_warehouse_stock
 AFTER INSERT 
@@ -377,7 +380,7 @@ BEGIN
     FROM product p;
     RETURN NEW;
 END;
-$$
+$$;
 
 CREATE TRIGGER trigger_create_product_stock
 AFTER INSERT 
