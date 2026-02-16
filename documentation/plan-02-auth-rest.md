@@ -12,10 +12,10 @@ Implement complete auth flow with JWT and refresh tokens.
 - OpenAPI: [documentation/open-api.spec.yml](documentation/open-api.spec.yml)
 
 ## Tasks
-- Implement signup, login, logout endpoints.
-- Add refresh token persistence and rotation.
-- Add password reset token generation and expiry.
-- Add email notification on password change.
+[x] Implement signup, login, logout endpoints.
+[x] Add refresh token persistence and rotation.
+[x] Add password reset token generation and expiry.
+[x] Add email notification on password change.
 
 ## Example Artifacts
 - POST `/users/login` -> returns JWT + refresh token

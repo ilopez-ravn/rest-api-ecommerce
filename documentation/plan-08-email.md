@@ -13,10 +13,10 @@ Send async email notifications for key events.
 - Requirements: [documentation/requirements.md](documentation/requirements.md)
 
 ## Tasks
-- Implement async email sender service.
-- Create templates for each email type.
-- Persist email logs and failure reasons.
-- Trigger emails from domain events.
+[x] Implement async email sender service.
+[ ] Create templates for each email type.
+[-] Persist email logs and failure reasons.
+[x] Trigger emails from domain events.
 
 ## Example Artifacts
 - Template: `password-change.html`

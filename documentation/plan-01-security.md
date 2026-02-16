@@ -15,11 +15,11 @@ Establish authentication, authorization, and platform security defaults.
 - JWT filter: [ecommerce/src/main/java/co/ravn/ecommerce/Filters/JwtAuthFilter.java](ecommerce/src/main/java/co/ravn/ecommerce/Filters/JwtAuthFilter.java)
 
 ## Tasks
-- Define public endpoints: products, categories, tags.
-- Protect carts, orders, likes, payments.
-- Enforce role checks for manager-only endpoints.
-- Configure CORS for approved origins.
-- Add rate limiting for password reset endpoints.
+[x] Define public endpoints: products, categories, tags.
+[x] Protect carts, orders, likes, payments.
+[ ] Enforce role checks for manager-only endpoints.
+[x] Configure CORS for approved origins.
+[ ] Add rate limiting for password reset endpoints.
 
 ## Example Artifacts
 - Route table: `/products` public, `/orders` auth required

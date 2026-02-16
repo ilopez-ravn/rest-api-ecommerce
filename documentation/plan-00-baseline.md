@@ -13,11 +13,11 @@ Establish foundations for safe configuration, error handling, and validation.
 - Current config: [ecommerce/src/main/resources/application.properties](ecommerce/src/main/resources/application.properties)
 
 ## Tasks
-- Create a config properties class with validation annotations.
-- Add startup validation and fail-fast behavior for missing env vars.
-- Add a global exception handler with a standard error payload.
-- Add request DTOs with `@Valid`, `@NotNull`, `@Email`.
-- Create one custom validation annotation.
+[x] Create a config properties class with validation annotations.
+[x] Add startup validation and fail-fast behavior for missing env vars.
+[x] Add a global exception handler with a standard error payload.
+[ ] Add request DTOs with `@Valid`, `@NotNull`, `@Email`.
+[ ] Create one custom validation annotation.
 
 ## Example Artifacts
 - Config: `AppProperties` (jwt.secret, stripe.secret, mail.host)

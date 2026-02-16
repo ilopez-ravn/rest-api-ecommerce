@@ -12,10 +12,10 @@ Expose product catalog endpoints with pagination and filters.
 - OpenAPI: [documentation/open-api.spec.yml](documentation/open-api.spec.yml)
 
 ## Tasks
-- Implement GET `/products` with pagination and filters.
-- Implement GET `/products/{productId}` with images and stock info.
-- Implement GET `/categories` and GET `/tags`.
-- Enforce visibility rules: active and not deleted only.
+[x] Implement GET `/products` with pagination and filters.
+[x] Implement GET `/products/{productId}` with images and stock info.
+[x] Implement GET `/categories` and GET `/tags`.
+[ ] Enforce visibility rules: active and not deleted only.
 
 ## Example Artifacts
 - Query params: `page`, `size`, `sort`, `categoryId`
