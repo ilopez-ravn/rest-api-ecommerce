@@ -20,22 +20,22 @@ public class CategoryController {
     }
 
     @GetMapping("")
-    private ResponseEntity<?> getAllCategories() {
+    public ResponseEntity<?> getAllCategories() {
         return categoryService.getAllCategories();
     }
 
     @PostMapping("")
-    private ResponseEntity<?> createCategory(@RequestBody CategoryCreateRequest categoryCreateRequest) {
+    public ResponseEntity<?> createCategory(@RequestBody CategoryCreateRequest categoryCreateRequest) {
         return categoryService.createCategory(categoryCreateRequest);
     }
 
     @PutMapping("/{id}")
-    private ResponseEntity<?> updateCategory(@PathVariable @Min(1) int id, @RequestBody CategoryUpdateRequest categoryUpdateRequest) {
+    public ResponseEntity<?> updateCategory(@PathVariable @Min(1) int id, @RequestBody CategoryUpdateRequest categoryUpdateRequest) {
         return categoryService.updateCategory(id, categoryUpdateRequest);
     }
 
     @DeleteMapping("/{id}")
-    private ResponseEntity<?> deleteCategory(@PathVariable @Min(1) int id) {
+    public ResponseEntity<?> deleteCategory(@PathVariable @Min(1) int id) {
         return categoryService.deleteCategory(id);
     }
     

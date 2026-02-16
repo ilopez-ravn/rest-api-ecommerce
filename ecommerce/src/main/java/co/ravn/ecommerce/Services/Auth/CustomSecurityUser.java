@@ -17,7 +17,7 @@ public class CustomSecurityUser extends SysUser implements UserDetails {
         this.setId(user.getId());
         this.setPassword(user.getPassword());
         this.setUsername(user.getUsername());
-        this.authorities = Stream.of(String.valueOf(user.getRole().getName()))
+        this.authorities = Stream.of("ROLE_" + user.getRole().getName())
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
     }

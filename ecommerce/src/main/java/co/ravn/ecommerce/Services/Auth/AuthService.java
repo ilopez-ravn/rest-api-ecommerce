@@ -29,6 +29,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -160,15 +161,31 @@ public class AuthService {
 
     public ResponseEntity<?> getUserById(@Min(1) int id) {
 
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        SysUser currentUser = this.loadUserByUsername(auth.getName());
+
         Optional<SysUser> sysUser = userRepository.findById(id);
 
         if (sysUser.isEmpty())
             throw new ResourceNotFoundException("User with ID " + id + " not found");
 
+        // Protect user info from other users except managers
+        if (!(currentUser.getRole().getName().equals("MANAGER")) && currentUser.getId() != id)
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new ErrorResponse(
+                            String.valueOf(HttpStatus.FORBIDDEN.value()),
+                            HttpStatus.FORBIDDEN.getReasonPhrase()
+                    ));
+
         return ResponseEntity.ok()
                 .body(new UserDetailsResponse(
                         sysUser.get().getId(),
-                        sysUser.get().getUsername()
+                        sysUser.get().getUsername(),
+                        sysUser.get().getPerson().getFirstName(),
+                        sysUser.get().getPerson().getLastName(),
+                        sysUser.get().getPerson().getEmail(),
+                        sysUser.get().getPerson().getPhone(),
+                        String.valueOf(sysUser.get().getPerson().getId())
                 ));
     }
 

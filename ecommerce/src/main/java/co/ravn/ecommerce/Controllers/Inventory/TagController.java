@@ -20,22 +20,22 @@ public class TagController {
     }
 
     @GetMapping("")
-    private ResponseEntity<?> getAllTags() {
+    public ResponseEntity<?> getAllTags() {
         return tagService.getAllTags();
     }
 
     @PostMapping("")
-    private ResponseEntity<?> createTag(@RequestBody TagCreateRequest tagCreateRequest) {
+    public ResponseEntity<?> createTag(@RequestBody TagCreateRequest tagCreateRequest) {
         return tagService.createTag(tagCreateRequest);
     }
 
     @PutMapping("/{id}")
-    private ResponseEntity<?> updateTag(@PathVariable @Min(1) int id, @RequestBody TagUpdateRequest tagUpdateRequest) {
+    public ResponseEntity<?> updateTag(@PathVariable @Min(1) int id, @RequestBody TagUpdateRequest tagUpdateRequest) {
         return tagService.updateTag(id, tagUpdateRequest);
     }
 
     @DeleteMapping("/{id}")
-    private ResponseEntity<?> deleteTag(@PathVariable @Min(1) int id) {
+    public ResponseEntity<?> deleteTag(@PathVariable @Min(1) int id) {
         return tagService.deleteTag(id);
     }
 
