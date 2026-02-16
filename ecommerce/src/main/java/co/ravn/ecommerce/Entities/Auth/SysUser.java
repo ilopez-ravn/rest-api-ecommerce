@@ -1,4 +1,4 @@
-package co.ravn.ecommerce.Entities;
+package co.ravn.ecommerce.Entities.Auth;
 
 import jakarta.persistence.*;
 
@@ -14,14 +14,18 @@ public class SysUser {
     @Column(name = "username")
     private String username;
 
-    @Column(name = "password")
+    @Column(name = "hashed_password")
     private String password;
 
-    @Column(name = "role_id")
-    private int roleId;
+    @OneToOne
+    @JoinColumn(name="role_id", referencedColumnName = "id")
+    private Role role;
 
     @Column(name = "is_active")
     private boolean isActive;
+
+    @OneToOne(mappedBy = "sysUser")
+    private Person person;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -32,10 +36,30 @@ public class SysUser {
     public SysUser() {
     }
 
-    public SysUser(String username, String password, int roleId) {
+    public SysUser(String username, String password, Role role) {
         this.username = username;
         this.password = password;
-        this.roleId = roleId;
+        this.role = role;
+    }
+
+    
+
+    public SysUser(int id, String username, String password, Role role, boolean isActive, LocalDateTime createdAt, LocalDateTime lastUpdatedPassword) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.role = role;
+        this.isActive = isActive;
+        this.createdAt = createdAt;
+        this.lastUpdatedPassword = lastUpdatedPassword;
+    }
+
+    public Person getPerson() {
+        return person;
+    }
+
+    public void setPerson(Person person) {
+        this.person = person;
     }
 
     public int getId() {
@@ -62,12 +86,12 @@ public class SysUser {
         this.password = password;
     }
 
-    public int getRoleId() {
-        return roleId;
+    public Role getRole() {
+        return role;
     }
 
-    public void setRoleId(int roleId) {
-        this.roleId = roleId;
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     public boolean isActive() {
@@ -99,9 +123,11 @@ public class SysUser {
         return "SysUser{" +
                 "id=" + id +
                 ", username='" + username + '\'' +
-                ", roleId=" + roleId +
+                ", password='" + password + '\'' +
+                ", role=" + role +
                 ", isActive=" + isActive +
                 ", createdAt=" + createdAt +
+                ", lastUpdatedPassword=" + lastUpdatedPassword +
                 '}';
     }
 }

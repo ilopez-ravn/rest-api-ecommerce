@@ -1,10 +1,11 @@
-package co.ravn.ecommerce.Services;
+package co.ravn.ecommerce.Services.Auth;
 
-import co.ravn.ecommerce.Entities.SysUser;
+import co.ravn.ecommerce.Entities.Auth.SysUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -19,9 +20,13 @@ import java.util.function.Function;
 
 @Service
 public class JWTService {
-    private final String SECRET_KEY = "gPM6EymRDo31ByTOO04jDo1aP5X4PVHYjGVRBu703Rt";
-    private final long ACCESS_TOKEN_EXPIRY = 900000; // 15 minutes
-    private final long REFRESH_TOKEN_EXPIRY = 604800000; // 7 days
+    @Value("${app.jwt-secret}")
+    private String SECRET_KEY;
+
+    @Value("${app.jwt-expiration-minutes}")
+    private long ACCESS_TOKEN_EXPIRY; // 15 minutes
+    @Value("${app.refresh-token-expiration-days}")
+    private long REFRESH_TOKEN_EXPIRY; // 7 days
 
     public String generateAccessToken(SysUser sysUser) {
         return createToken(new HashMap<>(), sysUser.getUsername(), ACCESS_TOKEN_EXPIRY);
@@ -36,6 +41,10 @@ public class JWTService {
 
     public String generateRefreshToken(SysUser sysUser) {
         return createToken(new HashMap<>(), sysUser.getUsername(), REFRESH_TOKEN_EXPIRY);
+    }
+
+    public String generatePasswordResetToken(SysUser sysUser) {
+        return createToken(new HashMap<>(), sysUser.getUsername(), 15 * 60 * 1000); // 15 minutes
     }
 
     private String createToken(Map<String, Object> claims, String subject, long expiry) {

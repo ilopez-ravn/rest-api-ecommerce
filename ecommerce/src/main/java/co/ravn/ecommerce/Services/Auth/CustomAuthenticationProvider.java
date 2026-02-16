@@ -1,8 +1,8 @@
 package co.ravn.ecommerce.Services.Auth;
 
 import co.ravn.ecommerce.Utils.Constants;
-import co.ravn.ecommerce.Entities.SysUser;
-import co.ravn.ecommerce.Repositories.UserRepository;
+import co.ravn.ecommerce.Entities.Auth.SysUser;
+import co.ravn.ecommerce.Repositories.Auth.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -40,7 +40,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
 
         List<SimpleGrantedAuthority> authorityList = List.of(
-                new SimpleGrantedAuthority("ROLE_" + user.getRoleId())
+                new SimpleGrantedAuthority("ROLE_" + user.getRole().getName())
         );
 
         return new UsernamePasswordAuthenticationToken(username, null, authorityList);

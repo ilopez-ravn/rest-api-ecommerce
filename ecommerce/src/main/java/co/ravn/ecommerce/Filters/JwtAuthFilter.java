@@ -1,6 +1,6 @@
 package co.ravn.ecommerce.Filters;
 
-import co.ravn.ecommerce.Services.JWTService;
+import co.ravn.ecommerce.Services.Auth.JWTService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

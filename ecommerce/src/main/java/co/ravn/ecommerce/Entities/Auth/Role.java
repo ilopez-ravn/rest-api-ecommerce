@@ -1,26 +1,22 @@
-package co.ravn.ecommerce.Entities;
+package co.ravn.ecommerce.Entities.Auth;
 
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "user_role")
-public class UserRole {
+@Table(name = "role")
+public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "name")
     private String name;
 
-    @Column(name = "is_active")
-    private boolean isActive;
-
-    public UserRole() {
+    public Role() {
     }
 
-    public UserRole(String name, boolean isActive) {
+    public Role(int id, String name) {
+        this.id = id;
         this.name = name;
-        this.isActive = isActive;
     }
 
     public int getId() {
@@ -39,20 +35,11 @@ public class UserRole {
         this.name = name;
     }
 
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean active) {
-        isActive = active;
-    }
-
     @Override
     public String toString() {
-        return "UserRole{" +
+        return "Role{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", isActive=" + isActive +
                 '}';
     }
 }

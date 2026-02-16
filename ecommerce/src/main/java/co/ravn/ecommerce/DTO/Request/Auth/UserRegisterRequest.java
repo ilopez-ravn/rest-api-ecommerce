@@ -1,4 +1,4 @@
-package co.ravn.ecommerce.Models.Users;
+package co.ravn.ecommerce.DTO.Request.Auth;
 
 public class UserRegisterRequest {
 

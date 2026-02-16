@@ -1,14 +1,12 @@
 package co.ravn.ecommerce.Services.Auth;
 
-import co.ravn.ecommerce.Entities.SysUser;
+import co.ravn.ecommerce.Entities.Auth.SysUser;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.io.Serial;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -19,7 +17,7 @@ public class CustomSecurityUser extends SysUser implements UserDetails {
         this.setId(user.getId());
         this.setPassword(user.getPassword());
         this.setUsername(user.getUsername());
-        this.authorities = Stream.of(String.valueOf(user.getRoleId()))
+        this.authorities = Stream.of(String.valueOf(user.getRole().getName()))
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
     }

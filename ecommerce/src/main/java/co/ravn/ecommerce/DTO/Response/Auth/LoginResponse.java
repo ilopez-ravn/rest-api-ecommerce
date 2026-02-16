@@ -1,4 +1,4 @@
-package co.ravn.ecommerce.Models.Users;
+package co.ravn.ecommerce.DTO.Response.Auth;
 
 public class LoginResponse {
     private final String access_token;
@@ -15,5 +15,13 @@ public class LoginResponse {
                 "access_token='" + access_token + '\'' +
                 ", refresh_token='" + refresh_token + '\'' +
                 '}';
+    }
+
+    public String getAccess_token() {
+        return access_token;
+    }
+
+    public String getRefresh_token() {
+        return refresh_token;
     }
 }

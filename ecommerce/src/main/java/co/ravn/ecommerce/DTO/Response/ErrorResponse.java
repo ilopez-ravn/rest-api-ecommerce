@@ -1,4 +1,4 @@
-package co.ravn.ecommerce.Models;
+package co.ravn.ecommerce.DTO.Response;
 
 public class ErrorResponse {
     private final String error_code;
@@ -9,6 +9,13 @@ public class ErrorResponse {
         this.message = message;
     }
 
+    public String getError_code() {
+        return error_code;
+    }
+
+    public String getMessage() {
+        return message;
+    }
 
     @Override
     public String toString() {
