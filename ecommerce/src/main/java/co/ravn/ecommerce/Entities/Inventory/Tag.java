@@ -1,4 +1,4 @@
-package co.ravn.ecommerce.Entities;
+package co.ravn.ecommerce.Entities.Inventory;
 
 import jakarta.persistence.*;
 

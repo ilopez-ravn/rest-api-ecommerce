@@ -1,7 +1,7 @@
 package co.ravn.ecommerce.Resolver;
 
-import co.ravn.ecommerce.Entities.Category;
-import co.ravn.ecommerce.Repositories.CategoryRepository;
+import co.ravn.ecommerce.Entities.Inventory.Category;
+import co.ravn.ecommerce.Repositories.Inventory.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;

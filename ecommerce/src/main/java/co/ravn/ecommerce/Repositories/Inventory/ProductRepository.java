@@ -1,7 +1,7 @@
-package co.ravn.ecommerce.Repositories;
+package co.ravn.ecommerce.Repositories.Inventory;
 
 
-import co.ravn.ecommerce.Entities.Product;
+import co.ravn.ecommerce.Entities.Inventory.Product;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -13,4 +13,7 @@ public interface ProductRepository extends PagingAndSortingRepository<Product, I
     List<Product> findByIdGreaterThanOrderByIdAsc(Long cursor, Pageable pageable);
     List<Product> findAllByOrderByIdAsc(Pageable pageable);
     boolean existsByIdGreaterThan(int id);
+
+
+
 }

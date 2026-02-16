@@ -1,8 +1,8 @@
 package co.ravn.ecommerce.Resolver;
 
-import co.ravn.ecommerce.Entities.Product;
-import co.ravn.ecommerce.Models.GraphQL.*;
-import co.ravn.ecommerce.Repositories.ProductRepository;
+import co.ravn.ecommerce.Entities.Inventory.Product;
+import co.ravn.ecommerce.DTO.GraphQL.*;
+import co.ravn.ecommerce.Repositories.Inventory.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;

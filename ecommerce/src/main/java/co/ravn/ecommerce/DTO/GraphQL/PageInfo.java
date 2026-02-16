@@ -1,4 +1,4 @@
-package co.ravn.ecommerce.Models.GraphQL;
+package co.ravn.ecommerce.DTO.GraphQL;
 
 public class PageInfo {
     private String endCursor;

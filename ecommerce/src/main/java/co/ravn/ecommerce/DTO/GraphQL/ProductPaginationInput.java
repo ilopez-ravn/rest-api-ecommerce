@@ -1,4 +1,4 @@
-package co.ravn.ecommerce.Models.GraphQL;
+package co.ravn.ecommerce.DTO.GraphQL;
 
 import java.util.List;
 

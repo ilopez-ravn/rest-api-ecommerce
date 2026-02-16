@@ -1,4 +1,4 @@
-package co.ravn.ecommerce.Entities;
+package co.ravn.ecommerce.Entities.Inventory;
 
 import jakarta.persistence.*;
 
@@ -11,9 +11,8 @@ public class Category {
 
     private String name;
 
-    @OneToOne
-    @JoinColumn(name="created_by", referencedColumnName = "id")
-    SysUser user;
+    @Column(name = "created_by")
+    private int createdBy;
 
     private String description;
 
@@ -23,18 +22,24 @@ public class Category {
     public Category() {
     }
 
-    public Category(String name, String description, SysUser sysUser) {
+    public Category(String name, String description) {
         this.name = name;
-        this.user = sysUser;
         this.description = description;
         this.isActive = true;
     }
 
-    public Category(int id, String name, String description, SysUser sysUser, boolean isActive) {
+    public Category(String name, String description, int createdBy) {
+        this.name = name;
+        this.createdBy = createdBy;
+        this.description = description;
+        this.isActive = true;
+    }
+
+    public Category(int id, String name, String description, int createdBy, boolean isActive) {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.user = sysUser;
+        this.createdBy = createdBy;
         this.isActive = isActive;
     }
 
@@ -70,12 +75,12 @@ public class Category {
         isActive = active;
     }
 
-    public SysUser getSysUser() {
-        return user;
+    public int getCreatedBy() {
+        return createdBy;
     }
 
-    public void setSysUser(SysUser sysUser) {
-        this.user = sysUser;
+    public void setCreatedBy(int createdBy) {
+        this.createdBy = createdBy;
     }
 
     @Override

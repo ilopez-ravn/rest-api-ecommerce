@@ -1,4 +1,4 @@
-package co.ravn.ecommerce.Entities;
+package co.ravn.ecommerce.Entities.Inventory;
 
 import jakarta.persistence.*;
 
@@ -20,9 +20,19 @@ public class Product {
     private Boolean isActive;
 
     @ManyToMany
+    @JoinTable(
+            name = "product_category",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
     Set<Category> categories;
 
     @ManyToMany
+    @JoinTable(
+            name = "product_tag",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
     Set<Tag> tags;
 
     @ManyToMany
