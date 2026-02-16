@@ -1,29 +1,15 @@
 package co.ravn.ecommerce.DTO.Request.Auth;
 
-public class UserRegisterRequest {
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+public class UserRegisterRequest {
     private String username;
     private String password;
     private int roleId;
 
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public int getRoleId() {
-        return roleId;
-    }
-
-    @Override
-    public String toString() {
-        return "InputRegisterUser{" +
-                "username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", roleId=" + roleId +
-                '}';
-    }
 }

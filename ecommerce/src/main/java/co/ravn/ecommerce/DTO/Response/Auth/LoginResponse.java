@@ -1,5 +1,8 @@
 package co.ravn.ecommerce.DTO.Response.Auth;
 
+import lombok.Getter;
+
+@Getter
 public class LoginResponse {
     private final String access_token;
     private final String refresh_token;
@@ -17,11 +20,4 @@ public class LoginResponse {
                 '}';
     }
 
-    public String getAccess_token() {
-        return access_token;
-    }
-
-    public String getRefresh_token() {
-        return refresh_token;
-    }
 }

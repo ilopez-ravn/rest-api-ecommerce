@@ -1,30 +1,17 @@
 package co.ravn.ecommerce.DTO.Request.Inventory;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class CategoryUpdateRequest {
     private String name;
     private String description;
 
-    public CategoryUpdateRequest(String name, String description) {
-        this.name = name;
-        this.description = description;
-    }
 
-    public CategoryUpdateRequest() {
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
 }

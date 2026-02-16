@@ -1,5 +1,10 @@
 package co.ravn.ecommerce.DTO.Request.Inventory;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class TagUpdateRequest {
     private String name;
 
@@ -7,11 +12,4 @@ public class TagUpdateRequest {
         this.name = name;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 }

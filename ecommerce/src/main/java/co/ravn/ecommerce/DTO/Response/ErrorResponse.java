@@ -1,5 +1,12 @@
 package co.ravn.ecommerce.DTO.Response;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter
+@Setter
+@ToString
 public class ErrorResponse {
     private final String error_code;
     private final String message;
@@ -9,19 +16,4 @@ public class ErrorResponse {
         this.message = message;
     }
 
-    public String getError_code() {
-        return error_code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    @Override
-    public String toString() {
-        return "ErrorResponse{" +
-                "error_code='" + error_code + '\'' +
-                ", message='" + message + '\'' +
-                '}';
-    }
 }

@@ -29,11 +29,11 @@ public class Email {
     private int id;
 
     @OneToOne
-    @JoinColumn(name="user_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private SysUser user;
 
     @OneToOne
-    @JoinColumn(name="created_by", referencedColumnName = "id")
+    @JoinColumn(name = "created_by", referencedColumnName = "id")
     private SysUser createdBy;
 
     @Column(name = "recipient_email")

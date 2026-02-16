@@ -23,9 +23,9 @@ public class CategoryService {
     public CategoryService(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
     }
-    
+
     public ResponseEntity<?> getAllCategories() {
-           List<Category> categories = categoryRepository.findByIsActiveTrue();
+        List<Category> categories = categoryRepository.findByIsActiveTrue();
 
         return ResponseEntity.ok()
                 .body(categories);
@@ -33,9 +33,9 @@ public class CategoryService {
 
     public ResponseEntity<?> createCategory(CategoryCreateRequest categoryCreateRequest) {
         Category category = new Category(
-            categoryCreateRequest.getName(),
-            categoryCreateRequest.getDescription()
-            );
+                categoryCreateRequest.getName(),
+                categoryCreateRequest.getDescription()
+        );
 
         Category savedCategory = categoryRepository.save(category);
         return ResponseEntity.ok()
@@ -45,7 +45,7 @@ public class CategoryService {
     public ResponseEntity<?> updateCategory(@Min(1) int id, CategoryUpdateRequest categoryUpdateRequest) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
-        
+
         category.setName(categoryUpdateRequest.getName());
         category.setDescription(categoryUpdateRequest.getDescription());
         Category updatedCategory = categoryRepository.save(category);

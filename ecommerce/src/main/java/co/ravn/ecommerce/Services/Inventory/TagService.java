@@ -39,7 +39,7 @@ public class TagService {
     public ResponseEntity<?> updateTag(@Min(1) int id, TagUpdateRequest tagUpdateRequest) {
         Tag tag = tagRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tag not found"));
-        
+
         tag.setName(tagUpdateRequest.getName());
         Tag updatedTag = tagRepository.save(tag);
         return ResponseEntity.ok()
@@ -49,7 +49,7 @@ public class TagService {
     public ResponseEntity<?> deleteTag(@Min(1) int id) {
         Tag tag = tagRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tag not found"));
-        
+
         tag.setActive(false);
         tagRepository.save(tag);
         return ResponseEntity.ok()

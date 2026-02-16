@@ -67,9 +67,9 @@ public class ResetPasswordListener {
 
 
             passwordRecoveryTokenRepository.save(new PasswordRecoveryToken(
-                passwordResetEvent.user(),
-                 passwordResetEvent.token(), 
-                passwordResetEvent.expiryDate()
+                    passwordResetEvent.user(),
+                    passwordResetEvent.token(),
+                    passwordResetEvent.expiryDate()
             ));
 
             emailRepository.save(email);

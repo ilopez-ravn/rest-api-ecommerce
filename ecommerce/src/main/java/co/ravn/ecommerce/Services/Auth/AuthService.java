@@ -268,12 +268,10 @@ public class AuthService {
         // Search for the token in database for one use only and delete it after sending the email
         PasswordRecoveryToken token = passwordRecoveryTokenRepository.findByRecoveryToken(passwordResetRequest.getToken())
                 .orElseThrow(() -> new RuntimeException("Password recovery token not found: " + passwordResetRequest.getToken()));
-        if (token != null) {
-            // Update the user's password
-            sysUser.setPassword(encoder.encode(passwordResetRequest.getPassword()));
-            userRepository.save(sysUser);
-            passwordRecoveryTokenRepository.delete(token);
-        }
+        // Update the user's password
+        sysUser.setPassword(encoder.encode(passwordResetRequest.getPassword()));
+        userRepository.save(sysUser);
+        passwordRecoveryTokenRepository.delete(token);
 
         return ResponseEntity.ok().body(new MessageResponse("Password has been reset successfully"));
     }

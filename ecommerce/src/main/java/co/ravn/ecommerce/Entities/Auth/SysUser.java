@@ -1,10 +1,17 @@
 package co.ravn.ecommerce.Entities.Auth;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 @Table(name = "sys_user")
 public class SysUser {
     @Id
@@ -33,16 +40,12 @@ public class SysUser {
     @Column(name = "last_updated_password")
     private LocalDateTime lastUpdatedPassword;
 
-    public SysUser() {
-    }
-
     public SysUser(String username, String password, Role role) {
         this.username = username;
         this.password = password;
         this.role = role;
     }
 
-    
 
     public SysUser(int id, String username, String password, Role role, boolean isActive, LocalDateTime createdAt, LocalDateTime lastUpdatedPassword) {
         this.id = id;
@@ -54,80 +57,4 @@ public class SysUser {
         this.lastUpdatedPassword = lastUpdatedPassword;
     }
 
-    public Person getPerson() {
-        return person;
-    }
-
-    public void setPerson(Person person) {
-        this.person = person;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean active) {
-        isActive = active;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getLastUpdatedPassword() {
-        return lastUpdatedPassword;
-    }
-
-    public void setLastUpdatedPassword(LocalDateTime lastUpdatedPassword) {
-        this.lastUpdatedPassword = lastUpdatedPassword;
-    }
-
-    @Override
-    public String toString() {
-        return "SysUser{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", role=" + role +
-                ", isActive=" + isActive +
-                ", createdAt=" + createdAt +
-                ", lastUpdatedPassword=" + lastUpdatedPassword +
-                '}';
-    }
 }
