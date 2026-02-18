@@ -3019,7 +3019,7 @@ components:
         phone:
           type: string
           example: '12345'
-        user_id: 
+        person_id: 
           type: integer
           format: int64
           example: 5
@@ -3404,8 +3404,8 @@ components:
         type:
           type: string
           enum:
-            - increase
-            - decrease
+            - ADD
+            - SUBTRACT
         quantity:
           type: integer
 

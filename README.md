@@ -110,3 +110,8 @@ http://localhost:8080/api/v1
    ```bash
    run the project on IntelliJ IDEA and use the endpoints
    ```
+
+
+Useful links:
+- [HashiCorp Vault](https://medium.com/@afdulrohmat03/how-to-secure-secret-data-in-spring-boot-using-hashicorp-vault-e1b37c269a15)
+
