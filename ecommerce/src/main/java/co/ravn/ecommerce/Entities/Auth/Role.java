@@ -1,5 +1,6 @@
 package co.ravn.ecommerce.Entities.Auth;
 
+import co.ravn.ecommerce.Entities.RoleEnum;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,6 +16,10 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private String name;
+    @Enumerated(EnumType.STRING)
+    private RoleEnum name;
+
+    @Column(name = "is_active")
+    private Boolean isActive;
 
 }

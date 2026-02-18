@@ -30,9 +30,6 @@ public class UserRefreshToken {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @Column(name = "device_info")
-    private String deviceInfo;
-
     public UserRefreshToken(SysUser user, String refreshToken, LocalDateTime tokenExpiry) {
         this.user = user;
         this.refreshToken = refreshToken;

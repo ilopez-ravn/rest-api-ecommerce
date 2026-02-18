@@ -1,6 +1,7 @@
 package co.ravn.ecommerce.Services.Auth;
 
 import co.ravn.ecommerce.Utils.Constants;
+import lombok.extern.slf4j.Slf4j;
 import co.ravn.ecommerce.Entities.Auth.SysUser;
 import co.ravn.ecommerce.Repositories.Auth.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
+@Slf4j
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     @Autowired
@@ -29,12 +31,12 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         final String username = authentication.getName();
         final String password = authentication.getCredentials().toString();
 
-        SysUser user = userRepository.findByUsername(username)
+        SysUser user = userRepository.findByUsernameAndIsActiveTrue(username)
                 .orElseThrow(() -> new BadCredentialsException(Constants.BAD_CREDENTIALS_MESSAGE));
 
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            System.out.println(Constants.BAD_CREDENTIALS_MESSAGE);
+            log.info(Constants.BAD_CREDENTIALS_MESSAGE);
             throw new BadCredentialsException(Constants.BAD_CREDENTIALS_MESSAGE);
         }
 

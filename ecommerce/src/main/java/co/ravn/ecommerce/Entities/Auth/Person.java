@@ -1,5 +1,6 @@
 package co.ravn.ecommerce.Entities.Auth;
 
+import co.ravn.ecommerce.Entities.PersonDocumentTypeEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,7 +29,8 @@ public class Person {
 
     private String document;
     @Column(name = "document_type")
-    private String documentType;
+    @Enumerated(EnumType.STRING)
+    private PersonDocumentTypeEnum documentType;
 
     @Column(name = "is_active")
     private boolean isActive;

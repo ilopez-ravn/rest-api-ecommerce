@@ -29,7 +29,9 @@ public class JWTService {
     private long REFRESH_TOKEN_EXPIRY; // 7 days
 
     public String generateAccessToken(SysUser sysUser) {
-        return createToken(new HashMap<>(), sysUser.getUsername(), ACCESS_TOKEN_EXPIRY);
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", sysUser.getRole().getName().toString());
+        return createToken(claims, sysUser.getUsername(), ACCESS_TOKEN_EXPIRY);
     }
 
     public LocalDateTime getRefreshTokenExpiry() {
@@ -49,6 +51,7 @@ public class JWTService {
 
     private String createToken(Map<String, Object> claims, String subject, long expiry) {
         return Jwts.builder()
+                .claims(claims)
                 .subject(subject)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiry))
@@ -75,6 +78,10 @@ public class JWTService {
 
     public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
+    }
+
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimResolver) {

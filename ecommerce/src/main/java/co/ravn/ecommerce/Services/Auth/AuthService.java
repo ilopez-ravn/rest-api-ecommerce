@@ -5,6 +5,7 @@ import co.ravn.ecommerce.DTO.Request.Auth.*;
 import co.ravn.ecommerce.DTO.Response.Auth.LoginResponse;
 import co.ravn.ecommerce.DTO.Response.Auth.RefreshTokenResponse;
 import co.ravn.ecommerce.DTO.Response.Auth.UserDetailsResponse;
+import co.ravn.ecommerce.Entities.RoleEnum;
 import co.ravn.ecommerce.Entities.Auth.PasswordRecoveryToken;
 import co.ravn.ecommerce.Entities.Auth.Person;
 import co.ravn.ecommerce.Entities.Auth.Role;
@@ -33,6 +34,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -76,7 +78,12 @@ public class AuthService {
 
 
     public SysUser loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username)
+        return userRepository.findByUsernameAndIsActiveTrue(username)
+                .orElseThrow(() -> new UsernameNotFoundException(Constants.BAD_CREDENTIALS_MESSAGE));
+    }
+
+    public SysUser loadUserByUsernameWithPerson(String username) throws UsernameNotFoundException {
+        return userRepository.findByUsernameAndIsActiveTrueWithPerson(username)
                 .orElseThrow(() -> new UsernameNotFoundException(Constants.BAD_CREDENTIALS_MESSAGE));
     }
 
@@ -103,6 +110,7 @@ public class AuthService {
 
     }
 
+    @Transactional
     public ResponseEntity<?> authenticateUser(LoginRequest loginRequest) {
 
         log.info("authenticateUser: Authenticating user with username={}", loginRequest.getUsername());
@@ -131,7 +139,7 @@ public class AuthService {
 
             log.info("authenticateUser: User found");
 
-            SysUser sysUser = this.loadUserByUsername(loginRequest.getUsername());
+            SysUser sysUser = this.loadUserByUsernameWithPerson(loginRequest.getUsername());
             String accessToken = jwtService.generateAccessToken(sysUser);
             UserRefreshToken refreshToken = new UserRefreshToken(
                     sysUser,
@@ -146,7 +154,12 @@ public class AuthService {
             return ResponseEntity.ok()
                     .body(new LoginResponse(
                             accessToken,
-                            refreshToken.getRefreshToken()
+                            refreshToken.getRefreshToken(),
+                            sysUser.getId(),
+                            sysUser.getPerson().getEmail(),
+                            sysUser.getPerson().getFirstName(),
+                            sysUser.getPerson().getLastName(),
+                            RoleEnum.valueOf(String.valueOf(sysUser.getRole().getName()))
                     ));
 
         } catch (BadCredentialsException e) {
@@ -170,7 +183,7 @@ public class AuthService {
             throw new ResourceNotFoundException("User with ID " + id + " not found");
 
         // Protect user info from other users except managers
-        if (!(currentUser.getRole().getName().equals("MANAGER")) && currentUser.getId() != id)
+        if (!(currentUser.getRole().getName().toString().equals("MANAGER")) && currentUser.getId() != id)
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(new ErrorResponse(
                             String.valueOf(HttpStatus.FORBIDDEN.value()),
@@ -209,7 +222,7 @@ public class AuthService {
 
 
         String username = jwtService.extractUsername(refreshTokenRequest.getRefreshToken());
-        Optional<SysUser> sysUser = userRepository.findByUsername(username);
+        Optional<SysUser> sysUser = userRepository.findByUsernameAndIsActiveTrue(username);
         if (sysUser.isEmpty())
             throw new ResourceNotFoundException("User with username " + username + " not found");
 
@@ -221,6 +234,7 @@ public class AuthService {
                 ));
     }
 
+    @Transactional
     public ResponseEntity<?> logoutUser(LogoutRequest logoutRequest) {
         userRefreshTokenRepository.deleteByUserId(logoutRequest.getUserId());
 
@@ -230,6 +244,7 @@ public class AuthService {
                 .body(new MessageResponse("User logged out successfully"));
     }
 
+    @Transactional
     public ResponseEntity<?> requestPasswordResetToken(PasswordResetEmailRequest request) {
         log.info("Searching email=" + request.getEmail());
         Person personData = personRepository.findByEmail(request.getEmail())
@@ -252,6 +267,7 @@ public class AuthService {
         return ResponseEntity.ok().body(new MessageResponse("Password reset link sent to email"));
     }
 
+    @Transactional
     public ResponseEntity<?> resetPassword(PasswordResetRequest passwordResetRequest) {
         // Validate the token and extract the username
         if (jwtService.isTokenExpired(passwordResetRequest.getToken()))
@@ -262,7 +278,7 @@ public class AuthService {
                     ));
 
         String username = jwtService.extractUsername(passwordResetRequest.getToken());
-        SysUser sysUser = userRepository.findByUsername(username)
+        SysUser sysUser = userRepository.findByUsernameAndIsActiveTrue(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User with username " + username + " not found"));
 
         // Search for the token in database for one use only and delete it after sending the email

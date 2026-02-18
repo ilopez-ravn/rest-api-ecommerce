@@ -10,12 +10,16 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<SysUser, Integer> {
-    Optional<SysUser> findByUsername(String username);
+    Optional<SysUser> findByUsernameAndIsActiveTrue(String username);
     List<SysUser> findByIsActiveTrue();
-
+    
     // JOIN FETCH avoids the N+1 query problem by fetching the associated Person entity in the same query
     @Query("SELECT u FROM SysUser u JOIN FETCH u.person WHERE u.isActive = true")
     List<SysUser> findByIsActiveTrueWithPerson();
+    
+    @Query("SELECT u FROM SysUser u JOIN FETCH u.person WHERE u.username = :username AND u.isActive = true")
+    Optional<SysUser> findByUsernameAndIsActiveTrueWithPerson(String username);
+
 
 
     Optional<SysUser> findById(int id);
