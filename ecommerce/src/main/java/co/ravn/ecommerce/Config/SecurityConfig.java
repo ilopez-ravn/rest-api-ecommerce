@@ -15,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -33,7 +34,7 @@ public class SecurityConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                //WebMvcConfigurer.super.addCorsMappings(registry);
+                // WebMvcConfigurer.super.addCorsMappings(registry);
                 registry.addMapping("/api/v1").allowedOrigins("http://localhost:8080");
             }
         };
@@ -42,24 +43,32 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .headers(headers ->
+                        headers.xssProtection(
+                                xss -> xss.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK)
+                        ).contentSecurityPolicy(
+                                cps -> cps.policyDirectives("script-src 'self'")
+                        ));
+
+        http
                 // Disable CSRF because is not needed for stateless JWT
                 .csrf(csrf -> csrf.disable())
 
                 // Configure endpoint auth and public endpoints
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/users/refresh", "/api/v1/users/login", "/api/v1/users/password/token", "/api/v1/users/password").permitAll()
-                    .requestMatchers(HttpMethod.GET, "/api/v1/products", "/api/v1/products/**", "/api/v1/stripe/webhook", "/api/v1/categories", "/api/v1/categories/**", "/api/v1/tags", "/api/v1/tags/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/products", "/api/v1/products/**", "/api/v1/stripe/webhook", "/api/v1/categories", "/api/v1/categories/**", "/api/v1/tags", "/api/v1/tags/**").permitAll()
                         .requestMatchers("/graphiql").permitAll()
-                    .requestMatchers(HttpMethod.GET, "/api/v1/users").hasRole("MANAGER")
-                    .requestMatchers(HttpMethod.GET, "/api/v1/users/**").authenticated()
-                    .requestMatchers(HttpMethod.POST, "/api/v1/products", "/api/v1/products/**").hasRole("MANAGER")
-                    .requestMatchers(HttpMethod.PUT, "/api/v1/products/**").hasRole("MANAGER")
-                    .requestMatchers(HttpMethod.PATCH, "/api/v1/products/**").hasRole("MANAGER")
-                    .requestMatchers(HttpMethod.DELETE, "/api/v1/products/**").hasRole("MANAGER")
-                    .requestMatchers(HttpMethod.POST, "/api/v1/categories", "/api/v1/tags").hasRole("MANAGER")
-                    .requestMatchers(HttpMethod.PUT, "/api/v1/categories/**", "/api/v1/tags/**").hasRole("MANAGER")
-                    .requestMatchers(HttpMethod.DELETE, "/api/v1/categories/**", "/api/v1/tags/**").hasRole("MANAGER")
-                    .requestMatchers("/api/v1/carts/**", "/api/v1/orders/**", "/api/v1/clients/**").hasAnyRole("MANAGER", "CLIENT")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/users").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/users/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/products", "/api/v1/products/**").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/products/**").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/products/**").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/products/**").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/categories", "/api/v1/tags").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/categories/**", "/api/v1/tags/**").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/categories/**", "/api/v1/tags/**").hasRole("MANAGER")
+                        .requestMatchers("/api/v1/carts/**", "/api/v1/orders/**", "/api/v1/clients/**").hasAnyRole("MANAGER", "CLIENT")
                         .anyRequest().authenticated()
                 )
 

@@ -125,7 +125,7 @@ public class ProductService {
                 List<Integer> newTagIds = productUpdateRequest.getTagList().stream()
                         .filter(tagId -> product.getTags().stream().noneMatch(t -> t.getId() == tagId))
                         .toList();
-                List<Tag> tags = tagRepository.findAllById(newTagIds);
+                List<Tag> tags = tagRepository.findAllByIdInAndIsActiveTrue(newTagIds);
                 product.getTags().addAll(tags);
             } else {
                 changes.add("Tags cleared");
@@ -148,7 +148,7 @@ public class ProductService {
                 List<Integer> newCategoryIds = productUpdateRequest.getCategoryList().stream()
                         .filter(categoryId -> product.getCategories().stream().noneMatch(c -> c.getId() == categoryId))
                         .toList();
-                List<Category> categories = categoryRepository.findAllById(newCategoryIds);
+                List<Category> categories = categoryRepository.findAllByIdInAndIsActiveTrue(newCategoryIds);
                 product.getCategories().addAll(categories);
                 changes.add("Categories updated to: " + productUpdateRequest.getCategoryList());
             } else {
@@ -186,13 +186,13 @@ public class ProductService {
         
         // Set tags if provided
         if (productUpdateRequest.getTagList() != null && !productUpdateRequest.getTagList().isEmpty()) {
-            List<Tag> tags = tagRepository.findAllById(productUpdateRequest.getTagList());
+            List<Tag> tags = tagRepository.findAllByIdInAndIsActiveTrue(productUpdateRequest.getTagList());
             product.setTags(tags);
         }
         
         // Set categories if provided
         if (productUpdateRequest.getCategoryList() != null && !productUpdateRequest.getCategoryList().isEmpty()) {
-            List<Category> categories = categoryRepository.findAllById(productUpdateRequest.getCategoryList());
+            List<Category> categories = categoryRepository.findAllByIdInAndIsActiveTrue(productUpdateRequest.getCategoryList());
             product.setCategories(categories);
         }
 

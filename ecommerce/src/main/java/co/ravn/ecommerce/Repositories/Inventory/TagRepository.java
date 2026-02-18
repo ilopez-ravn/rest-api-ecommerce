@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface TagRepository extends PagingAndSortingRepository<Tag, Integer>, JpaRepository<Tag, Integer> {
     List<Tag> findByIsActiveTrue();
+    List<Tag> findAllByIdInAndIsActiveTrue(List<Integer> ids);
 }
