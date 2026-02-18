@@ -75,8 +75,6 @@ public class SecurityConfig {
                 // Stateless session (required for JWT)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                // Set custom authentication provider
-
                 // Add JWT filter before Spring Security's default filter
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

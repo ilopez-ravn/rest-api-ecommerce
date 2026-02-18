@@ -19,9 +19,9 @@ extend type Mutation {
     With the token send to the email, we will send a new password for the corresponding user
     """
     resetPassword(token: String!, newPassword: String!): MessageResponse!
+
+    signOut(refreshToken: String!): MessageResponse!
 }
-
-
 
 
 type AuthResponse {
