@@ -1,11 +1,18 @@
 package co.ravn.ecommerce.Entities.Inventory;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
 
 @Entity
+@Getter
+@Setter
+@ToString
 @Table(name = "product")
 public class Product {
     @Id
@@ -14,37 +21,45 @@ public class Product {
 
     private String name;
     private String description;
-    private Float price;
+    private BigDecimal price;
 
     @Column(name = "is_active")
     private Boolean isActive;
 
-    @ManyToMany
-    @JoinTable(
+        @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+@JoinTable(
             name = "product_category",
             joinColumns = @JoinColumn(name = "product_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )
-    Set<Category> categories;
+    List<Category> categories;
 
-    @ManyToMany
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinTable(
             name = "product_tag",
             joinColumns = @JoinColumn(name = "product_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
-    Set<Tag> tags;
+    List<Tag> tags;
 
-    @ManyToMany
-    Set<ProductImage> productImages;
+    @OneToMany
+    @JoinTable(
+            name = "product_image",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "id")
+    )
+    List<ProductImage> productImages;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
     public Product() {
     }
 
-    public Product(int id, String name, String description, Float price, Boolean isActive, Set<Category> categories, Set<Tag> tags, Set<ProductImage> productImages, LocalDateTime createdAt) {
+    public Product(int id, String name, String description, BigDecimal price, Boolean isActive, List<Category> categories, List<Tag> tags, List<ProductImage> productImages, LocalDateTime createdAt) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -56,7 +71,7 @@ public class Product {
         this.createdAt = createdAt;
     }
 
-    public Product(String name, String description, Float price, Boolean isActive, Set<Category> categories, Set<Tag> tags, Set<ProductImage> productImages) {
+    public Product(String name, String description, BigDecimal price, Boolean isActive, List<Category> categories, List<Tag> tags, List<ProductImage> productImages) {
         this.name = name;
         this.description = description;
         this.price = price;
@@ -66,75 +81,4 @@ public class Product {
         this.productImages = productImages;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Float getPrice() {
-        return price;
-    }
-
-    public void setPrice(Float price) {
-        this.price = price;
-    }
-
-    public Boolean getActive() {
-        return isActive;
-    }
-
-    public void setActive(Boolean active) {
-        isActive = active;
-    }
-
-    public Set<Category> getCategories() {
-        return categories;
-    }
-
-    public void setCategories(Set<Category> categories) {
-        this.categories = categories;
-    }
-
-    public Set<Tag> getTags() {
-        return tags;
-    }
-
-    public void setTags(Set<Tag> tags) {
-        this.tags = tags;
-    }
-
-    public Set<ProductImage> getProductImages() {
-        return productImages;
-    }
-
-    public void setProductImages(Set<ProductImage> productImages) {
-        this.productImages = productImages;
-    }
 }

@@ -17,8 +17,8 @@ public class ProductCursorPage {
         this.totalItems = totalItems;
     }
 
-    public List<Product> getContent() {
-        return content;
+    public List<ProductResponse> getContent() {
+        return content.stream().map(ProductResponse::new).toList();
     }
 
     public Integer getNextCursor() {

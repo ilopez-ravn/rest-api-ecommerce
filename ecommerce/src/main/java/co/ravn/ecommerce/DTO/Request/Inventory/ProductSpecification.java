@@ -42,6 +42,9 @@ public class ProductSpecification {
                 predicates.add(root.join("tags").get("id").in(filterInput.getTagsId()));
             }
 
+            // Add default check for non-deleted products
+            predicates.add(criteriaBuilder.isNull(root.get("deletedAt")));
+
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }

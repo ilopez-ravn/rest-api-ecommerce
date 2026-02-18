@@ -2,7 +2,6 @@ package co.ravn.ecommerce.Controllers.Inventory;
 
 import co.ravn.ecommerce.DTO.Request.Inventory.ProductFilterRequest;
 import co.ravn.ecommerce.DTO.Request.Inventory.ProductUpdateRequest;
-import co.ravn.ecommerce.DTO.Request.Inventory.UpdateLikedRequest;
 import co.ravn.ecommerce.DTO.Response.Inventory.ProductCursorPage;
 import co.ravn.ecommerce.Services.Inventory.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
