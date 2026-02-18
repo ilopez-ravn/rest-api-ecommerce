@@ -3404,8 +3404,8 @@ components:
         type:
           type: string
           enum:
-            - increase
-            - decrease
+            - ADD
+            - SUBTRACT
         quantity:
           type: integer
 

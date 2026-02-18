@@ -5,6 +5,8 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+
 @Aspect
 @Component
 public class RestCallLogAspect {
@@ -17,9 +19,7 @@ public class RestCallLogAspect {
         System.out.println("Method Signature is : " + joinPoint.getSignature());
         System.out.println("Method executed in : " + executionTime + "ms");
         Object[] args = joinPoint.getArgs();
-        if (args.length > 0) {
-            System.out.println("Input Request: " + args[0]);
-        }
+        System.out.println("Input Request: " + Arrays.toString(args));
         System.out.println("Output Response : " + proceed);
         return proceed;
     }

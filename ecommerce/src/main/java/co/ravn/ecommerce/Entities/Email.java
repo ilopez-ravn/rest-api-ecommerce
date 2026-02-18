@@ -45,13 +45,14 @@ public class Email {
     @Column(columnDefinition = "TEXT")
     private String body;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private EmailStatusEnum status;
 
     @Column(name = "email_type")
     @Enumerated(EnumType.STRING)
     private EmailType emailType;
 
-    public Email(String recipientEmail, String cc, String bcc, String subject, String body, String status, EmailType emailType) {
+    public Email(String recipientEmail, String cc, String bcc, String subject, String body, EmailStatusEnum status, EmailType emailType) {
         this.recipientEmail = recipientEmail;
         this.cc = cc;
         this.bcc = bcc;

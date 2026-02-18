@@ -1,6 +1,8 @@
 package co.ravn.ecommerce.Controllers.Inventory;
 
 import co.ravn.ecommerce.DTO.Request.Inventory.ProductFilterRequest;
+import co.ravn.ecommerce.DTO.Request.Inventory.ProductUpdateRequest;
+import co.ravn.ecommerce.DTO.Request.Inventory.UpdateLikedRequest;
 import co.ravn.ecommerce.DTO.Response.Inventory.ProductCursorPage;
 import co.ravn.ecommerce.Services.Inventory.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,6 +79,33 @@ public class ProductController {
         ProductCursorPage productPage = productService.getFilteredProductsCursor(productFilterRequest, cursor, limit);
         return ResponseEntity.ok().body(productPage);
     }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> updateProduct(@PathVariable int id, @RequestBody ProductUpdateRequest productUpdateRequest) {
+        return productService.updateProduct(id, productUpdateRequest);
+    }
+
+    @PostMapping("")
+    public ResponseEntity<?> createProduct(@RequestBody ProductUpdateRequest productUpdateRequest) {
+        return productService.createProduct(productUpdateRequest);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteProduct(@PathVariable int id) {
+        return productService.deleteProduct(id);
+    }
+
+    @PutMapping("/{id}/liked")
+    public ResponseEntity<?> updateProductLiked(@PathVariable int id) {
+        return productService.updateProductLiked(id);
+    }
+
+    @DeleteMapping("/{id}/liked")
+    public ResponseEntity<?> deleteProductLiked(@PathVariable int id) {
+        return productService.deleteProductLiked(id);
+    }
+
+
 
 
 }

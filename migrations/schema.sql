@@ -80,11 +80,12 @@ CREATE TABLE IF NOT EXISTS product (
 );
 
 CREATE TABLE IF NOT EXISTS product_category (
+    id SERIAL PRIMARY KEY,
     product_id INT REFERENCES product(id) ON DELETE CASCADE,
     category_id INT REFERENCES category(id) ON DELETE CASCADE,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (product_id, category_id)
+    UNIQUE(product_id, category_id)
 );
 
 
@@ -97,21 +98,23 @@ CREATE TABLE IF NOT EXISTS tag (
 );
 
 CREATE TABLE IF NOT EXISTS product_tag (
+    id SERIAL PRIMARY KEY,
     product_id INT REFERENCES product(id) ON DELETE CASCADE,
     tag_id INT REFERENCES tag(id) ON DELETE CASCADE,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (product_id, tag_id)
+    UNIQUE(product_id, tag_id)
 );
 
 
 CREATE TABLE IF NOT EXISTS product_changes_log (
+    id SERIAL PRIMARY KEY,
     product_id INT REFERENCES product(id) ON DELETE CASCADE,
     change_description TEXT NOT NULL,
 
     changed_by INT REFERENCES sys_user(id) ON DELETE SET NULL,
     changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (product_id, changed_at)
+    UNIQUE(product_id, changed_at)
 );
 
 CREATE TABLE IF NOT EXISTS product_image (
@@ -139,13 +142,14 @@ CREATE TABLE IF NOT EXISTS warehouse (
 );
 
 CREATE TABLE IF NOT EXISTS product_stock (
+    id SERIAL PRIMARY KEY,
     product_id INT REFERENCES product(id) ON DELETE CASCADE,
     warehouse_id INT REFERENCES warehouse(id) ON DELETE CASCADE,
 
     quantity INT NOT NULL CHECK (quantity >= 0),
 
     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (product_id, warehouse_id)
+    UNIQUE(product_id, warehouse_id)
 );
 
 
@@ -193,13 +197,14 @@ CREATE TABLE IF NOT EXISTS shopping_cart_details (
 );
 
 CREATE TABLE IF NOT EXISTS product_liked (
+    id SERIAL PRIMARY KEY,
     user_id INT REFERENCES sys_user(id) ON DELETE CASCADE,
     product_id INT REFERENCES product(id) ON DELETE CASCADE,
 
     has_been_notified BOOLEAN DEFAULT FALSE,
 
     liked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (user_id, product_id)
+    UNIQUE(user_id, product_id)
 );
 
 CREATE TABLE IF NOT EXISTS sale_order (

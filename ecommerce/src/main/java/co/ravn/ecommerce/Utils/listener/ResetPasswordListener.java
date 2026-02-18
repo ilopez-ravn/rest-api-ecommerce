@@ -3,6 +3,7 @@ package co.ravn.ecommerce.Utils.listener;
 import co.ravn.ecommerce.DTO.EmailType;
 import co.ravn.ecommerce.DTO.PasswordResetEvent;
 import co.ravn.ecommerce.Entities.Email;
+import co.ravn.ecommerce.Entities.EmailStatusEnum;
 import co.ravn.ecommerce.Entities.Auth.PasswordRecoveryToken;
 import co.ravn.ecommerce.Repositories.EmailRepository;
 import co.ravn.ecommerce.Repositories.Auth.PasswordRecoveryTokenRepository;
@@ -44,7 +45,7 @@ public class ResetPasswordListener {
                 "",
                 "Password reset link",
                 "",
-                "SENT",
+                EmailStatusEnum.valueOf("SENT"),
                 EmailType.valueOf("PASSWORD_RECOVERY")
         );
         try {
@@ -74,17 +75,17 @@ public class ResetPasswordListener {
 
             emailRepository.save(email);
         } catch (IOException e) {
-            email.setStatus("NOT_SENT");
+            email.setStatus(EmailStatusEnum.NOT_SENT);
             emailRepository.save(email);
             log.error("Failed to read password reset template", e);
             throw new RuntimeException("Failed to read password reset template", e);
         } catch (MessagingException e) {
-            email.setStatus("NOT_SENT");
+            email.setStatus(EmailStatusEnum.NOT_SENT);
             emailRepository.save(email);
             log.error("Failed to send password reset email to: {}", passwordResetEvent.email(), e);
             throw new RuntimeException("Failed to send password reset email", e);
         } catch (Exception e) {
-            email.setStatus("NOT_SENT");
+            email.setStatus(EmailStatusEnum.NOT_SENT);
             emailRepository.save(email);
             log.error("Unexpected error in password reset event listener", e);
             throw new RuntimeException("Unexpected error in password reset event listener", e);
