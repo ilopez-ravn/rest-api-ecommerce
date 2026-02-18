@@ -1,0 +1,74 @@
+extend type Query {
+    """
+    Retrieve a page of orders with the whole list metadata
+    """
+    orders(page: Int, size: Int): OrderPage!
+    """
+    Retrieve an order details by its ID
+    """
+    getOrderById(id: ID!): SaleOrder!
+}
+
+extend type Mutation {
+    """
+    Create an order based on a cart
+    """
+
+    createOrderByShoppingCart(newOrder: NewOrderInput): SaleOrder!
+
+    """
+    Deletes an order by its ID.
+    This action will return the stock to the warehouse
+    """
+    deleteOrder(id: ID!): Boolean!
+}
+
+input NewOrderInput {
+    cartId: ID!
+    warehouseId: ID!
+    addressId: ID!
+}
+
+type OrderPage {
+    content: [SaleOrder!]!
+    totalPages: Int!
+    totalElements: Int!
+    number: Int!
+    size: Int!
+}
+
+
+type SaleOrder {
+    id: ID!
+    client: Person!
+    orderBill: OrderBill!
+    warehouse: Warehouse!
+    orderItems: [SaleOrderItem!]!
+    stripePayment: StripePayment!
+    deliveryTracking: DeliveryTracking
+    createdAt: LocalDateTime!
+    orderDate: LocalDateTime!
+    isActive: Boolean!
+}
+
+
+
+type OrderBill {
+    id: ID!
+    documentType: String!
+    documentNumber: String!
+    taxPercentage: Int!
+    totalAmount: Float!
+    deliveryFee: Float!
+    taxAmount: Float!
+}
+
+type SaleOrderItem {
+    id: ID!
+    product: Product!
+    price: Float!
+    quantity: Int!
+    taxPercentage: Float!
+    taxAmount: Float!
+    totalAmount: Float!
+}

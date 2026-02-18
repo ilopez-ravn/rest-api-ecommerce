@@ -1,0 +1,77 @@
+extend type Query {
+    """
+    Get a person by its ID
+    """
+    getUserById(id: ID!): User!
+    """
+    Get a page of users
+    """
+    users(page: Int!, size: Int!): UserPage!
+}
+
+extend type Mutation {
+    """
+    Create a new user with the person details.
+    This will create a new user and the person register.
+    """
+    createUser(newUser: NewUserInput!): User!
+    """
+    Delete a user by its ID
+    """
+    deleteUser(id: ID!): MessageResponse!
+    """
+    Disable a user's access
+    """
+    disableUser(id: ID!): MessageResponse!
+    """
+    Enable a user's access
+    """
+    enableUser(id: ID!): MessageResponse!
+    """
+    Update a user and person's data
+    """
+    updateUser(id: ID!, user: UpdateUserInput!): User!
+}
+
+
+type UserPage {
+    content: [User!]!
+    totalPages: Int!
+    totalElements: Int!
+    number: Int!
+    size: Int!
+}
+
+
+input NewUserInput {
+    username: String!
+    password: String!
+    role: RoleEnum!
+    firstName: String
+    lastName: String
+    email: String!
+    phone: String
+}
+
+input UpdateUserInput {
+    username: String!
+    password: String
+    role: RoleEnum!
+    firstName: String
+    lastName: String
+    email: String!
+    phone: String
+}
+
+type Role {
+    id: ID!
+    name: RoleEnum!
+}
+
+type User {
+    id: ID!
+    username: String!
+    role: Role!
+    isActive: Boolean!
+    createdAt: LocalDateTime!
+}

@@ -1,0 +1,44 @@
+extend type Mutation {
+    """
+    This query will create a Stripe payment intent based on a shopping cart
+    """
+    createPaymentIntent(shoppingCartId: ID!): PaymentIntentResponse!
+}
+
+
+type Subscription {
+    """
+    This subscription will check if an order has been created based on a shopping cart.
+    This will trigger when createPaymentIntent has been called and the payment has been successful
+    """
+    checkOrderPaymentStatus(shoppingCartId: ID!): SaleOrder!
+}
+
+"""
+The payment intent returns the clientSecret to allow payment in the frontend via stripe
+"""
+type PaymentIntentResponse {
+    clientSecret: String!
+    paymentIntentId: String!
+}
+
+type StripePayment {
+    id: ID!
+    stripePaymentId: String!
+    paymentLogs: [StripePaymentLog!]!
+    clientSecretKey: String!
+    paymentMethod: String!
+    paymentMethodTypes: JSON!
+    amount: Float!
+    currency: String!
+    paymentStatus: String!
+    createdAt: LocalDateTime!
+}
+
+type StripePaymentLog {
+    id: ID!
+    eventType: String!
+    status: String
+    eventData: JSON
+    createdAt: LocalDateTime!
+}

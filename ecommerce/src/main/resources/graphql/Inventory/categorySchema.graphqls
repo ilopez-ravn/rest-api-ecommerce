@@ -1,0 +1,36 @@
+type Query {
+    """
+    Get a category by ID
+    """
+    categoryById(id: ID): Category
+    """
+    Retrieve one or more categories in an array
+    """
+    categories: [Category!]
+}
+
+type Mutation {
+    """
+    Add a category by name and description
+    """
+    addCategory(name: String!, description: String, userId: Int): Category!
+    """
+    Update a category by its ID
+    """
+    updateCategory(id: ID!, name: String!, description: String): Category
+    """
+    Soft delete an active category
+    """
+    removeCategory(id: ID!): MessageResponse!
+}
+
+"""
+A category is a classifier for products. Every product can have one or many categories attached.
+"""
+type Category {
+    id: ID!
+    name: String!
+    user: User
+    description: String
+    isActive: Boolean!
+}
