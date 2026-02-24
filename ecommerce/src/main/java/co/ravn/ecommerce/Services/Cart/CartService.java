@@ -9,12 +9,15 @@ import co.ravn.ecommerce.Entities.Auth.SysUser;
 import co.ravn.ecommerce.Entities.Cart.ShoppingCart;
 import co.ravn.ecommerce.Entities.Cart.ShoppingCartDetails;
 import co.ravn.ecommerce.Entities.Inventory.Product;
+import co.ravn.ecommerce.Entities.Inventory.ProductStock;
+import co.ravn.ecommerce.Exception.BadRequestException;
 import co.ravn.ecommerce.Exception.ResourceNotFoundException;
 import co.ravn.ecommerce.Mappers.Cart.CartMapper;
 import co.ravn.ecommerce.Repositories.Auth.PersonRepository;
 import co.ravn.ecommerce.Repositories.Auth.UserRepository;
 import co.ravn.ecommerce.Repositories.Cart.ShoppingCartRepository;
 import co.ravn.ecommerce.Repositories.Inventory.ProductRepository;
+import co.ravn.ecommerce.Repositories.Inventory.ProductStockRepository;
 import co.ravn.ecommerce.Utils.enums.RoleEnum;
 import co.ravn.ecommerce.Utils.enums.ShoppingCartStatusEnum;
 import jakarta.transaction.Transactional;
@@ -25,6 +28,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -90,6 +94,32 @@ public class CartService {
 
         log.info("Product with id {} found: {}", cartProductRequest.getProductId(), product.getName());
 
+        // Validate available stock across all warehouses for this product
+        List<ProductStock> stocks = product.getStock();
+        int totalStock = stocks.stream().mapToInt(ProductStock::getQuantity).sum();
+        int quantityAlreadyInCart = cart.getProducts().stream()
+                .filter(d -> d.getProduct().getId() == product.getId())
+                .mapToInt(ShoppingCartDetails::getQuantity)
+                .sum();
+        int requestedQuantity = cartProductRequest.getQuantity();
+
+        if (totalStock <= 0 || quantityAlreadyInCart + requestedQuantity > totalStock) {
+            throw new BadRequestException("Insufficient stock for product id: " + product.getId());
+        }
+
+        // check if product already exists in cart and update the quantity
+        ShoppingCartDetails existingItem = cart.getProducts().stream()
+                .filter(d -> d.getProduct().getId() == product.getId())
+                .findFirst()
+                .orElse(null);
+        if (existingItem != null) {
+            existingItem.setQuantity(existingItem.getQuantity() + cartProductRequest.getQuantity());
+            existingItem.setPrice(cartProductRequest.getPrice());
+            existingItem.setUpdatedAt(LocalDateTime.now());
+            shoppingCartRepository.save(cart);
+            return cartMapper.toResponse(cart);
+        }
+
         cart.getProducts().add(new ShoppingCartDetails(cart, product, cartProductRequest.getPrice(), cartProductRequest.getQuantity()));
         shoppingCartRepository.save(cart);
         return cartMapper.toResponse(cart);
@@ -141,8 +171,24 @@ public class CartService {
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("Cart item not found with id: " + itemId));
 
+        Product product = item.getProduct();
+
+        // Validate available stock across all warehouses for this product
+        List<ProductStock> stocks = product.getStock();
+        int totalStock = stocks.stream().mapToInt(ProductStock::getQuantity).sum();
+
+        int quantityInOtherItems = cart.getProducts().stream()
+                .filter(d -> d.getProduct().getId() == product.getId() && d.getId() != itemId)
+                .mapToInt(ShoppingCartDetails::getQuantity)
+                .sum();
+        int newQuantityForItem = cartProductRequest.getQuantity();
+
+        if (totalStock <= 0 || quantityInOtherItems + newQuantityForItem > totalStock) {
+            throw new BadRequestException("Insufficient stock for product id: " + product.getId());
+        }
+
         item.setPrice(cartProductRequest.getPrice());
-        item.setQuantity(cartProductRequest.getQuantity());
+        item.setQuantity(newQuantityForItem);
         shoppingCartRepository.save(cart);
         return cartMapper.toResponse(cart);
     }

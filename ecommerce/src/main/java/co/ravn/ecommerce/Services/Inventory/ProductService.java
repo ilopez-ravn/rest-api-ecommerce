@@ -9,6 +9,7 @@ import co.ravn.ecommerce.DTO.Response.Inventory.ProductCursorPage;
 import co.ravn.ecommerce.DTO.Response.Inventory.ProductImageResponse;
 import co.ravn.ecommerce.DTO.Response.Inventory.ProductResponse;
 import co.ravn.ecommerce.DTO.Response.Inventory.ProductStockResponse;
+import co.ravn.ecommerce.DTO.ProductPriceDropEvent;
 import co.ravn.ecommerce.Entities.Auth.SysUser;
 import co.ravn.ecommerce.Entities.Cart.ProductLiked;
 import co.ravn.ecommerce.Entities.Inventory.Product;
@@ -26,9 +27,9 @@ import co.ravn.ecommerce.Repositories.Cart.ProductLikedRepository;
 import co.ravn.ecommerce.Repositories.Inventory.ProductChangesLogRepository;
 import co.ravn.ecommerce.Repositories.Inventory.ProductImageRepository;
 import co.ravn.ecommerce.Repositories.Inventory.ProductRepository;
-import co.ravn.ecommerce.Repositories.Inventory.ProductStockRepository;
 import co.ravn.ecommerce.Repositories.Inventory.TagRepository;
 import co.ravn.ecommerce.Repositories.Inventory.CategoryRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,9 +43,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Set;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.math.BigDecimal;
+
 import org.springframework.web.multipart.MultipartFile;
 
 
@@ -62,9 +69,9 @@ public class ProductService {
     private final ProductMapper productMapper;
     private final ProductImageRepository productImageRepository;
     private final ProductImageMapper productImageMapper;
-    private final ProductStockRepository productStockRepository;
     private final ProductStockMapper productStockMapper;
     private final CloudinaryService cloudinaryService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     public Page<Product> getFilteredProducts(ProductFilterRequest productFilterRequest, Pageable pageable) {
         return productRepository.findAll(ProductSpecification.withSearchCriteria(productFilterRequest), pageable);
@@ -146,8 +153,15 @@ public class ProductService {
             changes.add("Description changed from '" + product.getDescription() + "' to '" + productUpdateRequest.getDescription() + "'");
         }
         if (productUpdateRequest.getPrice() != null && !productUpdateRequest.getPrice().equals(product.getPrice())) {
-            product.setPrice(productUpdateRequest.getPrice());
-            changes.add("Price changed from '" + product.getPrice() + "' to '" + productUpdateRequest.getPrice() + "'");
+            BigDecimal oldPrice = product.getPrice();
+            BigDecimal newPrice = productUpdateRequest.getPrice();
+            if (oldPrice != null && newPrice != null && newPrice.compareTo(oldPrice) < 0) {
+                applicationEventPublisher.publishEvent(
+                        new ProductPriceDropEvent(product.getId(), product.getName(), oldPrice, newPrice)
+                );
+            }
+            product.setPrice(newPrice);
+            changes.add("Price changed from '" + oldPrice + "' to '" + newPrice + "'");
         }
         if (productUpdateRequest.getIsActive() != null && !productUpdateRequest.getIsActive().equals(product.getIsActive())) {
             product.setIsActive(productUpdateRequest.getIsActive());
@@ -207,12 +221,12 @@ public class ProductService {
             List<ProductImage> existingImages = productImageRepository.findByProductId(id);
 
             // Map existing images by URL for quick lookup
-            java.util.Map<String, ProductImage> existingByUrl = new java.util.HashMap<>();
+            Map<String, ProductImage> existingByUrl = new HashMap<>();
             for (ProductImage existing : existingImages) {
                 existingByUrl.put(existing.getImageUrl(), existing);
             }
 
-            java.util.Set<String> requestedUrls = new java.util.HashSet<>();
+            Set<String> requestedUrls = new HashSet<>();
             for (ProductImageUpdate dto : requestedImages) {
                 requestedUrls.add(dto.getImageUrl());
             }
@@ -353,7 +367,7 @@ public class ProductService {
     }
 
     @Transactional
-    public java.util.List<ProductImageResponse> addProductImages(int productId, List<MultipartFile> files, Boolean isPrimaryImage) {
+    public List<ProductImageResponse> addProductImages(int productId, List<MultipartFile> files, Boolean isPrimaryImage) {
         Product product = productRepository.findByIdAndDeletedAtIsNull(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + productId));
 
@@ -403,7 +417,7 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public java.util.List<ImageUploadResponse> uploadImages(java.util.List<MultipartFile> files) {
+    public List<ImageUploadResponse> uploadImages(List<MultipartFile> files) {
         return cloudinaryService.uploadMany(files);
     }
 
