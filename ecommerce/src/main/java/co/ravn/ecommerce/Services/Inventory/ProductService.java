@@ -91,11 +91,15 @@ public class ProductService {
         List<ProductResponse> productResponses = products.stream()
                 .map(product -> {
                     ProductResponse response = productMapper.toResponse(product);
-                    // attach first warehouse stock if present
-                    List<ProductStock> stocks = productStockRepository.findByProductId(product.getId());
-                    if (!stocks.isEmpty()) {
+                    // attach total stock across all warehouses using JPA relationship
+                    List<ProductStock> stocks = product.getStock();
+                    if (stocks != null && !stocks.isEmpty()) {
+                        int totalQuantity = stocks.stream()
+                                .mapToInt(ProductStock::getQuantity)
+                                .sum();
                         ProductStock firstStock = stocks.getFirst();
                         ProductStockResponse stockResponse = productStockMapper.toResponse(firstStock);
+                        stockResponse.setQuantity(totalQuantity);
                         response.setStock(stockResponse);
                     }
                     return response;
@@ -111,10 +115,14 @@ public class ProductService {
 
         ProductResponse response = productMapper.toResponse(product);
 
-        List<ProductStock> stocks = productStockRepository.findByProductId(product.getId());
-        if (!stocks.isEmpty()) {
+        List<ProductStock> stocks = product.getStock();
+        if (stocks != null && !stocks.isEmpty()) {
+            int totalQuantity = stocks.stream()
+                    .mapToInt(ProductStock::getQuantity)
+                    .sum();
             ProductStock firstStock = stocks.getFirst();
             ProductStockResponse stockResponse = productStockMapper.toResponse(firstStock);
+            stockResponse.setQuantity(totalQuantity);
             response.setStock(stockResponse);
         }
 
@@ -311,11 +319,15 @@ public class ProductService {
 
         ProductResponse response = productMapper.toResponse(savedProduct);
 
-        // Attach first warehouse stock if it already exists for this product
-        List<ProductStock> stocks = productStockRepository.findByProductId(savedProduct.getId());
-        if (!stocks.isEmpty()) {
+        // Attach total stock across all warehouses if it already exists for this product using JPA relationship
+        List<ProductStock> stocks = savedProduct.getStock();
+        if (stocks != null && !stocks.isEmpty()) {
+            int totalQuantity = stocks.stream()
+                    .mapToInt(ProductStock::getQuantity)
+                    .sum();
             ProductStock firstStock = stocks.getFirst();
             ProductStockResponse stockResponse = productStockMapper.toResponse(firstStock);
+            stockResponse.setQuantity(totalQuantity);
             response.setStock(stockResponse);
         }
 

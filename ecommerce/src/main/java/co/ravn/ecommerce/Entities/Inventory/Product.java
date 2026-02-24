@@ -52,6 +52,9 @@ public class Product {
     )
     List<ProductImage> productImages;
 
+    @OneToMany(mappedBy = "product")
+    private List<ProductStock> stock;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
