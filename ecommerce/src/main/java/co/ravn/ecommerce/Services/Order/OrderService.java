@@ -4,11 +4,10 @@ import co.ravn.ecommerce.DTO.Request.Order.NewOrderRequest;
 import co.ravn.ecommerce.DTO.Request.Order.ShippingStatusUpdateRequest;
 import co.ravn.ecommerce.DTO.Response.Order.OrderResponse;
 import co.ravn.ecommerce.DTO.Response.Order.PaginatedOrderResponse;
-import co.ravn.ecommerce.Mappers.Order.OrderMapper;
-import co.ravn.ecommerce.Mappers.Order.ShippingDetailsMapper;
-import co.ravn.ecommerce.Entities.Clients.ClientAddress;
+import co.ravn.ecommerce.DTO.Response.Order.ShippingDetailsResponse;
 import co.ravn.ecommerce.Entities.Cart.ShoppingCart;
 import co.ravn.ecommerce.Entities.Cart.ShoppingCartDetails;
+import co.ravn.ecommerce.Entities.Clients.ClientAddress;
 import co.ravn.ecommerce.Entities.Inventory.Warehouse;
 import co.ravn.ecommerce.Entities.Order.DeliveryStatus;
 import co.ravn.ecommerce.Entities.Order.DeliveryTracking;
@@ -20,18 +19,20 @@ import co.ravn.ecommerce.Entities.Order.StripePayment;
 import co.ravn.ecommerce.Entities.Auth.SysUser;
 import co.ravn.ecommerce.Exception.BadRequestException;
 import co.ravn.ecommerce.Exception.ResourceNotFoundException;
+import co.ravn.ecommerce.Mappers.Order.OrderMapper;
+import co.ravn.ecommerce.Mappers.Order.ShippingDetailsMapper;
 import co.ravn.ecommerce.Repositories.Auth.UserRepository;
+import co.ravn.ecommerce.Repositories.Cart.ShoppingCartRepository;
 import co.ravn.ecommerce.Repositories.Clients.ClientAddressRepository;
 import co.ravn.ecommerce.Repositories.Inventory.WarehouseRepository;
 import co.ravn.ecommerce.Repositories.Order.DeliveryStatusRepository;
 import co.ravn.ecommerce.Repositories.Order.DeliveryTrackingRepository;
 import co.ravn.ecommerce.Repositories.Order.OrderBillRepository;
 import co.ravn.ecommerce.Repositories.Order.OrderDetailsRepository;
-import co.ravn.ecommerce.Repositories.Order.OrderTrackingLogRepository;
 import co.ravn.ecommerce.Repositories.Order.OrderSpecs;
+import co.ravn.ecommerce.Repositories.Order.OrderTrackingLogRepository;
 import co.ravn.ecommerce.Repositories.Order.SaleOrderRepository;
 import co.ravn.ecommerce.Repositories.Order.StripePaymentRepository;
-import co.ravn.ecommerce.Repositories.Cart.ShoppingCartRepository;
 import co.ravn.ecommerce.Utils.enums.BillDocumentTypeEnum;
 import co.ravn.ecommerce.Utils.enums.RoleEnum;
 import co.ravn.ecommerce.Utils.enums.ShoppingCartStatusEnum;
@@ -41,8 +42,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -75,7 +75,7 @@ public class OrderService {
     private final ShippingDetailsMapper shippingDetailsMapper;
     private final DeliveryStatusEmailService deliveryStatusEmailService;
 
-    public ResponseEntity<?> getOrders(
+    public PaginatedOrderResponse getOrders(
             Integer clientId,
             String status,
             int page,
@@ -92,7 +92,7 @@ public class OrderService {
         // Non-managers can only see their own orders; ignore client_id from request
         if (!RoleEnum.MANAGER.toString().equals(currentUser.getRole().getName().toString())) {
             if (currentUser.getPerson() == null) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
+                throw new AccessDeniedException("Access denied");
             }
             clientId = currentUser.getPerson().getId();
         }
@@ -115,27 +115,26 @@ public class OrderService {
                 .map(this::buildOrderResponse)
                 .toList();
 
-        return ResponseEntity.ok(new PaginatedOrderResponse(ordersPage, items));
+        return new PaginatedOrderResponse(ordersPage, items);
     }
 
     @Transactional
-    public ResponseEntity<?> createOrder(NewOrderRequest req) {
+    public OrderResponse createOrder(NewOrderRequest req) {
         ShoppingCart cart = shoppingCartRepository.findById(req.getCartId())
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found with id: " + req.getCartId()));
 
         if (cart.getStatus() != ShoppingCartStatusEnum.ACTIVE) {
-            return ResponseEntity.badRequest().body("Cart is not active");
+            throw new BadRequestException("Cart is not active");
         }
 
-        Optional<SaleOrder> existingOrder = saleOrderRepository.findByShoppingCartId(req.getCartId());
-        if (existingOrder.isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("An order already exists for this cart");
+        if (saleOrderRepository.findByShoppingCartId(req.getCartId()).isPresent()) {
+            throw new BadRequestException("An order already exists for this cart");
         }
 
         Warehouse warehouse = warehouseRepository.findById(req.getWarehouseId())
                 .orElseThrow(() -> new ResourceNotFoundException("Warehouse not found with id: " + req.getWarehouseId()));
 
-        ClientAddress address = clientAddressRepository.findById(req.getAddressId())
+        clientAddressRepository.findById(req.getAddressId())
                 .orElseThrow(() -> new ResourceNotFoundException("Address not found with id: " + req.getAddressId()));
 
         SaleOrder order = saleOrderRepository.save(
@@ -158,30 +157,24 @@ public class OrderService {
         );
 
         Optional<StripePayment> payment = stripePaymentRepository.findByOrderId(order.getId());
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(orderMapper.toResponse(order, bill, payment.orElse(null)));
+        return orderMapper.toResponse(order, bill, payment.orElse(null));
     }
 
-    public ResponseEntity<?> getOrderById(int orderId) {
+    public OrderResponse getOrderById(int orderId) {
         SaleOrder order = saleOrderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
-
-        return ResponseEntity.ok(buildOrderResponse(order));
+        return buildOrderResponse(order);
     }
 
     @Transactional
-    public ResponseEntity<?> deleteOrder(int orderId) {
+    public void deleteOrder(int orderId) {
         SaleOrder order = saleOrderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
-
         order.setIsActive(false);
         saleOrderRepository.save(order);
-
-        return ResponseEntity.noContent().build();
     }
 
-    public ResponseEntity<?> getShippingDetails(int orderId) {
+    public ShippingDetailsResponse getShippingDetails(int orderId) {
         saleOrderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
 
@@ -191,11 +184,11 @@ public class OrderService {
         List<OrderTrackingLog> logs = orderTrackingLogRepository
                 .findByDeliveryTrackingIdOrderByChangedAtDesc(tracking.getId());
 
-        return ResponseEntity.ok(shippingDetailsMapper.toResponse(tracking, logs));
+        return shippingDetailsMapper.toResponse(tracking, logs);
     }
 
     @Transactional
-    public ResponseEntity<?> updateShippingStatus(int orderId, ShippingStatusUpdateRequest req) {
+    public ShippingDetailsResponse updateShippingStatus(int orderId, ShippingStatusUpdateRequest req) {
         saleOrderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
 
@@ -205,26 +198,20 @@ public class OrderService {
         DeliveryStatus newStatus = deliveryStatusRepository.findById(req.getStatusId())
                 .orElseThrow(() -> new ResourceNotFoundException("Delivery status not found with id: " + req.getStatusId()));
 
-
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         SysUser changedBy = userRepository.findByUsernameAndIsActiveTrue(auth.getName())
-                .orElseThrow(() -> new RuntimeException(
-                        "User not found with username: " + auth.getName()));
-        
-                
+                .orElseThrow(() -> new RuntimeException("User not found with username: " + auth.getName()));
+
         DeliveryStatus previousStatus = tracking.getStatus();
 
-        log.info("Updating shipping status for order=" + orderId);
+        log.info("Updating shipping status for order={}", orderId);
 
         if (previousStatus != null && newStatus.getStepOrder() != null && previousStatus.getStepOrder() != null
                 && newStatus.getStepOrder() < previousStatus.getStepOrder()) {
             throw new BadRequestException("Delivery status update cannot go backwards");
         }
 
-        orderTrackingLogRepository.save(
-                new OrderTrackingLog(tracking, previousStatus, newStatus, changedBy)
-        );
-
+        orderTrackingLogRepository.save(new OrderTrackingLog(tracking, previousStatus, newStatus, changedBy));
         log.info("Logging shipping status change");
 
         tracking.setStatus(newStatus);
@@ -236,7 +223,7 @@ public class OrderService {
         List<OrderTrackingLog> logs = orderTrackingLogRepository
                 .findByDeliveryTrackingIdOrderByChangedAtDesc(tracking.getId());
 
-        return ResponseEntity.ok(shippingDetailsMapper.toResponse(tracking, logs));
+        return shippingDetailsMapper.toResponse(tracking, logs);
     }
 
     public OrderResponse buildOrderResponse(SaleOrder order) {
@@ -271,4 +258,3 @@ public class OrderService {
         }
     }
 }
-

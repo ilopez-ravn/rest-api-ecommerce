@@ -2,6 +2,7 @@ package co.ravn.ecommerce.Services.Payments;
 
 import co.ravn.ecommerce.Config.StripeConfig;
 import co.ravn.ecommerce.DTO.Request.Payment.PaymentIntentRequest;
+import co.ravn.ecommerce.DTO.Response.Order.OrderResponse;
 import co.ravn.ecommerce.DTO.Response.Payment.PaymentIntentResponse;
 import co.ravn.ecommerce.Entities.Auth.SysUser;
 import co.ravn.ecommerce.Entities.Cart.ShoppingCart;
@@ -16,7 +17,7 @@ import co.ravn.ecommerce.Entities.Order.OrderDetails;
 import co.ravn.ecommerce.Entities.Order.OrderTrackingLog;
 import co.ravn.ecommerce.Entities.Order.SaleOrder;
 import co.ravn.ecommerce.Entities.Order.StripePayment;
-import co.ravn.ecommerce.DTO.Response.ExceptionResponse;
+import co.ravn.ecommerce.Exception.BadRequestException;
 import co.ravn.ecommerce.Exception.ResourceNotFoundException;
 import co.ravn.ecommerce.Repositories.Auth.UserRepository;
 import co.ravn.ecommerce.Repositories.Cart.ShoppingCartDetailsRepository;
@@ -41,8 +42,7 @@ import com.stripe.param.PaymentIntentCreateParams;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -58,7 +58,6 @@ import java.util.UUID;
 public class StripePaymentService {
 
     private final OrderService orderService;
-
     private final StripeConfig stripeConfig;
     private final UserRepository userRepository;
     private final ShoppingCartRepository shoppingCartRepository;
@@ -75,7 +74,7 @@ public class StripePaymentService {
     private final OrderDetailsRepository orderDetailsRepository;
 
     @Transactional
-    public ResponseEntity<?> createOrRetrievePaymentIntent(PaymentIntentRequest request) {
+    public PaymentIntentResponse createOrRetrievePaymentIntent(PaymentIntentRequest request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         SysUser currentUser = userRepository.findByUsernameAndIsActiveTrue(auth.getName())
                 .orElseThrow(() -> new RuntimeException("Authenticated user not found: " + auth.getName()));
@@ -86,8 +85,7 @@ public class StripePaymentService {
                         "Active cart not found with id: " + request.getShoppingCartId()));
 
         if (currentUser.getPerson() == null || cart.getClient().getId() != currentUser.getPerson().getId()) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(new ExceptionResponse(403, "Forbidden", "You do not own this cart", null));
+            throw new AccessDeniedException("You do not own this cart");
         }
 
         Warehouse warehouse = warehouseRepository.findById(request.getWarehouseId())
@@ -95,44 +93,34 @@ public class StripePaymentService {
                         "Warehouse not found with id: " + request.getWarehouseId()));
 
         ClientAddress address = clientAddressRepository.findById(request.getAddressId())
-                .orElseThrow(
-                        () -> new ResourceNotFoundException("Address not found with id: " + request.getAddressId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Address not found with id: " + request.getAddressId()));
 
         if (address.getClient().getId() != currentUser.getPerson().getId()) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(new ExceptionResponse(403, "Forbidden", "You do not own this address", null));
+            throw new AccessDeniedException("You do not own this address");
         }
 
         List<ShoppingCartDetails> items = shoppingCartDetailsRepository.findByCartId(request.getShoppingCartId());
         if (items.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ExceptionResponse(400, "Bad Request", "Cart is empty", null));
+            throw new BadRequestException("Cart is empty");
         }
 
-        // If an order already exists for this cart, return existing payment or create
-        // one
+        // If an order already exists for this cart, return existing payment or create one
         Optional<SaleOrder> existingOrder = saleOrderRepository.findByShoppingCartId(request.getShoppingCartId());
         if (existingOrder.isPresent()) {
-            Optional<StripePayment> existingPayment = stripePaymentRepository
-                    .findByOrderId(existingOrder.get().getId());
+            Optional<StripePayment> existingPayment = stripePaymentRepository.findByOrderId(existingOrder.get().getId());
             if (existingPayment.isPresent()) {
-                return ResponseEntity.status(HttpStatus.CREATED)
-                        .body(new PaymentIntentResponse(existingPayment.get().getClientSecretKey()));
+                return new PaymentIntentResponse(existingPayment.get().getClientSecretKey());
             }
-            // Order exists (pre-created via PUT /orders) but no payment yet — create the
-            // payment intent
+            // Order exists but no payment yet — create the payment intent
             return createPaymentIntentForOrder(existingOrder.get(), items, address, request.getDeliveryFee());
         }
 
         // Validate stock for all items in the specified warehouse
         for (ShoppingCartDetails item : items) {
-
-                if (item.getProduct().getIsActive() == false || item.getProduct().getDeletedAt() != null) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body(new ExceptionResponse(400, "Bad Request",
-                                    "Product is not active or deleted",
-                                    null));
-                }
+            if (item.getProduct().getIsActive() == false || item.getProduct().getDeletedAt() != null) {
+                throw new BadRequestException("Product is not active or deleted");
+            }
 
             Optional<ProductStock> stockOpt = productStockRepository
                     .findByWarehouseIdAndProductId(warehouse.getId(), item.getProduct().getId());
@@ -140,11 +128,9 @@ public class StripePaymentService {
             log.info("Available stock for product: {} is: {}", item.getProduct().getName(), available);
             log.info("Required stock for product: {} is: {}", item.getProduct().getName(), item.getQuantity());
             if (available < item.getQuantity()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(new ExceptionResponse(400, "Bad Request",
-                                "Insufficient stock in warehouse for product: " + item.getProduct().getName()
-                                        + ". Available: " + available + ", required: " + item.getQuantity(),
-                                null));
+                throw new BadRequestException("Insufficient stock in warehouse for product: "
+                        + item.getProduct().getName()
+                        + ". Available: " + available + ", required: " + item.getQuantity());
             }
         }
 
@@ -153,7 +139,7 @@ public class StripePaymentService {
 
         // Create DeliveryTracking with the provided address and initial status
         DeliveryStatus initialStatus = deliveryStatusRepository.findFirstByOrderByStepOrder()
-        .orElseThrow(() -> new RuntimeException("No delivery statuses configured"));
+                .orElseThrow(() -> new RuntimeException("No delivery statuses configured"));
 
         String trackingNumber = "TRK-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         DeliveryTracking tracking = deliveryTrackingRepository.save(
@@ -163,8 +149,8 @@ public class StripePaymentService {
         return createPaymentIntentForOrder(order, items, address, request.getDeliveryFee());
     }
 
-    private ResponseEntity<?> createPaymentIntentForOrder(SaleOrder order, List<ShoppingCartDetails> items,
-                                                          ClientAddress address, BigDecimal deliveryFee) {
+    private PaymentIntentResponse createPaymentIntentForOrder(SaleOrder order, List<ShoppingCartDetails> items,
+                                                              ClientAddress address, BigDecimal deliveryFee) {
         BigDecimal itemsTotal = items.stream()
                 .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -172,7 +158,7 @@ public class StripePaymentService {
         BigDecimal fee = deliveryFee != null ? deliveryFee : BigDecimal.ZERO;
         BigDecimal total = itemsTotal.add(fee);
 
-        // Ensure order has OrderDetails and OrderBill (e.g. when created via payment flow)
+        // Ensure order has OrderDetails and OrderBill
         if (orderBillRepository.findByOrderId(order.getId()).isEmpty()) {
             for (ShoppingCartDetails item : items) {
                 orderDetailsRepository.save(
@@ -211,29 +197,24 @@ public class StripePaymentService {
                 "PENDING");
         stripePaymentRepository.save(stripePayment);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(new PaymentIntentResponse(intent.getClientSecret()));
+        return new PaymentIntentResponse(intent.getClientSecret());
     }
 
-    public ResponseEntity<?> getOrderStatusByShoppingCartId(int shoppingCartId) {
-
+    public OrderResponse getOrderStatusByShoppingCartId(int shoppingCartId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         SysUser currentUser = userRepository.findByUsernameAndIsActiveTrue(auth.getName())
                 .orElseThrow(() -> new RuntimeException("Authenticated user not found: " + auth.getName()));
 
         SaleOrder order = saleOrderRepository.findByShoppingCartId(shoppingCartId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found for cart id: " + shoppingCartId));
-                        
 
-        // lets validate the user is the owner of the cart
         if (order.getClient().getId() != currentUser.getPerson().getId()) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(new ExceptionResponse(403, "Forbidden", "You do not own this order", null));
+            throw new AccessDeniedException("You do not own this order");
         }
-
 
         stripePaymentRepository.findByOrderId(order.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Payment not found for order id: " + order.getId()));
 
-        return ResponseEntity.ok(orderService.buildOrderResponse(order));
+        return orderService.buildOrderResponse(order);
     }
 }

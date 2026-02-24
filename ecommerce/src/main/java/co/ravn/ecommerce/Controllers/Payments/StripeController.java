@@ -1,8 +1,10 @@
 package co.ravn.ecommerce.Controllers.Payments;
 
 import co.ravn.ecommerce.DTO.Request.Payment.PaymentIntentRequest;
+import co.ravn.ecommerce.DTO.Response.Payment.PaymentIntentResponse;
 import co.ravn.ecommerce.Services.Payments.StripePaymentService;
 import co.ravn.ecommerce.Services.Payments.WebhookService;
+import org.springframework.http.HttpStatus;
 import com.stripe.exception.SignatureVerificationException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -27,8 +29,8 @@ public class StripeController {
     private final WebhookService webhookService;
 
     @PutMapping("/payment")
-    public ResponseEntity<?> createPaymentIntent(@RequestBody @Valid PaymentIntentRequest request) {
-        return stripePaymentService.createOrRetrievePaymentIntent(request);
+    public ResponseEntity<PaymentIntentResponse> createPaymentIntent(@RequestBody @Valid PaymentIntentRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(stripePaymentService.createOrRetrievePaymentIntent(request));
     }
 
     @PostMapping(value = "/webhook", consumes = MediaType.APPLICATION_JSON_VALUE)

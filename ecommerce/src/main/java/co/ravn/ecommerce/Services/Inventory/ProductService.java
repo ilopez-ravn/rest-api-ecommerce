@@ -11,8 +11,6 @@ import co.ravn.ecommerce.Entities.Cart.ProductLiked;
 import co.ravn.ecommerce.Entities.Inventory.Product;
 import co.ravn.ecommerce.Entities.Inventory.ProductChangesLog;
 import co.ravn.ecommerce.Entities.Inventory.Tag;
-import co.ravn.ecommerce.Entities.Order.DeliveryStatus;
-import co.ravn.ecommerce.Entities.Order.DeliveryTracking;
 import co.ravn.ecommerce.Entities.Inventory.Category;
 import co.ravn.ecommerce.Mappers.Inventory.ProductMapper;
 import co.ravn.ecommerce.Repositories.Auth.UserRepository;
@@ -30,7 +28,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -38,7 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,7 +56,6 @@ public class ProductService {
 
     public Page<Product> getFilteredProducts(ProductFilterRequest productFilterRequest, Pageable pageable) {
         return productRepository.findAll(ProductSpecification.withSearchCriteria(productFilterRequest), pageable);
-
     }
 
     public ProductCursorPage getFilteredProductsCursor(ProductFilterRequest productFilterRequest, Integer cursor, int limit) {
@@ -88,7 +83,7 @@ public class ProductService {
     }
 
     @Transactional
-    public ResponseEntity<?> updateProduct(int id, ProductUpdateRequest productUpdateRequest) {
+    public ProductResponse updateProduct(int id, ProductUpdateRequest productUpdateRequest) {
         Product product = productRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
@@ -175,12 +170,11 @@ public class ProductService {
         }
 
         productRepository.save(product);
-
-        return ResponseEntity.ok(productMapper.toResponse(product));
+        return productMapper.toResponse(product);
     }
 
     @Transactional
-    public ResponseEntity<?> createProduct(ProductUpdateRequest productUpdateRequest) {
+    public ProductResponse createProduct(ProductUpdateRequest productUpdateRequest) {
         Product product = new Product();
         product.setName(productUpdateRequest.getName());
         product.setDescription(productUpdateRequest.getDescription());
@@ -200,32 +194,28 @@ public class ProductService {
         }
 
         Product savedProduct = productRepository.save(product);
-        return ResponseEntity.ok(productMapper.toResponse(savedProduct));
+        return productMapper.toResponse(savedProduct);
     }
 
     @Transactional
-    public ResponseEntity<?> deleteProduct(int id) {
+    public void deleteProduct(int id) {
         Product product = productRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
         product.setDeletedAt(LocalDateTime.now());
         productRepository.save(product);
-        return ResponseEntity.noContent().build();
     }
 
     @Transactional
-    public ResponseEntity<?> updateProductLiked(int id) {
+    public MessageResponse updateProductLiked(int id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         SysUser loggedInUser = userRepository.findByUsernameAndIsActiveTrue(auth.getName())
                 .orElseThrow(() -> new RuntimeException("User not found with username: " + auth.getName()));
 
-
         Optional<ProductLiked> productLiked = productLikedRepository.findByProductIdAndUserId(id, loggedInUser.getId());
 
         if (productLiked.isPresent()) {
-            return ResponseEntity.ok().body(
-                    new MessageResponse("Product already liked by this user")
-            );
+            return new MessageResponse("Product already liked by this user");
         }
 
         ProductLiked newProductLiked = new ProductLiked(
@@ -236,29 +226,22 @@ public class ProductService {
         );
 
         productLikedRepository.save(newProductLiked);
-        return ResponseEntity.ok().body(
-                new MessageResponse("Product liked successfully")
-        );
+        return new MessageResponse("Product liked successfully");
     }
 
     @Transactional
-    public ResponseEntity<?> deleteProductLiked(int id) {
+    public MessageResponse deleteProductLiked(int id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         SysUser loggedInUser = userRepository.findByUsernameAndIsActiveTrue(auth.getName())
                 .orElseThrow(() -> new RuntimeException("User not found with username: " + auth.getName()));
 
-
         Optional<ProductLiked> productLiked = productLikedRepository.findByProductIdAndUserId(id, loggedInUser.getId());
 
         if (productLiked.isEmpty()) {
-            return ResponseEntity.ok().body(
-                    new MessageResponse("Product not liked by this user")
-            );
+            return new MessageResponse("Product not liked by this user");
         }
 
         productLikedRepository.delete(productLiked.get());
-        return ResponseEntity.ok().body(
-                new MessageResponse("Product unliked successfully")
-        );
+        return new MessageResponse("Product unliked successfully");
     }
 }

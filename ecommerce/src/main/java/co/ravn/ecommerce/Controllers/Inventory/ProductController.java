@@ -3,6 +3,8 @@ package co.ravn.ecommerce.Controllers.Inventory;
 import co.ravn.ecommerce.DTO.Request.Inventory.ProductFilterRequest;
 import co.ravn.ecommerce.DTO.Request.Inventory.ProductUpdateRequest;
 import co.ravn.ecommerce.DTO.Response.Inventory.ProductCursorPage;
+import co.ravn.ecommerce.DTO.Response.Inventory.ProductResponse;
+import co.ravn.ecommerce.DTO.Response.MessageResponse;
 import co.ravn.ecommerce.Services.Inventory.ProductService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -10,6 +12,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -20,88 +25,64 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping("")
-    public ResponseEntity<?> getFilteredProducts(
+    public ResponseEntity<ProductCursorPage> getFilteredProducts(
             @ModelAttribute ProductFilterRequest productFilterRequest,
             @RequestParam(value = "page", required = false) Integer page,
             @RequestParam(value = "page_size", required = false) Integer pageSize,
             @RequestParam(value = "cursor", required = false) Integer cursor,
             @RequestParam(value = "limit", required = false) Integer limit,
             @RequestParam(value = "sort_by", required = false) String sortBy,
-            @RequestParam(value = "sort_order", required = false) String _sortOrder,
+            @RequestParam(value = "sort_order", required = false) String sortOrder,
             @RequestParam(value = "filter", required = false) String filter,
-            @RequestParam(value = "categories_id", required = false) java.util.List<Integer> categoriesIds,
-            @RequestParam(value = "tags_id", required = false) java.util.List<Integer> tagsId,
-            @RequestParam(value = "min_price", required = false) java.math.BigDecimal minPrice,
-            @RequestParam(value = "max_price", required = false) java.math.BigDecimal maxPrice,
+            @RequestParam(value = "categories_id", required = false) List<Integer> categoriesIds,
+            @RequestParam(value = "tags_id", required = false) List<Integer> tagsId,
+            @RequestParam(value = "min_price", required = false) BigDecimal minPrice,
+            @RequestParam(value = "max_price", required = false) BigDecimal maxPrice,
             @RequestParam(value = "available", required = false) Boolean available,
             @RequestParam(value = "is_active", required = false) Boolean isActive
     ) {
-        if (page != null) {
-            productFilterRequest.setPage(page);
-        }
-        if (pageSize != null) {
-            productFilterRequest.setPageSize(pageSize);
-        }
-        if (sortBy != null) {
-            productFilterRequest.setSortBy(sortBy);
-        }
-        if (_sortOrder != null) {
-            productFilterRequest.setSortOrder(_sortOrder);
-        }
-        if (filter != null) {
-            productFilterRequest.setFilter(filter);
-        }
-        if (categoriesIds != null) {
-            productFilterRequest.setCategoriesIds(categoriesIds);
-        }
-        if (tagsId != null) {
-            productFilterRequest.setTagsId(tagsId);
-        }
-        if (minPrice != null) {
-            productFilterRequest.setMinPrice(minPrice);
-        }
-        if (maxPrice != null) {
-            productFilterRequest.setMaxPrice(maxPrice);
-        }
-        if (available != null) {
-            productFilterRequest.setAvailable(available);
-        }
-        if (isActive != null) {
-            productFilterRequest.setIsActive(isActive);
-        }
+        if (page != null) productFilterRequest.setPage(page);
+        if (pageSize != null) productFilterRequest.setPageSize(pageSize);
+        if (sortBy != null) productFilterRequest.setSortBy(sortBy);
+        if (sortOrder != null) productFilterRequest.setSortOrder(sortOrder);
+        if (filter != null) productFilterRequest.setFilter(filter);
+        if (categoriesIds != null) productFilterRequest.setCategoriesIds(categoriesIds);
+        if (tagsId != null) productFilterRequest.setTagsId(tagsId);
+        if (minPrice != null) productFilterRequest.setMinPrice(minPrice);
+        if (maxPrice != null) productFilterRequest.setMaxPrice(maxPrice);
+        if (available != null) productFilterRequest.setAvailable(available);
+        if (isActive != null) productFilterRequest.setIsActive(isActive);
 
         if (limit == null) {
             limit = productFilterRequest.getPageSize();
         }
 
-        ProductCursorPage productPage = productService.getFilteredProductsCursor(productFilterRequest, cursor, limit);
-        return ResponseEntity.ok().body(productPage);
+        return ResponseEntity.ok(productService.getFilteredProductsCursor(productFilterRequest, cursor, limit));
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<?> updateProduct(@PathVariable @Min(1) int id, @RequestBody @Valid ProductUpdateRequest productUpdateRequest) {
-        return productService.updateProduct(id, productUpdateRequest);
+    public ResponseEntity<ProductResponse> updateProduct(@PathVariable @Min(1) int id, @RequestBody @Valid ProductUpdateRequest productUpdateRequest) {
+        return ResponseEntity.ok(productService.updateProduct(id, productUpdateRequest));
     }
 
     @PostMapping("")
-    public ResponseEntity<?> createProduct(@RequestBody @Valid ProductUpdateRequest productUpdateRequest) {
-        return productService.createProduct(productUpdateRequest);
+    public ResponseEntity<ProductResponse> createProduct(@RequestBody @Valid ProductUpdateRequest productUpdateRequest) {
+        return ResponseEntity.ok(productService.createProduct(productUpdateRequest));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteProduct(@PathVariable @Min(1) int id) {
-        return productService.deleteProduct(id);
+    public ResponseEntity<Void> deleteProduct(@PathVariable @Min(1) int id) {
+        productService.deleteProduct(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}/liked")
-    public ResponseEntity<?> updateProductLiked(@PathVariable @Min(1) int id) {
-        return productService.updateProductLiked(id);
+    public ResponseEntity<MessageResponse> updateProductLiked(@PathVariable @Min(1) int id) {
+        return ResponseEntity.ok(productService.updateProductLiked(id));
     }
 
     @DeleteMapping("/{id}/liked")
-    public ResponseEntity<?> deleteProductLiked(@PathVariable @Min(1) int id) {
-        return productService.deleteProductLiked(id);
+    public ResponseEntity<MessageResponse> deleteProductLiked(@PathVariable @Min(1) int id) {
+        return ResponseEntity.ok(productService.deleteProductLiked(id));
     }
-
-
 }

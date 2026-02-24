@@ -35,9 +35,8 @@ public class ProductFilterRequest {
 
     private BigDecimal maxPrice;
 
-    private boolean available;
+    private Boolean available;
 
-    private boolean isActive = true;
-
+    private Boolean isActive = true;
 
 }
