@@ -15,6 +15,7 @@ public class ProductImageResponse {
     private int id;
     private String image_url;
     private int product_id;
+    private String public_id;
     private Boolean is_primary_image;
     private Boolean is_active;
     private LocalDateTime created_at;

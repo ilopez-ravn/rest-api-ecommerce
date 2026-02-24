@@ -4,7 +4,15 @@ import org.hibernate.validator.constraints.URL;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
 public class ProductImageUpdate {
     @JsonProperty("image_url")
     @NotBlank(message = "Image URL is required")
@@ -14,4 +22,7 @@ public class ProductImageUpdate {
     @JsonProperty("is_primary_image")
     private Boolean isPrimaryImage;
 
+    @JsonProperty("public_id")
+    @NotBlank(message = "Public ID is required")
+    private String publicId;
 }

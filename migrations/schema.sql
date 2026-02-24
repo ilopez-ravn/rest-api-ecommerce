@@ -123,6 +123,7 @@ CREATE TABLE IF NOT EXISTS product_image (
     created_by INT REFERENCES sys_user(id) ON DELETE SET NULL,
 
     image_url TEXT NOT NULL,
+    public_id VARCHAR(255),
     is_primary_image BOOLEAN DEFAULT FALSE,
     is_active BOOLEAN DEFAULT TRUE,
     

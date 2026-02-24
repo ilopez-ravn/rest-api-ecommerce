@@ -4,18 +4,24 @@ import co.ravn.ecommerce.DTO.Request.Inventory.ProductFilterRequest;
 import co.ravn.ecommerce.DTO.Request.Inventory.ProductSpecification;
 import co.ravn.ecommerce.DTO.Request.Inventory.ProductUpdateRequest;
 import co.ravn.ecommerce.DTO.Response.MessageResponse;
+import co.ravn.ecommerce.DTO.Response.Inventory.ImageUploadResponse;
 import co.ravn.ecommerce.DTO.Response.Inventory.ProductCursorPage;
+import co.ravn.ecommerce.DTO.Response.Inventory.ProductImageResponse;
 import co.ravn.ecommerce.DTO.Response.Inventory.ProductResponse;
 import co.ravn.ecommerce.Entities.Auth.SysUser;
 import co.ravn.ecommerce.Entities.Cart.ProductLiked;
 import co.ravn.ecommerce.Entities.Inventory.Product;
 import co.ravn.ecommerce.Entities.Inventory.ProductChangesLog;
+import co.ravn.ecommerce.Entities.Inventory.ProductImage;
 import co.ravn.ecommerce.Entities.Inventory.Tag;
 import co.ravn.ecommerce.Entities.Inventory.Category;
+import co.ravn.ecommerce.DTO.Request.Inventory.ProductImageUpdate;
+import co.ravn.ecommerce.Mappers.Inventory.ProductImageMapper;
 import co.ravn.ecommerce.Mappers.Inventory.ProductMapper;
 import co.ravn.ecommerce.Repositories.Auth.UserRepository;
 import co.ravn.ecommerce.Repositories.Cart.ProductLikedRepository;
 import co.ravn.ecommerce.Repositories.Inventory.ProductChangesLogRepository;
+import co.ravn.ecommerce.Repositories.Inventory.ProductImageRepository;
 import co.ravn.ecommerce.Repositories.Inventory.ProductRepository;
 import co.ravn.ecommerce.Repositories.Inventory.TagRepository;
 import co.ravn.ecommerce.Repositories.Order.DeliveryStatusRepository;
@@ -37,6 +43,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.web.multipart.MultipartFile;
 
 
 @Service
@@ -51,8 +58,9 @@ public class ProductService {
     private final ProductLikedRepository productLikedRepository;
     private final CategoryRepository categoryRepository;
     private final ProductMapper productMapper;
-    private final DeliveryTrackingRepository deliveryTrackingRepository;
-    private final DeliveryStatusRepository deliveryStatusRepository;
+    private final ProductImageRepository productImageRepository;
+    private final ProductImageMapper productImageMapper;
+    private final CloudinaryService cloudinaryService;
 
     public Page<Product> getFilteredProducts(ProductFilterRequest productFilterRequest, Pageable pageable) {
         return productRepository.findAll(ProductSpecification.withSearchCriteria(productFilterRequest), pageable);
@@ -154,6 +162,63 @@ public class ProductService {
             }
         }
 
+        // Sync product images if provided
+        if (productUpdateRequest.getImageList() != null) {
+            List<ProductImageUpdate> requestedImages = productUpdateRequest.getImageList();
+            List<ProductImage> existingImages = productImageRepository.findByProductId(id);
+
+            // Map existing images by URL for quick lookup
+            java.util.Map<String, ProductImage> existingByUrl = new java.util.HashMap<>();
+            for (ProductImage existing : existingImages) {
+                existingByUrl.put(existing.getImageUrl(), existing);
+            }
+
+            java.util.Set<String> requestedUrls = new java.util.HashSet<>();
+            for (ProductImageUpdate dto : requestedImages) {
+                requestedUrls.add(dto.getImageUrl());
+            }
+
+            // Delete images that are no longer present in the request
+            List<ProductImage> toDelete = new ArrayList<>();
+            for (ProductImage existing : existingImages) {
+                if (!requestedUrls.contains(existing.getImageUrl())) {
+                    toDelete.add(existing);
+                }
+            }
+            if (!toDelete.isEmpty()) {
+                for (ProductImage image : toDelete) {
+                    if (image.getPublicId() != null) {
+                        cloudinaryService.delete(image.getPublicId());
+                    }
+                }
+                productImageRepository.deleteAll(toDelete);
+            }
+
+            // Upsert requested images (update existing by URL, create new ones when needed)
+            List<ProductImage> toSave = new ArrayList<>();
+            for (ProductImageUpdate dto : requestedImages) {
+                ProductImage image = existingByUrl.get(dto.getImageUrl());
+                if (image == null) {
+                    image = new ProductImage();
+                    image.setProductId(id);
+                    image.setImageUrl(dto.getImageUrl());
+                    image.setCreatedAt(LocalDateTime.now());
+                }
+                image.setIsPrimaryImage(dto.getIsPrimaryImage());
+                image.setIsActive(true);
+                if (dto.getPublicId() != null) {
+                    image.setPublicId(dto.getPublicId());
+                }
+                toSave.add(image);
+            }
+
+            if (!toSave.isEmpty()) {
+                productImageRepository.saveAll(toSave);
+            }
+
+            changes.add("Images updated");
+        }
+
         if (!changes.isEmpty()) {
             // Load logged in user
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -194,6 +259,25 @@ public class ProductService {
         }
 
         Product savedProduct = productRepository.save(product);
+
+        if (productUpdateRequest.getImageList() != null && !productUpdateRequest.getImageList().isEmpty()) {
+            List<ProductImageUpdate> imageUpdates = productUpdateRequest.getImageList();
+            List<ProductImage> images = new ArrayList<>();
+            for (ProductImageUpdate imageUpdate : imageUpdates) {
+                ProductImage image = new ProductImage();
+                image.setProductId(savedProduct.getId());
+                image.setImageUrl(imageUpdate.getImageUrl());
+                image.setIsPrimaryImage(imageUpdate.getIsPrimaryImage());
+                image.setPublicId(imageUpdate.getPublicId());
+                image.setIsActive(true);
+                image.setCreatedAt(LocalDateTime.now());
+                images.add(image);
+            }
+            if (!images.isEmpty()) {
+                productImageRepository.saveAll(images);
+            }
+        }
+
         return productMapper.toResponse(savedProduct);
     }
 
@@ -204,6 +288,61 @@ public class ProductService {
 
         product.setDeletedAt(LocalDateTime.now());
         productRepository.save(product);
+    }
+
+    @Transactional
+    public java.util.List<ProductImageResponse> addProductImages(int productId, List<MultipartFile> files, Boolean isPrimaryImage) {
+        Product product = productRepository.findByIdAndDeletedAtIsNull(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + productId));
+
+        List<ProductImage> images = new ArrayList<>();
+
+        if (Boolean.TRUE.equals(isPrimaryImage)) {
+            List<ProductImage> existingImages = productImageRepository.findByProductId(productId);
+            for (ProductImage existing : existingImages) {
+                if (Boolean.TRUE.equals(existing.getIsPrimaryImage())) {
+                    existing.setIsPrimaryImage(false);
+                }
+            }
+            productImageRepository.saveAll(existingImages);
+        }
+
+        for (MultipartFile file : files) {
+            ImageUploadResponse uploadResponse = cloudinaryService.upload(file);
+            ProductImage image = new ProductImage();
+            image.setProductId(product.getId());
+            image.setImageUrl(uploadResponse.getUrl());
+            image.setPublicId(uploadResponse.getPublic_id());
+            image.setIsPrimaryImage(isPrimaryImage);
+            image.setIsActive(true);
+            image.setCreatedAt(LocalDateTime.now());
+            images.add(image);
+        }
+
+        if (!images.isEmpty()) {
+            images = productImageRepository.saveAll(images);
+        }
+
+        return images.stream()
+                .map(productImageMapper::toResponse)
+                .toList();
+    }
+
+    @Transactional
+    public void deleteProductImage(int productId, int imageId) {
+        ProductImage image = productImageRepository.findByIdAndProductId(imageId, productId)
+                .orElseThrow(() -> new RuntimeException("Image not found for product id: " + productId));
+
+        if (image.getPublicId() != null) {
+            cloudinaryService.delete(image.getPublicId());
+        }
+
+        productImageRepository.delete(image);
+    }
+
+    @Transactional(readOnly = true)
+    public java.util.List<ImageUploadResponse> uploadImages(java.util.List<MultipartFile> files) {
+        return cloudinaryService.uploadMany(files);
     }
 
     @Transactional

@@ -3,6 +3,7 @@ package co.ravn.ecommerce.Controllers.Inventory;
 import co.ravn.ecommerce.DTO.Request.Inventory.ProductFilterRequest;
 import co.ravn.ecommerce.DTO.Request.Inventory.ProductUpdateRequest;
 import co.ravn.ecommerce.DTO.Response.Inventory.ProductCursorPage;
+import co.ravn.ecommerce.DTO.Response.Inventory.ProductImageResponse;
 import co.ravn.ecommerce.DTO.Response.Inventory.ProductResponse;
 import co.ravn.ecommerce.DTO.Response.MessageResponse;
 import co.ravn.ecommerce.Services.Inventory.ProductService;
@@ -12,6 +13,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -85,4 +87,23 @@ public class ProductController {
     public ResponseEntity<MessageResponse> deleteProductLiked(@PathVariable @Min(1) int id) {
         return ResponseEntity.ok(productService.deleteProductLiked(id));
     }
+
+    @PostMapping("/{id}/images")
+    public ResponseEntity<List<ProductImageResponse>> uploadProductImages(
+            @PathVariable @Min(1) int id,
+            @RequestParam("files") List<MultipartFile> files,
+            @RequestParam(value = "is_primary_image", required = false) Boolean isPrimaryImage
+    ) {
+        return ResponseEntity.ok(productService.addProductImages(id, files, isPrimaryImage));
+    }
+
+    @DeleteMapping("/{productId}/images/{imageId}")
+    public ResponseEntity<Void> deleteProductImage(
+            @PathVariable @Min(1) int productId,
+            @PathVariable @Min(1) int imageId
+    ) {
+        productService.deleteProductImage(productId, imageId);
+        return ResponseEntity.noContent().build();
+    }
+
 }

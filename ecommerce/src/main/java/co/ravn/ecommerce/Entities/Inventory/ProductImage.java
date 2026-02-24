@@ -21,6 +21,9 @@ public class ProductImage {
     @Column(name = "product_id")
     private int productId;
 
+    @Column(name = "public_id")
+    private String publicId;
+
     @Column(name = "is_primary_image")
     private Boolean isPrimaryImage;
 
