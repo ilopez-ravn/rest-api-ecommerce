@@ -12,38 +12,38 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @ConfigurationProperties(prefix = "app")
 public class EnvValidationConfig {
-	@NotBlank
-	private String jwtSecret;
+    @NotBlank
+    private String jwtSecret;
 
-	@NotNull
-	@Min(1)
-	private Integer jwtExpirationMinutes;
+    @NotNull
+    @Min(1)
+    private Integer jwtExpirationMinutes;
 
-	@NotNull
-	@Min(1)
-	private Integer refreshTokenExpirationDays;
+    @NotNull
+    @Min(1)
+    private Integer refreshTokenExpirationDays;
 
-	public String getJwtSecret() {
-		return jwtSecret;
-	}
+    public String getJwtSecret() {
+        return jwtSecret;
+    }
 
-	public void setJwtSecret(String jwtSecret) {
-		this.jwtSecret = jwtSecret;
-	}
+    public void setJwtSecret(String jwtSecret) {
+        this.jwtSecret = jwtSecret;
+    }
 
-	public Integer getJwtExpirationMinutes() {
-		return jwtExpirationMinutes;
-	}
+    public Integer getJwtExpirationMinutes() {
+        return jwtExpirationMinutes;
+    }
 
-	public void setJwtExpirationMinutes(Integer jwtExpirationMinutes) {
-		this.jwtExpirationMinutes = jwtExpirationMinutes;
-	}
+    public void setJwtExpirationMinutes(Integer jwtExpirationMinutes) {
+        this.jwtExpirationMinutes = jwtExpirationMinutes;
+    }
 
-	public Integer getRefreshTokenExpirationDays() {
-		return refreshTokenExpirationDays;
-	}
+    public Integer getRefreshTokenExpirationDays() {
+        return refreshTokenExpirationDays;
+    }
 
-	public void setRefreshTokenExpirationDays(Integer refreshTokenExpirationDays) {
-		this.refreshTokenExpirationDays = refreshTokenExpirationDays;
-	}
+    public void setRefreshTokenExpirationDays(Integer refreshTokenExpirationDays) {
+        this.refreshTokenExpirationDays = refreshTokenExpirationDays;
+    }
 }

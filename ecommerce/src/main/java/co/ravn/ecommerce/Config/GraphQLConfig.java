@@ -10,7 +10,6 @@ import org.springframework.graphql.execution.RuntimeWiringConfigurer;
 @Configuration
 public class GraphQLConfig {
 
-
     @Bean
     public GraphQLScalarType localDateTimeScalar() {
         return LocalDateTimeScalar.createLocalDateTimeScalar();

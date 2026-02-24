@@ -18,6 +18,11 @@ public class XSSFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-        chain.doFilter(new XSSRequestWrapper((HttpServletRequest) request), response);
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        if (httpRequest.getRequestURI().contains("/stripe/webhook")) {
+            chain.doFilter(request, response);
+        } else {
+            chain.doFilter(new XSSRequestWrapper(httpRequest), response);
+        }
     }
 }
