@@ -12,4 +12,5 @@ public interface ProductLikedRepository extends JpaRepository<ProductLiked, Inte
     List<ProductLiked> findByUserId(int userId);
     List<ProductLiked> findByProductId(int productId);
     Optional<ProductLiked> findByProductIdAndUserId(int productId, int userId);
+    List<ProductLiked> findByProductIdAndHasBeenNotifiedFalseOrHasBeenNotifiedIsNull(int productId);
 }

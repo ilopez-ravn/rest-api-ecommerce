@@ -3,12 +3,13 @@ package co.ravn.ecommerce.Utils.listener;
 import co.ravn.ecommerce.DTO.EmailType;
 import co.ravn.ecommerce.DTO.PasswordResetEvent;
 import co.ravn.ecommerce.Entities.Email;
-import co.ravn.ecommerce.Entities.EmailStatusEnum;
 import co.ravn.ecommerce.Entities.Auth.PasswordRecoveryToken;
 import co.ravn.ecommerce.Repositories.EmailRepository;
 import co.ravn.ecommerce.Repositories.Auth.PasswordRecoveryTokenRepository;
 import co.ravn.ecommerce.Services.MailService;
+import co.ravn.ecommerce.Utils.enums.EmailStatusEnum;
 import jakarta.mail.MessagingException;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,22 +21,14 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
+@AllArgsConstructor
 @Slf4j
 public class ResetPasswordListener {
 
-    @Autowired
-    private ResourceLoader resourceLoader;
-
+    private final ResourceLoader resourceLoader;
     private final EmailRepository emailRepository;
     private final PasswordRecoveryTokenRepository passwordRecoveryTokenRepository;
     private final MailService mailService;
-
-    @Autowired
-    public ResetPasswordListener(MailService mailService, EmailRepository emailRepository, PasswordRecoveryTokenRepository passwordRecoveryTokenRepository) {
-        this.mailService = mailService;
-        this.emailRepository = emailRepository;
-        this.passwordRecoveryTokenRepository = passwordRecoveryTokenRepository;
-    }
 
     @EventListener
     public void handleResetPassword(PasswordResetEvent passwordResetEvent) {
