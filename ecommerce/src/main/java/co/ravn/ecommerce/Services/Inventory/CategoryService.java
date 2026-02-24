@@ -6,31 +6,23 @@ import co.ravn.ecommerce.DTO.Response.Inventory.CategoryResponse;
 import co.ravn.ecommerce.Entities.Auth.SysUser;
 import co.ravn.ecommerce.Entities.Inventory.Category;
 import co.ravn.ecommerce.Entities.Inventory.Product;
+import co.ravn.ecommerce.Exception.ResourceNotFoundException;
 import co.ravn.ecommerce.Mappers.Inventory.CategoryMapper;
 import co.ravn.ecommerce.Repositories.Auth.UserRepository;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
+import co.ravn.ecommerce.Repositories.Inventory.CategoryRepository;
+import co.ravn.ecommerce.Repositories.Inventory.ProductRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 
-import co.ravn.ecommerce.Exception.ResourceNotFoundException;
-import co.ravn.ecommerce.Repositories.Inventory.CategoryRepository;
-import co.ravn.ecommerce.Repositories.Inventory.ProductRepository;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
 @Slf4j
-@Validated
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
@@ -38,19 +30,15 @@ public class CategoryService {
     private final CategoryMapper categoryMapper;
     private final UserRepository userRepository;
 
-    public ResponseEntity<?> getAllCategories() {
+    public List<CategoryResponse> getAllCategories() {
         List<Category> categories = categoryRepository.findByIsActiveTrue();
-
-        List<CategoryResponse> response = categories.stream()
+        return categories.stream()
                 .map(categoryMapper::toResponse)
                 .toList();
-
-        return ResponseEntity.ok()
-                .body(response);
     }
 
     @Transactional
-    public ResponseEntity<?> createCategory(@Valid CategoryCreateRequest categoryCreateRequest) {
+    public CategoryResponse createCategory(CategoryCreateRequest categoryCreateRequest) {
         Category category = categoryMapper.toEntity(categoryCreateRequest);
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -61,23 +49,21 @@ public class CategoryService {
         category.setCreatedBy(loggedInUser.getId());
 
         Category savedCategory = categoryRepository.save(category);
-        return ResponseEntity.ok()
-                .body(categoryMapper.toResponse(savedCategory));
+        return categoryMapper.toResponse(savedCategory);
     }
 
     @Transactional
-    public ResponseEntity<?> updateCategory(@Min(1) int id, @Valid CategoryUpdateRequest categoryUpdateRequest) {
+    public CategoryResponse updateCategory(int id, CategoryUpdateRequest categoryUpdateRequest) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
         categoryMapper.updateFromRequest(categoryUpdateRequest, category);
         Category updatedCategory = categoryRepository.save(category);
-        return ResponseEntity.ok()
-                .body(categoryMapper.toResponse(updatedCategory));
+        return categoryMapper.toResponse(updatedCategory);
     }
 
     @Transactional
-    public ResponseEntity<?> deleteCategory(@Min(1) int id) {
+    public void deleteCategory(int id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
@@ -93,6 +79,5 @@ public class CategoryService {
         productRepository.saveAll(products);
 
         categoryRepository.save(category);
-        return ResponseEntity.noContent().build();
     }
 }
