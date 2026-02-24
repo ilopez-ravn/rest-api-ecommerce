@@ -12,7 +12,7 @@ import java.util.List;
 public class ProductSpecification {
     public static Specification<Product> withSearchCriteria(ProductFilterRequest filterInput) {
         return (root, query, criteriaBuilder) -> {
-        List<Predicate> predicates = new ArrayList<>();
+            List<Predicate> predicates = new ArrayList<>();
 
             if (filterInput.getFilter() != null && !filterInput.getFilter().isBlank()) {
                 String like = "%" + filterInput.getFilter().toLowerCase() + "%";

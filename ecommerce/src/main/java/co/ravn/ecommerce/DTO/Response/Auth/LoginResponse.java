@@ -1,12 +1,14 @@
 package co.ravn.ecommerce.DTO.Response.Auth;
 
-import co.ravn.ecommerce.Entities.RoleEnum;
+import co.ravn.ecommerce.Utils.enums.RoleEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 @Getter
+@Setter
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,10 +20,4 @@ public class LoginResponse {
     private String firstName;
     private String lastName;
     private RoleEnum role;
-
-    public LoginResponse(String access_token, String refresh_token) {
-        this.access_token = access_token;
-        this.refresh_token = refresh_token;
-    }
-
 }

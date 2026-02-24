@@ -12,6 +12,8 @@ import java.util.Optional;
 
 public interface ProductRepository extends PagingAndSortingRepository<Product, Integer>, JpaRepository<Product, Integer>, JpaSpecificationExecutor<Product> {
     Optional<Product> findByIdAndDeletedAtIsNull(int id);
+    Optional<Product> findByIdAndIsActiveTrueAndDeletedAtIsNull(int id);
+    Optional<Product> findByIdAndIsActiveTrue(int id);
     
     List<Product> findByIdGreaterThanOrderByIdAsc(Long cursor, Pageable pageable);
     List<Product> findAllByOrderByIdAsc(Pageable pageable);

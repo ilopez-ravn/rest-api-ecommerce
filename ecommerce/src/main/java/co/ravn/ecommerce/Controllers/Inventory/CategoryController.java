@@ -3,21 +3,20 @@ package co.ravn.ecommerce.Controllers.Inventory;
 import co.ravn.ecommerce.DTO.Request.Inventory.CategoryCreateRequest;
 import co.ravn.ecommerce.DTO.Request.Inventory.CategoryUpdateRequest;
 import co.ravn.ecommerce.Services.Inventory.CategoryService;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@Validated
+@AllArgsConstructor
 @RequestMapping("api/v1/categories")
 public class CategoryController {
 
-    private CategoryService categoryService;
-
-    @Autowired
-    public CategoryController(CategoryService categoryService) {
-        this.categoryService = categoryService;
-    }
+    private final CategoryService categoryService;
 
     @GetMapping("")
     public ResponseEntity<?> getAllCategories() {
@@ -25,12 +24,12 @@ public class CategoryController {
     }
 
     @PostMapping("")
-    public ResponseEntity<?> createCategory(@RequestBody CategoryCreateRequest categoryCreateRequest) {
+    public ResponseEntity<?> createCategory(@RequestBody @Valid CategoryCreateRequest categoryCreateRequest) {
         return categoryService.createCategory(categoryCreateRequest);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateCategory(@PathVariable @Min(1) int id, @RequestBody CategoryUpdateRequest categoryUpdateRequest) {
+    public ResponseEntity<?> updateCategory(@PathVariable @Min(1) int id, @RequestBody @Valid CategoryUpdateRequest categoryUpdateRequest) {
         return categoryService.updateCategory(id, categoryUpdateRequest);
     }
 
@@ -38,5 +37,5 @@ public class CategoryController {
     public ResponseEntity<?> deleteCategory(@PathVariable @Min(1) int id) {
         return categoryService.deleteCategory(id);
     }
-    
+
 }

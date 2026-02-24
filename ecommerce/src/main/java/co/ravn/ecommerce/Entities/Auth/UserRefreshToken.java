@@ -2,6 +2,8 @@ package co.ravn.ecommerce.Entities.Auth;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 
@@ -21,12 +23,14 @@ public class UserRefreshToken {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private SysUser user;
 
-    @Column(name = "refresh_token")
+    @Column(name = "refresh_token", unique = true, nullable = false)
     private String refreshToken;
 
-    @Column(name = "token_expiry")
+    @JdbcTypeCode(SqlTypes.TIMESTAMP)
+    @Column(name = "token_expiry", nullable = false)
     private LocalDateTime tokenExpiry;
 
+    @JdbcTypeCode(SqlTypes.TIMESTAMP)
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -34,6 +38,7 @@ public class UserRefreshToken {
         this.user = user;
         this.refreshToken = refreshToken;
         this.tokenExpiry = tokenExpiry;
+        this.createdAt = LocalDateTime.now();
     }
 
 }

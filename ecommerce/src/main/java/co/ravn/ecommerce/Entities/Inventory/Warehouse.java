@@ -24,6 +24,7 @@ public class Warehouse {
     @JoinColumn(name = "created_by", referencedColumnName = "id")
     private SysUser createdBy;
 
+    @Column(nullable = false)
     private String name;
     private String location;
 

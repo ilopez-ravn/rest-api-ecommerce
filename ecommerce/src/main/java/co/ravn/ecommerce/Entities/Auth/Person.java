@@ -1,13 +1,16 @@
 package co.ravn.ecommerce.Entities.Auth;
 
-import co.ravn.ecommerce.Entities.PersonDocumentTypeEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+
+import co.ravn.ecommerce.Utils.enums.PersonDocumentTypeEnum;
 
 @Entity
 @NoArgsConstructor
@@ -20,16 +23,18 @@ public class Person {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "first_name")
+    @Column(name = "first_name", nullable = false)
     private String firstName;
-    @Column(name = "last_name")
+    @Column(name = "last_name", nullable = false)
     private String lastName;
+    @Column(unique = true, nullable = false)
     private String email;
     private String phone;
 
     private String document;
-    @Column(name = "document_type")
-    @Enumerated(EnumType.STRING)
+
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "document_type", nullable = false)
     private PersonDocumentTypeEnum documentType;
 
     @Column(name = "is_active")
@@ -38,7 +43,7 @@ public class Person {
     private LocalDateTime createdAt;
 
     @OneToOne
-    @JoinColumn(name="user_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private SysUser sysUser;
 
 

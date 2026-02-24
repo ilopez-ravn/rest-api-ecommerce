@@ -1,6 +1,7 @@
 package co.ravn.ecommerce.Services.Auth;
 
 import co.ravn.ecommerce.Utils.Constants;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import co.ravn.ecommerce.Entities.Auth.SysUser;
 import co.ravn.ecommerce.Repositories.Auth.UserRepository;
@@ -17,14 +18,13 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
+@AllArgsConstructor
 @Slf4j
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {

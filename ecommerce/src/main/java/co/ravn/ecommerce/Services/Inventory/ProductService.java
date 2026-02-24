@@ -11,16 +11,21 @@ import co.ravn.ecommerce.Entities.Cart.ProductLiked;
 import co.ravn.ecommerce.Entities.Inventory.Product;
 import co.ravn.ecommerce.Entities.Inventory.ProductChangesLog;
 import co.ravn.ecommerce.Entities.Inventory.Tag;
+import co.ravn.ecommerce.Entities.Order.DeliveryStatus;
+import co.ravn.ecommerce.Entities.Order.DeliveryTracking;
 import co.ravn.ecommerce.Entities.Inventory.Category;
+import co.ravn.ecommerce.Mappers.Inventory.ProductMapper;
 import co.ravn.ecommerce.Repositories.Auth.UserRepository;
 import co.ravn.ecommerce.Repositories.Cart.ProductLikedRepository;
 import co.ravn.ecommerce.Repositories.Inventory.ProductChangesLogRepository;
 import co.ravn.ecommerce.Repositories.Inventory.ProductRepository;
 import co.ravn.ecommerce.Repositories.Inventory.TagRepository;
+import co.ravn.ecommerce.Repositories.Order.DeliveryStatusRepository;
+import co.ravn.ecommerce.Repositories.Order.DeliveryTrackingRepository;
 import co.ravn.ecommerce.Repositories.Inventory.CategoryRepository;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,12 +38,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 
 @Service
 @Slf4j
+@AllArgsConstructor
 public class ProductService {
 
     private final UserRepository userRepository;
@@ -47,16 +54,9 @@ public class ProductService {
     private final TagRepository tagRepository;
     private final ProductLikedRepository productLikedRepository;
     private final CategoryRepository categoryRepository;
-
-    @Autowired
-    public ProductService(UserRepository userRepository, ProductRepository productRepository, ProductChangesLogRepository productChangesLogRepository, TagRepository tagRepository, ProductLikedRepository productLikedRepository, CategoryRepository categoryRepository) {
-        this.userRepository = userRepository;
-        this.productRepository = productRepository;
-        this.productChangesLogRepository = productChangesLogRepository;
-        this.tagRepository = tagRepository;
-        this.productLikedRepository = productLikedRepository;
-        this.categoryRepository = categoryRepository;
-    }
+    private final ProductMapper productMapper;
+    private final DeliveryTrackingRepository deliveryTrackingRepository;
+    private final DeliveryStatusRepository deliveryStatusRepository;
 
     public Page<Product> getFilteredProducts(ProductFilterRequest productFilterRequest, Pageable pageable) {
         return productRepository.findAll(ProductSpecification.withSearchCriteria(productFilterRequest), pageable);
@@ -81,7 +81,10 @@ public class ProductService {
             nextCursor = products.getLast().getId();
         }
 
-        return new ProductCursorPage(products, nextCursor, hasMore, totalItems);
+        List<ProductResponse> productResponses = products.stream()
+                .map(productMapper::toResponse)
+                .toList();
+        return new ProductCursorPage(productResponses, nextCursor, hasMore, totalItems);
     }
 
     @Transactional
@@ -118,7 +121,7 @@ public class ProductService {
             List<Tag> tagsToRemove = product.getTags().stream()
                     .filter(tag -> !productUpdateRequest.getTagList().contains(tag.getId()))
                     .toList();
-            
+
             product.getTags().removeAll(tagsToRemove);
             if (!productUpdateRequest.getTagList().isEmpty()) {
                 // get ids for new tags and add them
@@ -164,16 +167,16 @@ public class ProductService {
 
             String changeDescription = String.join("; ", changes);
             ProductChangesLog changeLog = new ProductChangesLog(
-                            product,
-                            changeDescription,
-                            loggedInUser
-                    );
+                    product,
+                    changeDescription,
+                    loggedInUser
+            );
             productChangesLogRepository.save(changeLog);
         }
 
         productRepository.save(product);
-        
-        return ResponseEntity.ok(new ProductResponse(product));
+
+        return ResponseEntity.ok(productMapper.toResponse(product));
     }
 
     @Transactional
@@ -183,13 +186,13 @@ public class ProductService {
         product.setDescription(productUpdateRequest.getDescription());
         product.setPrice(productUpdateRequest.getPrice());
         product.setIsActive(productUpdateRequest.getIsActive());
-        
+
         // Set tags if provided
         if (productUpdateRequest.getTagList() != null && !productUpdateRequest.getTagList().isEmpty()) {
             List<Tag> tags = tagRepository.findAllByIdInAndIsActiveTrue(productUpdateRequest.getTagList());
             product.setTags(tags);
         }
-        
+
         // Set categories if provided
         if (productUpdateRequest.getCategoryList() != null && !productUpdateRequest.getCategoryList().isEmpty()) {
             List<Category> categories = categoryRepository.findAllByIdInAndIsActiveTrue(productUpdateRequest.getCategoryList());
@@ -197,7 +200,7 @@ public class ProductService {
         }
 
         Product savedProduct = productRepository.save(product);
-        return ResponseEntity.ok(new ProductResponse(savedProduct));
+        return ResponseEntity.ok(productMapper.toResponse(savedProduct));
     }
 
     @Transactional
@@ -212,50 +215,50 @@ public class ProductService {
 
     @Transactional
     public ResponseEntity<?> updateProductLiked(int id) {
-                    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            SysUser loggedInUser = userRepository.findByUsernameAndIsActiveTrue(auth.getName())
-                    .orElseThrow(() -> new RuntimeException("User not found with username: " + auth.getName()));
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        SysUser loggedInUser = userRepository.findByUsernameAndIsActiveTrue(auth.getName())
+                .orElseThrow(() -> new RuntimeException("User not found with username: " + auth.getName()));
 
 
         Optional<ProductLiked> productLiked = productLikedRepository.findByProductIdAndUserId(id, loggedInUser.getId());
 
-        if(productLiked.isPresent()) {
+        if (productLiked.isPresent()) {
             return ResponseEntity.ok().body(
-                new MessageResponse("Product already liked by this user")
+                    new MessageResponse("Product already liked by this user")
             );
         }
 
         ProductLiked newProductLiked = new ProductLiked(
-            loggedInUser,
-            productRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id)),
-            false
+                loggedInUser,
+                productRepository.findByIdAndDeletedAtIsNull(id)
+                        .orElseThrow(() -> new RuntimeException("Product not found with id: " + id)),
+                false
         );
 
         productLikedRepository.save(newProductLiked);
         return ResponseEntity.ok().body(
-            new MessageResponse("Product liked successfully")
+                new MessageResponse("Product liked successfully")
         );
     }
 
     @Transactional
     public ResponseEntity<?> deleteProductLiked(int id) {
-                    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            SysUser loggedInUser = userRepository.findByUsernameAndIsActiveTrue(auth.getName())
-                    .orElseThrow(() -> new RuntimeException("User not found with username: " + auth.getName()));
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        SysUser loggedInUser = userRepository.findByUsernameAndIsActiveTrue(auth.getName())
+                .orElseThrow(() -> new RuntimeException("User not found with username: " + auth.getName()));
 
 
         Optional<ProductLiked> productLiked = productLikedRepository.findByProductIdAndUserId(id, loggedInUser.getId());
 
-        if(productLiked.isEmpty()) {
+        if (productLiked.isEmpty()) {
             return ResponseEntity.ok().body(
-                new MessageResponse("Product not liked by this user")
+                    new MessageResponse("Product not liked by this user")
             );
         }
 
         productLikedRepository.delete(productLiked.get());
         return ResponseEntity.ok().body(
-            new MessageResponse("Product unliked successfully")
+                new MessageResponse("Product unliked successfully")
         );
     }
 }

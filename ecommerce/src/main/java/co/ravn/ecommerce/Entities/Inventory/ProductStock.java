@@ -28,12 +28,12 @@ public class ProductStock {
     private Warehouse warehouse;
 
     @Column(nullable = false)
-    private Integer quantity;
+    private int quantity;
 
     @Column(name = "last_updated")
     private LocalDateTime lastUpdated;
 
-    public ProductStock(Product product, Warehouse warehouse, Integer quantity) {
+    public ProductStock(Product product, Warehouse warehouse, int quantity) {
         this.product = product;
         this.warehouse = warehouse;
         this.quantity = quantity;

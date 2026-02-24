@@ -3,6 +3,7 @@ package co.ravn.ecommerce.Services.Auth;
 import co.ravn.ecommerce.Utils.Constants;
 import co.ravn.ecommerce.Entities.Auth.SysUser;
 import co.ravn.ecommerce.Repositories.Auth.UserRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

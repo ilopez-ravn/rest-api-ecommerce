@@ -33,7 +33,7 @@ public class ProductChangesLog {
 
     @Column(name = "changed_at")
     private LocalDateTime changedAt;
-    
+
     public ProductChangesLog(Product product, String changeDescription, SysUser changedBy) {
         this.product = product;
         this.changeDescription = changeDescription;

@@ -1,6 +1,6 @@
 package co.ravn.ecommerce.Entities.Auth;
 
-import co.ravn.ecommerce.Entities.RoleEnum;
+import co.ravn.ecommerce.Utils.enums.RoleEnum;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,6 +17,7 @@ public class Role {
     private int id;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private RoleEnum name;
 
     @Column(name = "is_active")

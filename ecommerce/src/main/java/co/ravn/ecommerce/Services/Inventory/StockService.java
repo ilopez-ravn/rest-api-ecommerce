@@ -1,6 +1,5 @@
 package co.ravn.ecommerce.Services.Inventory;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -15,20 +14,15 @@ import co.ravn.ecommerce.Entities.Inventory.Warehouse;
 import co.ravn.ecommerce.Repositories.Auth.UserRepository;
 import co.ravn.ecommerce.Repositories.Inventory.ProductChangesLogRepository;
 import co.ravn.ecommerce.Repositories.Inventory.ProductStockRepository;
+import lombok.AllArgsConstructor;
 
 @Service
+@AllArgsConstructor
 public class StockService {
-    
-private ProductStockRepository productStockRepository;
+
+    private ProductStockRepository productStockRepository;
     private final ProductChangesLogRepository productChangesLogRepository;
     private final UserRepository userRepository;
-
-    @Autowired
-    public StockService(ProductStockRepository productStockRepository, ProductChangesLogRepository productChangesLogRepository, UserRepository userRepository) {
-        this.productStockRepository = productStockRepository;
-        this.productChangesLogRepository = productChangesLogRepository;
-        this.userRepository = userRepository;
-    }
 
     @Transactional
     public ProductStock modifyStock(Warehouse warehouse, Product product, StockOperationType type, int quantity) {
@@ -57,14 +51,14 @@ private ProductStockRepository productStockRepository;
         }
 
         // Register the changes in ProductChangesLog
-                    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            SysUser loggedInUser = userRepository.findByUsernameAndIsActiveTrue(auth.getName())
-                    .orElseThrow(() -> new RuntimeException("User not found with username: " + auth.getName()));
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        SysUser loggedInUser = userRepository.findByUsernameAndIsActiveTrue(auth.getName())
+                .orElseThrow(() -> new RuntimeException("User not found with username: " + auth.getName()));
 
         ProductChangesLog logEntry = new ProductChangesLog(
-            product,
-            "Stock change from "    + currentQuantity + " to " + newQuantity + " in warehouse " + warehouse.getName(),
-            loggedInUser
+                product,
+                "Stock change from " + currentQuantity + " to " + newQuantity + " in warehouse " + warehouse.getName(),
+                loggedInUser
         );
 
         productChangesLogRepository.save(logEntry);

@@ -3,38 +3,37 @@ package co.ravn.ecommerce.Services.Inventory;
 import co.ravn.ecommerce.DTO.Request.Inventory.AddStockRequest;
 import co.ravn.ecommerce.DTO.Request.Inventory.NewWarehouseRequest;
 import co.ravn.ecommerce.DTO.Request.Inventory.UpdateWarehouseRequest;
+import co.ravn.ecommerce.DTO.Response.Inventory.WarehouseResponse;
 import co.ravn.ecommerce.Entities.Inventory.Product;
 import co.ravn.ecommerce.Entities.Inventory.ProductStock;
 import co.ravn.ecommerce.Entities.Inventory.Warehouse;
 import co.ravn.ecommerce.Exception.ResourceNotFoundException;
+import co.ravn.ecommerce.Mappers.Inventory.ProductStockMapper;
+import co.ravn.ecommerce.Mappers.Inventory.WarehouseMapper;
 import co.ravn.ecommerce.Repositories.Inventory.ProductRepository;
 import co.ravn.ecommerce.Repositories.Inventory.WarehouseRepository;
+import lombok.AllArgsConstructor;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@AllArgsConstructor
 public class WarehouseService {
 
-    private WarehouseRepository warehouseRepository;
-    private ProductRepository productRepository;
-    private StockService stockService;
+    private final WarehouseRepository warehouseRepository;
+    private final ProductRepository productRepository;
+    private final StockService stockService;
+    private final WarehouseMapper warehouseMapper;
+    private final ProductStockMapper productStockMapper;
 
-    @Autowired
-    public WarehouseService(WarehouseRepository warehouseRepository, ProductRepository productRepository, StockService stockService) {
-        this.warehouseRepository = warehouseRepository;
-        this.productRepository = productRepository;
-        this.stockService = stockService;
-    }
-    
-    
     public ResponseEntity<?> getActiveWarehouses() {
         List<Warehouse> activeWarehouses = warehouseRepository.findByIsActiveTrue();
-        return ResponseEntity.ok(activeWarehouses);
+        List<WarehouseResponse> body = activeWarehouses.stream().map(warehouseMapper::toResponse).toList();
+        return ResponseEntity.ok(body);
     }
 
     @Transactional
@@ -48,8 +47,8 @@ public class WarehouseService {
         warehouse.setName(newWarehouseRequest.getName());
         warehouse.setLocation(newWarehouseRequest.getLocation());
 
-        warehouseRepository.save(warehouse);
-        return ResponseEntity.ok(warehouse);
+        Warehouse saved = warehouseRepository.save(warehouse);
+        return ResponseEntity.ok(warehouseMapper.toResponse(saved));
     }
 
     @Transactional
@@ -68,8 +67,8 @@ public class WarehouseService {
         warehouse.setName(updateWarehouseRequest.getName());
         warehouse.setLocation(updateWarehouseRequest.getLocation());
 
-        warehouseRepository.save(warehouse);
-        return ResponseEntity.ok(warehouse);
+        Warehouse saved = warehouseRepository.save(warehouse);
+        return ResponseEntity.ok(warehouseMapper.toResponse(saved));
     }
 
     @Transactional
@@ -95,6 +94,6 @@ public class WarehouseService {
         );
 
         ProductStock updatedStock = stockService.modifyStock(warehouse, product, addStockRequest.getType(), addStockRequest.getQuantity());
-        return ResponseEntity.ok(updatedStock);
+        return ResponseEntity.ok(productStockMapper.toResponse(updatedStock));
     }
 }   

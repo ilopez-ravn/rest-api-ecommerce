@@ -1,16 +1,14 @@
 package co.ravn.ecommerce.DTO.Response.Inventory;
 
-import co.ravn.ecommerce.Entities.Inventory.Product;
-
 import java.util.List;
 
 public class ProductCursorPage {
-    private List<Product> content;
+    private List<ProductResponse> content;
     private Integer nextCursor;
     private boolean hasMore;
     private long totalItems;
 
-    public ProductCursorPage(List<Product> content, Integer nextCursor, boolean hasMore, long totalItems) {
+    public ProductCursorPage(List<ProductResponse> content, Integer nextCursor, boolean hasMore, long totalItems) {
         this.content = content;
         this.nextCursor = nextCursor;
         this.hasMore = hasMore;
@@ -18,7 +16,7 @@ public class ProductCursorPage {
     }
 
     public List<ProductResponse> getContent() {
-        return content.stream().map(ProductResponse::new).toList();
+        return content;
     }
 
     public Integer getNextCursor() {

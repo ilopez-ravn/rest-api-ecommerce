@@ -1,6 +1,7 @@
 package co.ravn.ecommerce.Models.GraphQL;
 
-import co.ravn.ecommerce.Entities.Product;
+
+import co.ravn.ecommerce.Entities.Inventory.Product;
 
 public class ProductEdge {
     private Product node;

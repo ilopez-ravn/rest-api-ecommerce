@@ -6,12 +6,14 @@ import graphql.schema.CoercingParseLiteralException;
 import graphql.schema.CoercingParseValueException;
 import graphql.schema.CoercingSerializeException;
 import graphql.schema.GraphQLScalarType;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 public class LocalDateTimeScalar {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
     public static GraphQLScalarType createLocalDateTimeScalar() {
         return GraphQLScalarType.newScalar()
                 .name("LocalDateTime")
@@ -24,6 +26,7 @@ public class LocalDateTimeScalar {
                         }
                         throw new CoercingSerializeException("Expected a LocalDateTime object.");
                     }
+
                     @Override
                     public LocalDateTime parseValue(Object input) {
                         if (input instanceof String dateTimeStr) {
@@ -36,6 +39,7 @@ public class LocalDateTimeScalar {
                         }
                         throw new CoercingParseValueException("Expected a String value for LocalDateTime.");
                     }
+
                     @Override
                     public LocalDateTime parseLiteral(Object input) {
                         if (input instanceof StringValue stringValue) {

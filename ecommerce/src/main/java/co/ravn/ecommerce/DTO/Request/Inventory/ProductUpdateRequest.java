@@ -21,9 +21,9 @@ public class ProductUpdateRequest {
 
     @JsonProperty("category_list")
     private List<Integer> categoryList;
-    
+
     @JsonProperty("tag_list")
-    private List <Integer> tagList;
+    private List<Integer> tagList;
 
     @JsonProperty("image_list")
     private List<ProductImageUpdate> imageList;

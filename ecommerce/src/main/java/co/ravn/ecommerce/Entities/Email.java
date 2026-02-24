@@ -2,6 +2,7 @@ package co.ravn.ecommerce.Entities;
 
 import co.ravn.ecommerce.DTO.EmailType;
 import co.ravn.ecommerce.Entities.Auth.SysUser;
+import co.ravn.ecommerce.Utils.enums.EmailStatusEnum;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,6 +14,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -36,20 +39,24 @@ public class Email {
     @JoinColumn(name = "created_by", referencedColumnName = "id")
     private SysUser createdBy;
 
-    @Column(name = "recipient_email")
+    @Column(name = "recipient_email", nullable = false)
     private String recipientEmail;
     private String cc;
     private String bcc;
+    @Column(nullable = false)
     private String subject;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String body;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(nullable = false, columnDefinition = "email_status_enum")
     private EmailStatusEnum status;
 
-    @Column(name = "email_type")
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "email_type", nullable = false, columnDefinition = "email_type_enum")
     private EmailType emailType;
 
     public Email(String recipientEmail, String cc, String bcc, String subject, String body, EmailStatusEnum status, EmailType emailType) {

@@ -5,56 +5,57 @@ import co.ravn.ecommerce.DTO.Request.Inventory.TagUpdateRequest;
 import co.ravn.ecommerce.DTO.Response.Inventory.TagResponse;
 import co.ravn.ecommerce.Entities.Inventory.Tag;
 import co.ravn.ecommerce.Entities.Inventory.Product;
+import co.ravn.ecommerce.Mappers.Inventory.TagMapper;
 import co.ravn.ecommerce.Repositories.Inventory.ProductRepository;
 import co.ravn.ecommerce.Repositories.Inventory.TagRepository;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 
 @Service
+@AllArgsConstructor
+@Validated
 public class TagService {
 
     private final TagRepository tagRepository;
     private final ProductRepository productRepository;
-
-    @Autowired
-    public TagService(TagRepository tagRepository, ProductRepository productRepository) {
-        this.tagRepository = tagRepository;
-        this.productRepository = productRepository;
-    }
+    private final TagMapper tagMapper;
 
     public ResponseEntity<?> getAllTags() {
         List<Tag> tags = tagRepository.findByIsActiveTrue();
         List<TagResponse> response = tags.stream()
-            .map(TagResponse::new)
-            .toList();
+                .map(tagMapper::toResponse)
+                .toList();
 
         return ResponseEntity.ok()
-            .body(response);
+                .body(response);
     }
 
     @Transactional
-    public ResponseEntity<?> createTag(TagCreateRequest tagCreateRequest) {
-        Tag tag = new Tag(tagCreateRequest.getName());
+    public ResponseEntity<?> createTag(@Valid TagCreateRequest tagCreateRequest) {
+        Tag tag = tagMapper.toEntity(tagCreateRequest);
 
         Tag savedTag = tagRepository.save(tag);
         return ResponseEntity.ok()
-                .body(new TagResponse(savedTag));
+                .body(tagMapper.toResponse(savedTag));
     }
 
     @Transactional
-    public ResponseEntity<?> updateTag(@Min(1) int id, TagUpdateRequest tagUpdateRequest) {
+    public ResponseEntity<?> updateTag(@Min(1) int id, @Valid TagUpdateRequest tagUpdateRequest) {
         Tag tag = tagRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tag not found"));
 
-        tag.setName(tagUpdateRequest.getName());
+        tagMapper.updateFromRequest(tagUpdateRequest, tag);
         Tag updatedTag = tagRepository.save(tag);
         return ResponseEntity.ok()
-            .body(new TagResponse(updatedTag));
+                .body(tagMapper.toResponse(updatedTag));
     }
 
     @Transactional

@@ -11,6 +11,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,18 +33,20 @@ public class PasswordRecoveryToken {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private SysUser user;
 
-    @Column(name = "recovery_token")
+    @Column(name = "recovery_token", unique = true, nullable = false)
     private String recoveryToken;
 
-    @Column(name = "token_expiry")
+    @Column(name = "token_expiry", nullable = false)
     private Date tokenExpiry;
 
+    @JdbcTypeCode(SqlTypes.TIMESTAMP)
     @Column(name = "created_at")
-    private String createdAt;
+    private LocalDateTime createdAt;
 
     public PasswordRecoveryToken(SysUser user, String recoveryToken, Date tokenExpiry) {
         this.user = user;
         this.recoveryToken = recoveryToken;
         this.tokenExpiry = tokenExpiry;
+        this.createdAt = LocalDateTime.now();
     }
 }

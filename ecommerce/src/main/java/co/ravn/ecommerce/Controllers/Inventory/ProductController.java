@@ -4,21 +4,20 @@ import co.ravn.ecommerce.DTO.Request.Inventory.ProductFilterRequest;
 import co.ravn.ecommerce.DTO.Request.Inventory.ProductUpdateRequest;
 import co.ravn.ecommerce.DTO.Response.Inventory.ProductCursorPage;
 import co.ravn.ecommerce.Services.Inventory.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@AllArgsConstructor
+@Validated
 @RequestMapping("api/v1/products")
 public class ProductController {
 
     private final ProductService productService;
-
-    @Autowired
-    public ProductController(ProductService productService) {
-        this.productService = productService;
-    }
-
 
     @GetMapping("")
     public ResponseEntity<?> getFilteredProducts(
@@ -80,31 +79,29 @@ public class ProductController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<?> updateProduct(@PathVariable int id, @RequestBody ProductUpdateRequest productUpdateRequest) {
+    public ResponseEntity<?> updateProduct(@PathVariable @Min(1) int id, @RequestBody @Valid ProductUpdateRequest productUpdateRequest) {
         return productService.updateProduct(id, productUpdateRequest);
     }
 
     @PostMapping("")
-    public ResponseEntity<?> createProduct(@RequestBody ProductUpdateRequest productUpdateRequest) {
+    public ResponseEntity<?> createProduct(@RequestBody @Valid ProductUpdateRequest productUpdateRequest) {
         return productService.createProduct(productUpdateRequest);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteProduct(@PathVariable int id) {
+    public ResponseEntity<?> deleteProduct(@PathVariable @Min(1) int id) {
         return productService.deleteProduct(id);
     }
 
     @PutMapping("/{id}/liked")
-    public ResponseEntity<?> updateProductLiked(@PathVariable int id) {
+    public ResponseEntity<?> updateProductLiked(@PathVariable @Min(1) int id) {
         return productService.updateProductLiked(id);
     }
 
     @DeleteMapping("/{id}/liked")
-    public ResponseEntity<?> deleteProductLiked(@PathVariable int id) {
+    public ResponseEntity<?> deleteProductLiked(@PathVariable @Min(1) int id) {
         return productService.deleteProductLiked(id);
     }
-
-
 
 
 }

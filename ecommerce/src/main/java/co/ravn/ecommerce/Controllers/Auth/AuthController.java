@@ -2,18 +2,21 @@ package co.ravn.ecommerce.Controllers.Auth;
 
 import co.ravn.ecommerce.DTO.Request.Auth.*;
 import co.ravn.ecommerce.Services.Auth.AuthService;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 
 @RestController
+@AllArgsConstructor
+@Validated
 @RequestMapping("api/v1/users")
 public class AuthController {
-    @Autowired
-    private AuthService authService;
+    private final AuthService authService;
 
     @GetMapping
     public ResponseEntity<?> getUsers() {
@@ -21,22 +24,22 @@ public class AuthController {
     }
 
     @PostMapping("")
-    public ResponseEntity<?> createUser(@RequestBody UserRegisterRequest userRegisterRequest) {
+    public ResponseEntity<?> createUser(@RequestBody @Valid UserRegisterRequest userRegisterRequest) {
         return authService.createUser(userRegisterRequest);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> login(@RequestBody @Valid LoginRequest loginRequest) {
         return authService.authenticateUser(loginRequest);
     }
 
     @PutMapping("/signout")
-    public ResponseEntity<?> logout(@RequestBody LogoutRequest logoutRequest) {
-        return authService.logoutUser(logoutRequest);
+    public ResponseEntity<?> logout() {
+        return authService.logoutUser();
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenRequest refreshTokenRequest) {
+    public ResponseEntity<?> refreshToken(@RequestBody @Valid RefreshTokenRequest refreshTokenRequest) {
         return authService.generateAccessToken(refreshTokenRequest);
     }
 
@@ -44,7 +47,6 @@ public class AuthController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable @Min(1) int id) {
-
         return authService.getUserById(id);
     }
 
@@ -52,12 +54,12 @@ public class AuthController {
     // Password recovery
 
     @PostMapping("/password/token")
-    public ResponseEntity<?> requestPasswordResetToken(@RequestBody PasswordResetEmailRequest request) {
+    public ResponseEntity<?> requestPasswordResetToken(@RequestBody @Valid PasswordResetEmailRequest request) {
         return authService.requestPasswordResetToken(request);
     }
 
     @PutMapping("/password")
-    public ResponseEntity<?> resetPassword(@RequestBody PasswordResetRequest passwordResetRequest) {
+    public ResponseEntity<?> resetPassword(@RequestBody @Valid PasswordResetRequest passwordResetRequest) {
         return authService.resetPassword(passwordResetRequest);
     }
 
