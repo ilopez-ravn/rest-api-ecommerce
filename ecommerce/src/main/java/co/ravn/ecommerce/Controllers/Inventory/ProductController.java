@@ -62,6 +62,11 @@ public class ProductController {
         return ResponseEntity.ok(productService.getFilteredProductsCursor(productFilterRequest, cursor, limit));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductResponse> getProductById(@PathVariable @Min(1) int id) {
+        return ResponseEntity.ok(productService.getProductById(id));
+    }
+
     @PatchMapping("/{id}")
     public ResponseEntity<ProductResponse> updateProduct(@PathVariable @Min(1) int id, @RequestBody @Valid ProductUpdateRequest productUpdateRequest) {
         return ResponseEntity.ok(productService.updateProduct(id, productUpdateRequest));

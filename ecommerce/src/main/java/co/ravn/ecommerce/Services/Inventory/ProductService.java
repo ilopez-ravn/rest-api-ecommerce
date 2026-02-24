@@ -8,24 +8,26 @@ import co.ravn.ecommerce.DTO.Response.Inventory.ImageUploadResponse;
 import co.ravn.ecommerce.DTO.Response.Inventory.ProductCursorPage;
 import co.ravn.ecommerce.DTO.Response.Inventory.ProductImageResponse;
 import co.ravn.ecommerce.DTO.Response.Inventory.ProductResponse;
+import co.ravn.ecommerce.DTO.Response.Inventory.ProductStockResponse;
 import co.ravn.ecommerce.Entities.Auth.SysUser;
 import co.ravn.ecommerce.Entities.Cart.ProductLiked;
 import co.ravn.ecommerce.Entities.Inventory.Product;
 import co.ravn.ecommerce.Entities.Inventory.ProductChangesLog;
 import co.ravn.ecommerce.Entities.Inventory.ProductImage;
+import co.ravn.ecommerce.Entities.Inventory.ProductStock;
 import co.ravn.ecommerce.Entities.Inventory.Tag;
 import co.ravn.ecommerce.Entities.Inventory.Category;
 import co.ravn.ecommerce.DTO.Request.Inventory.ProductImageUpdate;
 import co.ravn.ecommerce.Mappers.Inventory.ProductImageMapper;
 import co.ravn.ecommerce.Mappers.Inventory.ProductMapper;
+import co.ravn.ecommerce.Mappers.Inventory.ProductStockMapper;
 import co.ravn.ecommerce.Repositories.Auth.UserRepository;
 import co.ravn.ecommerce.Repositories.Cart.ProductLikedRepository;
 import co.ravn.ecommerce.Repositories.Inventory.ProductChangesLogRepository;
 import co.ravn.ecommerce.Repositories.Inventory.ProductImageRepository;
 import co.ravn.ecommerce.Repositories.Inventory.ProductRepository;
+import co.ravn.ecommerce.Repositories.Inventory.ProductStockRepository;
 import co.ravn.ecommerce.Repositories.Inventory.TagRepository;
-import co.ravn.ecommerce.Repositories.Order.DeliveryStatusRepository;
-import co.ravn.ecommerce.Repositories.Order.DeliveryTrackingRepository;
 import co.ravn.ecommerce.Repositories.Inventory.CategoryRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -60,6 +62,8 @@ public class ProductService {
     private final ProductMapper productMapper;
     private final ProductImageRepository productImageRepository;
     private final ProductImageMapper productImageMapper;
+    private final ProductStockRepository productStockRepository;
+    private final ProductStockMapper productStockMapper;
     private final CloudinaryService cloudinaryService;
 
     public Page<Product> getFilteredProducts(ProductFilterRequest productFilterRequest, Pageable pageable) {
@@ -85,9 +89,36 @@ public class ProductService {
         }
 
         List<ProductResponse> productResponses = products.stream()
-                .map(productMapper::toResponse)
+                .map(product -> {
+                    ProductResponse response = productMapper.toResponse(product);
+                    // attach first warehouse stock if present
+                    List<ProductStock> stocks = productStockRepository.findByProductId(product.getId());
+                    if (!stocks.isEmpty()) {
+                        ProductStock firstStock = stocks.getFirst();
+                        ProductStockResponse stockResponse = productStockMapper.toResponse(firstStock);
+                        response.setStock(stockResponse);
+                    }
+                    return response;
+                })
                 .toList();
         return new ProductCursorPage(productResponses, nextCursor, hasMore, totalItems);
+    }
+
+    @Transactional(readOnly = true)
+    public ProductResponse getProductById(int id) {
+        Product product = productRepository.findByIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+
+        ProductResponse response = productMapper.toResponse(product);
+
+        List<ProductStock> stocks = productStockRepository.findByProductId(product.getId());
+        if (!stocks.isEmpty()) {
+            ProductStock firstStock = stocks.getFirst();
+            ProductStockResponse stockResponse = productStockMapper.toResponse(firstStock);
+            response.setStock(stockResponse);
+        }
+
+        return response;
     }
 
     @Transactional
@@ -278,7 +309,17 @@ public class ProductService {
             }
         }
 
-        return productMapper.toResponse(savedProduct);
+        ProductResponse response = productMapper.toResponse(savedProduct);
+
+        // Attach first warehouse stock if it already exists for this product
+        List<ProductStock> stocks = productStockRepository.findByProductId(savedProduct.getId());
+        if (!stocks.isEmpty()) {
+            ProductStock firstStock = stocks.getFirst();
+            ProductStockResponse stockResponse = productStockMapper.toResponse(firstStock);
+            response.setStock(stockResponse);
+        }
+
+        return response;
     }
 
     @Transactional
@@ -288,6 +329,15 @@ public class ProductService {
 
         product.setDeletedAt(LocalDateTime.now());
         productRepository.save(product);
+    }
+
+    @Transactional
+    public Product updateProductStatus(int id, boolean isActive) {
+        Product product = productRepository.findByIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+
+        product.setIsActive(isActive);
+        return productRepository.save(product);
     }
 
     @Transactional

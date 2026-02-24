@@ -22,5 +22,6 @@ public class ProductResponse {
     private List<CategoryResponse> categories;
     private List<TagResponse> tags;
     private List<ProductImageResponse> product_images;
+    private ProductStockResponse stock;
     private LocalDateTime created_at;
 }
