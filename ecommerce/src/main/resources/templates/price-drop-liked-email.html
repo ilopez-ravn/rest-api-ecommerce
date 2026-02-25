@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Price Drop Alert</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+<table role="presentation" style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 8px;">
+  <tr>
+    <td style="text-align: center;">
+      <h1 style="color: #333333;">Good news!</h1>
+      <p style="color: #666666; font-size: 16px;">Hello {{name}},</p>
+      <p style="color: #666666; font-size: 16px;">The price of a product you liked has just dropped.</p>
+      <p style="color: #666666; font-size: 16px;">
+        <strong>{{product_name}}</strong> went from
+        <strong>{{old_price}}</strong> to <strong>{{new_price}}</strong>.
+      </p>
+      <p style="color: #666666; font-size: 16px;">Don't miss this deal — grab it before the price goes back up.</p>
+
+      <a href="{{product_link}}" style="display: inline-block; padding: 15px 25px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px; font-weight: bold; margin: 20px 0;">View product</a>
+
+      <p style="color: #999999; font-size: 14px;">Thank you for shopping with us.</p>
+    </td>
+  </tr>
+</table>
+</body>
+</html>
