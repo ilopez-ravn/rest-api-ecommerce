@@ -2,16 +2,16 @@ package co.ravn.ecommerce.Resolver;
 
 import co.ravn.ecommerce.Entities.Inventory.Category;
 import co.ravn.ecommerce.Repositories.Inventory.CategoryRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.stereotype.Controller;
 
 @Controller
+@AllArgsConstructor
 public class CategoryMutationResolver {
 
-    @Autowired
-    private CategoryRepository categoryRepository;
+    private final CategoryRepository categoryRepository;
 
     @MutationMapping
     public Category addCategory(@Argument String name,

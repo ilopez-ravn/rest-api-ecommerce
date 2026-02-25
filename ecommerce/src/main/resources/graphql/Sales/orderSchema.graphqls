@@ -6,7 +6,11 @@ extend type Query {
     """
     Retrieve an order details by its ID
     """
-    getOrderById(id: ID!): SaleOrder!
+    getOrderById(id: ID!): Order!
+    """
+    Retrieve a page of orders for the currently authenticated client
+    """
+    myOrders(page: Int, size: Int): OrderPage!
 }
 
 extend type Mutation {
@@ -14,7 +18,7 @@ extend type Mutation {
     Create an order based on a cart
     """
 
-    createOrderByShoppingCart(newOrder: NewOrderInput): SaleOrder!
+    createOrderByShoppingCart(newOrder: NewOrderInput): Order!
 
     """
     Deletes an order by its ID.
@@ -30,45 +34,48 @@ input NewOrderInput {
 }
 
 type OrderPage {
-    content: [SaleOrder!]!
+    content: [Order!]!
     totalPages: Int!
     totalElements: Int!
     number: Int!
     size: Int!
 }
 
-
-type SaleOrder {
+"""
+Represents an order with billing, client, warehouse and tracking information
+"""
+type Order {
     id: ID!
+    order_date: LocalDateTime!
+    bill: BillingInfo!
+    address: Address!
+    payment: StripePayment!
     client: Person!
-    orderBill: OrderBill!
     warehouse: Warehouse!
-    orderItems: [SaleOrderItem!]!
-    stripePayment: StripePayment!
-    deliveryTracking: DeliveryTracking
-    createdAt: LocalDateTime!
-    orderDate: LocalDateTime!
-    isActive: Boolean!
+    tracking: DeliveryTracking!
+    items: [OrderItem!]!
 }
 
-
-
-type OrderBill {
-    id: ID!
-    documentType: String!
-    documentNumber: String!
-    taxPercentage: Int!
-    totalAmount: Float!
-    deliveryFee: Float!
-    taxAmount: Float!
+"""
+Billing information for an order
+"""
+type BillingInfo {
+    document_number: String!
+    document_type: String!
+    total_amount: Float!
+    tax_amount: Float!
+    delivery_fee: Float!
 }
 
-type SaleOrderItem {
-    id: ID!
-    product: Product!
+"""
+Item inside an order
+"""
+type OrderItem {
+    product_id: ID!
+    product_name: String!
     price: Float!
     quantity: Int!
-    taxPercentage: Float!
-    taxAmount: Float!
-    totalAmount: Float!
+    tax_percent: Int!
+    total_amount: Float!
+    tax_amount: Float!
 }

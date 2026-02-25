@@ -11,7 +11,7 @@ type Subscription {
     This subscription will check if an order has been created based on a shopping cart.
     This will trigger when createPaymentIntent has been called and the payment has been successful
     """
-    checkOrderPaymentStatus(shoppingCartId: ID!): SaleOrder!
+    checkOrderPaymentStatus(shoppingCartId: ID!): Order!
 }
 
 """

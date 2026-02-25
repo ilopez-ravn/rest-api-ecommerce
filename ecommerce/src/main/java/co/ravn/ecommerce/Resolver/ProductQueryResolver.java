@@ -3,7 +3,6 @@ package co.ravn.ecommerce.Resolver;
 import co.ravn.ecommerce.Entities.Inventory.Product;
 import co.ravn.ecommerce.DTO.GraphQL.*;
 import co.ravn.ecommerce.Repositories.Inventory.ProductRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -12,15 +11,17 @@ import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
 import jakarta.persistence.criteria.Predicate;
+import lombok.AllArgsConstructor;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Controller
+@AllArgsConstructor
 public class ProductQueryResolver {
 
-    @Autowired
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository;
 
     @QueryMapping
     public Product getProductById(@Argument int id) {

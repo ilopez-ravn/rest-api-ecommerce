@@ -7,6 +7,10 @@ extend type Query {
     This query will serve when a client is logged in and we want to search if he has a pending cart in another session so he can continue with his purchase
     """
     getClientCart(clientId: ID!): Cart
+    """
+    Retrieve the pending cart for the currently authenticated client
+    """
+    getMyCart: Cart
 }
 
 extend type Mutation {
@@ -14,6 +18,10 @@ extend type Mutation {
     Create a cart for a specific client
     """
     createCart(clientId: ID!): Cart!
+    """
+    Create a cart for the currently authenticated client
+    """
+    createMyCart: Cart!
     """
     Add an item to a cart
     """
