@@ -21,18 +21,22 @@ import co.ravn.ecommerce.Repositories.Order.StripePaymentRepository;
 import co.ravn.ecommerce.Utils.enums.ShoppingCartStatusEnum;
 import co.ravn.ecommerce.Services.Order.ShippingService;
 import com.stripe.exception.SignatureVerificationException;
+import com.stripe.exception.StripeException;
 import com.stripe.exception.EventDataObjectDeserializationException;
 import com.stripe.model.Event;
 import com.stripe.model.EventDataObjectDeserializer;
 import com.stripe.model.PaymentIntent;
+import com.stripe.model.Refund;
 import com.stripe.model.StripeObject;
 import com.stripe.net.Webhook;
+import com.stripe.param.RefundCreateParams;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -105,35 +109,69 @@ public class WebhookService {
         SaleOrder order = stripePayment.getOrder();
         order.setIsActive(true);
         saleOrderRepository.save(order);
-        
-        if(order.getWarehouse() == null) {
+
+        if (order.getWarehouse() == null) {
             throw new RuntimeException("Warehouse not found for order id: " + order.getId());
         }
 
-        
         ShoppingCart cart = order.getShoppingCart();
         List<ShoppingCartDetails> items = shoppingCartDetailsRepository.findByCartId(cart.getId());
-        Set<Product> productsDeducted = new HashSet<>();
 
+        // Validate stock and create refund if needed
+        boolean insufficientStock = false;
+        StringBuilder reasonBuilder = new StringBuilder("Insufficient stock");
         for (ShoppingCartDetails item : items) {
-                // Deduct from the specific warehouse assigned to the order
-                Optional<ProductStock> stockOpt = productStockRepository
-                        .findByWarehouseIdAndProductId(order.getWarehouse().getId(), item.getProduct().getId());
-                if (stockOpt.isEmpty()) {
-                    log.warn("No stock record found in warehouse id={} for product id={}",
-                            order.getWarehouse().getId(), item.getProduct().getId());
-                    continue;
-                }
-                ProductStock stock = stockOpt.get();
-                int deduct = Math.min(stock.getQuantity(), item.getQuantity());
-                stock.setQuantity(stock.getQuantity() - deduct);
-                productStockRepository.save(stock);
-                productsDeducted.add(item.getProduct());
-                if (deduct < item.getQuantity()) {
-                    log.warn("Insufficient stock in warehouse id={} for product id={}, shortage={}",
-                            order.getWarehouse().getId(), item.getProduct().getId(),
-                            item.getQuantity() - deduct);
-                }
+            Optional<ProductStock> stockOpt = productStockRepository
+                    .findByWarehouseIdAndProductId(order.getWarehouse().getId(), item.getProduct().getId());
+            if (stockOpt.isEmpty()) {
+                insufficientStock = true;
+                reasonBuilder.append("; no stock record for product id=").append(item.getProduct().getId());
+                break;
+            }
+            ProductStock stock = stockOpt.get();
+            if (stock.getQuantity() < item.getQuantity()) {
+                insufficientStock = true;
+                reasonBuilder.append("; product id=").append(item.getProduct().getId())
+                        .append(" shortage=").append(item.getQuantity() - stock.getQuantity());
+                break;
+            }
+        }
+
+        if (insufficientStock) {
+            String refundReason = reasonBuilder.toString();
+            log.warn("Insufficient stock for order id={}, refunding: {}", order.getId(), refundReason);
+            try {
+                Refund.create(RefundCreateParams.builder()
+                        .setPaymentIntent(intent.getId())
+                        .setReason(RefundCreateParams.Reason.REQUESTED_BY_CUSTOMER)
+                        .build());
+            } catch (StripeException e) {
+                log.error("Stripe refund failed for PaymentIntent id={}: {}", intent.getId(), e.getMessage());
+                throw new RuntimeException("Refund failed: " + e.getMessage(), e);
+            }
+            stripePayment.setPaymentStatus("REFUNDED");
+            stripePaymentRepository.save(stripePayment);
+            order.setCancelledAt(LocalDateTime.now());
+            order.setRefundReason(refundReason);
+            order.setIsActive(false);
+            saleOrderRepository.save(order);
+            cart.setStatus(ShoppingCartStatusEnum.ACTIVE);
+            shoppingCartRepository.save(cart);
+            stripePaymentEventLogRepository.save(
+                    new StripePaymentEventLog(stripePayment, "refund.created", "REFUNDED", intent.toJson()));
+            return;
+        }
+
+        // Reduce product stock
+        Set<Product> productsDeducted = new HashSet<>();
+        for (ShoppingCartDetails item : items) {
+            Optional<ProductStock> stockOpt = productStockRepository
+                    .findByWarehouseIdAndProductId(order.getWarehouse().getId(), item.getProduct().getId());
+            ProductStock stock = stockOpt.get();
+            int deduct = Math.min(stock.getQuantity(), item.getQuantity());
+            stock.setQuantity(stock.getQuantity() - deduct);
+            productStockRepository.save(stock);
+            productsDeducted.add(item.getProduct());
         }
 
         for (Product product : productsDeducted) {

@@ -2,6 +2,7 @@ package co.ravn.ecommerce.Controllers.Order;
 
 import co.ravn.ecommerce.DTO.Request.Order.ShippingStatusUpdateRequest;
 import co.ravn.ecommerce.DTO.Response.Order.OrderResponse;
+import co.ravn.ecommerce.DTO.Response.Order.OrderStatusResponse;
 import co.ravn.ecommerce.DTO.Response.Order.PaginatedOrderResponse;
 import co.ravn.ecommerce.DTO.Response.Order.ShippingDetailsResponse;
 import co.ravn.ecommerce.Services.Order.OrderService;
@@ -23,7 +24,7 @@ public class OrderController {
     private final OrderService orderService;
 
     @GetMapping("/status/{shoppingCartId}")
-    public ResponseEntity<OrderResponse> getOrderStatus(@PathVariable @Min(1) int shoppingCartId) {
+    public ResponseEntity<OrderStatusResponse> getOrderStatus(@PathVariable @Min(1) int shoppingCartId) {
         return ResponseEntity.ok(stripePaymentService.getOrderStatusByShoppingCartId(shoppingCartId));
     }
 

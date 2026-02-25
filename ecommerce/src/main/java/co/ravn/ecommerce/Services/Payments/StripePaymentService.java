@@ -2,7 +2,7 @@ package co.ravn.ecommerce.Services.Payments;
 
 import co.ravn.ecommerce.Config.StripeConfig;
 import co.ravn.ecommerce.DTO.Request.Payment.PaymentIntentRequest;
-import co.ravn.ecommerce.DTO.Response.Order.OrderResponse;
+import co.ravn.ecommerce.DTO.Response.Order.OrderStatusResponse;
 import co.ravn.ecommerce.DTO.Response.Payment.PaymentIntentResponse;
 import co.ravn.ecommerce.Entities.Auth.SysUser;
 import co.ravn.ecommerce.Entities.Cart.ShoppingCart;
@@ -33,7 +33,6 @@ import co.ravn.ecommerce.Repositories.Order.OrderTrackingLogRepository;
 import co.ravn.ecommerce.Repositories.Order.SaleOrderRepository;
 import co.ravn.ecommerce.Repositories.Order.StripePaymentRepository;
 import co.ravn.ecommerce.Services.Order.OrderService;
-import co.ravn.ecommerce.Services.Order.ShippingService;
 import co.ravn.ecommerce.Utils.enums.BillDocumentTypeEnum;
 import co.ravn.ecommerce.Utils.enums.ShoppingCartStatusEnum;
 import com.stripe.exception.StripeException;
@@ -200,7 +199,7 @@ public class StripePaymentService {
         return new PaymentIntentResponse(intent.getClientSecret());
     }
 
-    public OrderResponse getOrderStatusByShoppingCartId(int shoppingCartId) {
+    public OrderStatusResponse getOrderStatusByShoppingCartId(int shoppingCartId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         SysUser currentUser = userRepository.findByUsernameAndIsActiveTrue(auth.getName())
                 .orElseThrow(() -> new RuntimeException("Authenticated user not found: " + auth.getName()));
@@ -212,9 +211,23 @@ public class StripePaymentService {
             throw new AccessDeniedException("You do not own this order");
         }
 
-        stripePaymentRepository.findByOrderId(order.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Payment not found for order id: " + order.getId()));
+        var paymentOpt = stripePaymentRepository.findByOrderId(order.getId());
+        if (paymentOpt.isEmpty()) {
+            throw new ResourceNotFoundException("Payment not found for order id: " + order.getId());
+        }
 
-        return orderService.buildOrderResponse(order);
+        OrderStatusResponse response = new OrderStatusResponse();
+        response.setOrder(orderService.buildOrderResponse(order));
+
+        if (order.getCancelledAt() != null || "REFUNDED".equals(paymentOpt.get().getPaymentStatus())) {
+            response.setStatus("REFUNDED");
+            response.setRefund_reason(order.getRefundReason());
+        } else if ("SUCCEEDED".equals(paymentOpt.get().getPaymentStatus())) {
+            response.setStatus("COMPLETED");
+        } else {
+            response.setStatus("PENDING");
+        }
+
+        return response;
     }
 }

@@ -43,6 +43,12 @@ public class SaleOrder {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 
+    @Column(name = "cancelled_at")
+    private LocalDateTime cancelledAt;
+
+    @Column(name = "refund_reason")
+    private String refundReason;
+
     @OneToMany(mappedBy = "order")
     private List<DeliveryTracking> deliveryTrackings = new ArrayList<>();
 

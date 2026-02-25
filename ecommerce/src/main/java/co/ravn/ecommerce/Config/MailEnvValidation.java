@@ -28,7 +28,7 @@ public class MailEnvValidation {
     private String password;
 
     @NotBlank
-	@Value("${spring.mail.properties.mail.smtp.starttls.enable}")
+    @Value("${spring.mail.properties.mail.smtp.starttls.enable}")
     private String propertiesMailSmtpStarttlsEnable;
 
 }
