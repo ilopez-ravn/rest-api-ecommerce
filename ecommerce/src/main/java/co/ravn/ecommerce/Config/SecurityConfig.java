@@ -18,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -26,6 +27,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableWebSecurity(debug = true)
 @EnableMethodSecurity
 @AllArgsConstructor
+@Profile("!orderSecurityTest")
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
@@ -37,7 +39,7 @@ public class SecurityConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 // WebMvcConfigurer.super.addCorsMappings(registry);
-                registry.addMapping("/api/v1/**").allowedOrigins("http://localhost:8080");
+                registry.addMapping("/api/v1/**").allowedOrigins("*");
             }
         };
     }
@@ -63,9 +65,15 @@ public class SecurityConfig {
                                 "/api/v1/categories", "/api/v1/categories/**", "/api/v1/tags", "/api/v1/tags/**")
                         .permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/payments/stripe/webhook").permitAll()
-                        .requestMatchers("/graphiql").permitAll()
+                        .requestMatchers("/graphiql", "graphiql/**").permitAll()
+                        .requestMatchers("/graphql", "graphql/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/users").hasRole("MANAGER")
                         .requestMatchers(HttpMethod.GET, "/api/v1/users/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/orders", "/api/v1/orders/**")
+                        .hasAnyRole("MANAGER", "CLIENT", "WAREHOUSE", "SHIPPING")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/orders/*/shipping")
+                        .hasAnyRole("MANAGER", "WAREHOUSE", "SHIPPING")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/orders/**").hasRole("MANAGER")
                         .requestMatchers(HttpMethod.POST, "/api/v1/products", "/api/v1/products/**").hasRole("MANAGER")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/products/**").hasRole("MANAGER")
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/products/**").hasRole("MANAGER")
@@ -74,7 +82,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/v1/categories/**", "/api/v1/tags/**").hasRole("MANAGER")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/categories/**", "/api/v1/tags/**")
                         .hasRole("MANAGER")
-                        .requestMatchers("/api/v1/carts/**", "/api/v1/orders/**", "/api/v1/clients/**",
+                        .requestMatchers("/api/v1/carts/**", "/api/v1/clients/**",
                                 "/api/v1/payments/stripe/payment")
                         .hasAnyRole("MANAGER", "CLIENT")
                         .anyRequest().authenticated())

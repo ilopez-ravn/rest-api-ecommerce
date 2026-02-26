@@ -215,7 +215,9 @@ CREATE TABLE IF NOT EXISTS sale_order (
     warehouse_id INT REFERENCES warehouse(id) ON DELETE SET NULL,
     
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    is_active BOOLEAN NOT NULL DEFAULT TRUE
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    cancelled_at TIMESTAMP,
+    refund_reason VARCHAR(255)
 );
 
 CREATE TABLE IF NOT EXISTS order_bill (

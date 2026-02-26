@@ -1,0 +1,45 @@
+package co.ravn.ecommerce.Controllers.Clients;
+
+import co.ravn.ecommerce.Filters.JwtAuthFilter;
+import co.ravn.ecommerce.Filters.RateLimitFilter;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+
+/**
+ * ClientController currently has no endpoints (profile, address to be added).
+ * When GET /api/v1/clients/profile and PUT /api/v1/clients/address (or similar) exist,
+ * add: getProfile_returns200, getProfile_unauthorized_returns401, updateAddress_returns200.
+ */
+@WebMvcTest(ClientController.class)
+@AutoConfigureMockMvc(addFilters = false)
+class ClientControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockitoBean
+    private JwtAuthFilter jwtAuthFilter;
+
+    @MockitoBean
+    private RateLimitFilter rateLimitFilter;
+
+    private static final String BASE_URL = "/api/v1/clients";
+
+    @Test
+    @DisplayName("base path has no GET handler - returns 4xx or 5xx until endpoints exist")
+    void basePath_noHandler_returnsError() throws Exception {
+        int status = mockMvc.perform(get(BASE_URL))
+                .andReturn()
+                .getResponse()
+                .getStatus();
+        assertThat(status).isGreaterThanOrEqualTo(400);
+    }
+}
