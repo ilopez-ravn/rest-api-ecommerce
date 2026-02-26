@@ -1,7 +1,7 @@
 # Deploy to GCP Cloud Run on push to main.
-# Requires GitHub secrets: GCP_PROJECT_ID, GCP_SA_KEY (service account JSON).
-# Optional repo vars (Settings → Secrets and variables → Actions): DB_URL, DB_USERNAME,
-# SPRING_MAIL_HOST, SPRING_MAIL_USERNAME, CLOUDINARY_CLOUD_NAME (non-secret env for the app).
+# Required secrets: GCP_PROJECT_ID, GCP_SA_KEY, DB_URL, DB_USERNAME; Secret Manager: DB_PASSWORD,
+# APP_JWT_SECRET, STRIPE_*, SPRING_MAIL_PASSWORD, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET.
+# Required for app to start: DB_URL, DB_USERNAME, SPRING_MAIL_HOST, SPRING_MAIL_USERNAME, CLOUDINARY_CLOUD_NAME (set as repo secrets).
 
 name: Deploy to Cloud Run
 
@@ -63,6 +63,12 @@ jobs:
           echo "image=${IMAGE}" >> $GITHUB_OUTPUT
 
       - name: Deploy to Cloud Run
+        env:
+          DB_URL: ${{ secrets.DB_URL }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          SPRING_MAIL_HOST: ${{ secrets.SPRING_MAIL_HOST }}
+          SPRING_MAIL_USERNAME: ${{ secrets.SPRING_MAIL_USERNAME }}
+          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
         run: |
           gcloud run deploy ${{ env.CLOUD_RUN_SERVICE }} \
             --image "${{ steps.build.outputs.image }}" \
@@ -70,5 +76,11 @@ jobs:
             --platform managed \
             --allow-unauthenticated \
             --port 8080 \
-            --set-env-vars "SPRING_PROFILES_ACTIVE=prod,APP_JWT_EXPIRATION_MINUTES=1440,APP_REFRESH_TOKEN_EXPIRATION_DAYS=7,STRIPE_CURRENCY=usd,RATE_LIMIT_ENABLED=true,SPRING_MAIL_PORT=587" \
+            --no-cpu-throttling \
+            --set-env-vars "SPRING_PROFILES_ACTIVE=prod,APP_JWT_EXPIRATION_MINUTES=900000,APP_REFRESH_TOKEN_EXPIRATION_DAYS=604800000,STRIPE_CURRENCY=usd,RATE_LIMIT_ENABLED=true,SPRING_MAIL_PORT=587" \
+            --set-env-vars "DB_URL=$DB_URL" \
+            --set-env-vars "DB_USERNAME=$DB_USERNAME" \
+            --set-env-vars "SPRING_MAIL_HOST=$SPRING_MAIL_HOST" \
+            --set-env-vars "SPRING_MAIL_USERNAME=$SPRING_MAIL_USERNAME" \
+            --set-env-vars "CLOUDINARY_CLOUD_NAME=$CLOUDINARY_CLOUD_NAME" \
             --set-secrets "DB_PASSWORD=DB_PASSWORD:latest,APP_JWT_SECRET=APP_JWT_SECRET:latest,STRIPE_API_KEY=STRIPE_API_KEY:latest,STRIPE_WEBHOOK_SECRET=STRIPE_WEBHOOK_SECRET:latest,SPRING_MAIL_PASSWORD=SPRING_MAIL_PASSWORD:latest,CLOUDINARY_API_KEY=CLOUDINARY_API_KEY:latest,CLOUDINARY_API_SECRET=CLOUDINARY_API_SECRET:latest"
