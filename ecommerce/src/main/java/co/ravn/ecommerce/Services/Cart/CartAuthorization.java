@@ -1,6 +1,7 @@
 package co.ravn.ecommerce.Services.Cart;
 
 import co.ravn.ecommerce.Entities.Auth.SysUser;
+import co.ravn.ecommerce.Exception.ResourceNotFoundException;
 import co.ravn.ecommerce.Entities.Cart.ShoppingCart;
 import co.ravn.ecommerce.Repositories.Auth.UserRepository;
 import co.ravn.ecommerce.Repositories.Cart.ShoppingCartRepository;
@@ -28,7 +29,7 @@ public class CartAuthorization {
         }
 
         ShoppingCart cart = shoppingCartRepository.findByIdAndStatus(cartId, ShoppingCartStatusEnum.ACTIVE)
-                .orElseThrow(() -> new RuntimeException("Active cart not found with id: " + cartId));
+                .orElseThrow(() -> new ResourceNotFoundException("Active cart not found with id: " + cartId));
 
         String username = authentication.getName();
         Optional<SysUser> user = userRepository.findByUsernameAndIsActiveTrue(username);

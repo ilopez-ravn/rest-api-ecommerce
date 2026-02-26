@@ -87,7 +87,7 @@ public class OrderService {
     ) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         SysUser currentUser = userRepository.findByUsernameAndIsActiveTrue(auth.getName())
-                .orElseThrow(() -> new RuntimeException("User not found with username: " + auth.getName()));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + auth.getName()));
 
         // Non-managers can only see their own orders; ignore client_id from request
         if (!RoleEnum.MANAGER.toString().equals(currentUser.getRole().getName().toString())) {
@@ -200,7 +200,7 @@ public class OrderService {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         SysUser changedBy = userRepository.findByUsernameAndIsActiveTrue(auth.getName())
-                .orElseThrow(() -> new RuntimeException("User not found with username: " + auth.getName()));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + auth.getName()));
 
         DeliveryStatus previousStatus = tracking.getStatus();
 

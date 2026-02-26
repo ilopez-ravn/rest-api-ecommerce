@@ -5,6 +5,7 @@ import co.ravn.ecommerce.Entities.Order.DeliveryStatus;
 import co.ravn.ecommerce.Entities.Order.DeliveryTracking;
 import co.ravn.ecommerce.Entities.Order.OrderTrackingLog;
 import co.ravn.ecommerce.Entities.Order.SaleOrder;
+import co.ravn.ecommerce.Exception.ConfigurationException;
 import co.ravn.ecommerce.Exception.ResourceNotFoundException;
 import co.ravn.ecommerce.Repositories.Clients.ClientAddressRepository;
 import co.ravn.ecommerce.Repositories.Order.DeliveryStatusRepository;
@@ -33,7 +34,7 @@ public class ShippingService {
 
         List<DeliveryStatus> statuses = deliveryStatusRepository.findAllByOrderByStepOrder();
         if (statuses.isEmpty()) {
-            throw new RuntimeException("No delivery statuses configured");
+            throw new ConfigurationException("No delivery statuses configured");
         }
 
         DeliveryStatus initialStatus = statuses.get(0);

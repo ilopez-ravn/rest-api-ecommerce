@@ -19,6 +19,7 @@ import co.ravn.ecommerce.Entities.Inventory.ProductStock;
 import co.ravn.ecommerce.Entities.Inventory.Tag;
 import co.ravn.ecommerce.Entities.Inventory.Category;
 import co.ravn.ecommerce.DTO.Request.Inventory.ProductImageUpdate;
+import co.ravn.ecommerce.Exception.ResourceNotFoundException;
 import co.ravn.ecommerce.Mappers.Inventory.ProductImageMapper;
 import co.ravn.ecommerce.Mappers.Inventory.ProductMapper;
 import co.ravn.ecommerce.Mappers.Inventory.ProductStockMapper;
@@ -118,7 +119,7 @@ public class ProductService {
     @Transactional(readOnly = true)
     public ProductResponse getProductById(int id) {
         Product product = productRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
 
         ProductResponse response = productMapper.toResponse(product);
 
@@ -139,7 +140,7 @@ public class ProductService {
     @Transactional
     public ProductResponse updateProduct(int id, ProductUpdateRequest productUpdateRequest) {
         Product product = productRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
 
         // Log changes
         List<String> changes = new ArrayList<>();
@@ -276,7 +277,7 @@ public class ProductService {
             // Load logged in user
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             SysUser loggedInUser = userRepository.findByUsernameAndIsActiveTrue(auth.getName())
-                    .orElseThrow(() -> new RuntimeException("User not found with username: " + auth.getName()));
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + auth.getName()));
 
             String changeDescription = String.join("; ", changes);
             ProductChangesLog changeLog = new ProductChangesLog(
@@ -351,7 +352,7 @@ public class ProductService {
     @Transactional
     public void deleteProduct(int id) {
         Product product = productRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
 
         product.setDeletedAt(LocalDateTime.now());
         productRepository.save(product);
@@ -360,7 +361,7 @@ public class ProductService {
     @Transactional
     public Product updateProductStatus(int id, boolean isActive) {
         Product product = productRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
 
         product.setIsActive(isActive);
         return productRepository.save(product);
@@ -369,7 +370,7 @@ public class ProductService {
     @Transactional
     public List<ProductImageResponse> addProductImages(int productId, List<MultipartFile> files, Boolean isPrimaryImage) {
         Product product = productRepository.findByIdAndDeletedAtIsNull(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + productId));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
 
         List<ProductImage> images = new ArrayList<>();
 
@@ -407,7 +408,7 @@ public class ProductService {
     @Transactional
     public void deleteProductImage(int productId, int imageId) {
         ProductImage image = productImageRepository.findByIdAndProductId(imageId, productId)
-                .orElseThrow(() -> new RuntimeException("Image not found for product id: " + productId));
+                .orElseThrow(() -> new ResourceNotFoundException("Image not found for product id: " + productId));
 
         if (image.getPublicId() != null) {
             cloudinaryService.delete(image.getPublicId());
@@ -425,7 +426,7 @@ public class ProductService {
     public MessageResponse updateProductLiked(int id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         SysUser loggedInUser = userRepository.findByUsernameAndIsActiveTrue(auth.getName())
-                .orElseThrow(() -> new RuntimeException("User not found with username: " + auth.getName()));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + auth.getName()));
 
         Optional<ProductLiked> productLiked = productLikedRepository.findByProductIdAndUserId(id, loggedInUser.getId());
 
@@ -436,7 +437,7 @@ public class ProductService {
         ProductLiked newProductLiked = new ProductLiked(
                 loggedInUser,
                 productRepository.findByIdAndDeletedAtIsNull(id)
-                        .orElseThrow(() -> new RuntimeException("Product not found with id: " + id)),
+                        .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id)),
                 false
         );
 
@@ -448,7 +449,7 @@ public class ProductService {
     public MessageResponse deleteProductLiked(int id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         SysUser loggedInUser = userRepository.findByUsernameAndIsActiveTrue(auth.getName())
-                .orElseThrow(() -> new RuntimeException("User not found with username: " + auth.getName()));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + auth.getName()));
 
         Optional<ProductLiked> productLiked = productLikedRepository.findByProductIdAndUserId(id, loggedInUser.getId());
 

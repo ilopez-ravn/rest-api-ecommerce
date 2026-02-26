@@ -8,6 +8,7 @@ import co.ravn.ecommerce.DTO.Request.Inventory.ProductUpdateRequest;
 import co.ravn.ecommerce.DTO.Response.Inventory.ProductResponse;
 import co.ravn.ecommerce.DTO.Response.MessageResponse;
 import co.ravn.ecommerce.Entities.Inventory.Product;
+import co.ravn.ecommerce.Exception.ResourceNotFoundException;
 import co.ravn.ecommerce.Repositories.Inventory.ProductRepository;
 import co.ravn.ecommerce.Services.Inventory.ProductService;
 import lombok.AllArgsConstructor;
@@ -37,7 +38,7 @@ public class ProductMutationResolver {
         ProductUpdateRequest request = toProductUpdateRequest(newProduct);
         ProductResponse response = productService.createProduct(request);
         return productRepository.findByIdAndDeletedAtIsNull(response.getId())
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + response.getId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + response.getId()));
     }
 
     @MutationMapping
@@ -50,7 +51,7 @@ public class ProductMutationResolver {
         ProductUpdateRequest request = toProductUpdateRequest(updatedProduct);
         ProductResponse response = productService.updateProduct(updatedProduct.getId(), request);
         return productRepository.findByIdAndDeletedAtIsNull(response.getId())
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + response.getId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + response.getId()));
     }
 
     @MutationMapping

@@ -49,7 +49,7 @@ public class CartService {
     public ShoppingCartResponse createCart(NewCartRequest newCartRequest) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         SysUser loggedInUser = userRepository.findByUsernameAndIsActiveTrue(auth.getName())
-                .orElseThrow(() -> new RuntimeException("User not found with username: " + auth.getName()));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + auth.getName()));
 
         Optional<ShoppingCart> existingCartOpt = shoppingCartRepository.findByClientIdAndStatus(
                 loggedInUser.getId(),
@@ -65,7 +65,7 @@ public class CartService {
         List<ShoppingCartDetails> shoppingCartDetails = newCartRequest.getProducts().stream()
                 .map(product -> new ShoppingCartDetails(cart, productRepository
                         .findByIdAndIsActiveTrueAndDeletedAtIsNull(product.getProductId())
-                        .orElseThrow(() -> new RuntimeException("Product not found with id: " + product.getProductId())),
+                        .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + product.getProductId())),
                         product.getPrice(), product.getQuantity()))
                 .collect(Collectors.toList());
 
@@ -76,7 +76,7 @@ public class CartService {
 
     public ShoppingCartResponse getCartById(int id) {
         ShoppingCart cart = shoppingCartRepository.findByIdAndStatus(id, ShoppingCartStatusEnum.ACTIVE)
-                .orElseThrow(() -> new RuntimeException("Cart not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found with id: " + id));
         return cartMapper.toResponse(cart);
     }
 
@@ -84,13 +84,13 @@ public class CartService {
     @Transactional
     public ShoppingCartResponse addItemToCart(int id, CartProductRequest cartProductRequest) {
         ShoppingCart cart = shoppingCartRepository.findByIdAndStatus(id, ShoppingCartStatusEnum.ACTIVE)
-                .orElseThrow(() -> new RuntimeException("Cart not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found with id: " + id));
 
         log.info("Adding product with id {} to cart with id {}", cartProductRequest.getProductId(), id);
 
         Product product = productRepository
                 .findByIdAndIsActiveTrueAndDeletedAtIsNull(cartProductRequest.getProductId())
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + cartProductRequest.getProductId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + cartProductRequest.getProductId()));
 
         log.info("Product with id {} found: {}", cartProductRequest.getProductId(), product.getName());
 
@@ -129,7 +129,7 @@ public class CartService {
     @Transactional
     public ShoppingCartResponse removeItemFromCart(int id, int itemId) {
         ShoppingCart cart = shoppingCartRepository.findByIdAndStatus(id, ShoppingCartStatusEnum.ACTIVE)
-                .orElseThrow(() -> new RuntimeException("Cart not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found with id: " + id));
 
         cart.getProducts().removeIf(item -> item.getId() == itemId);
         shoppingCartRepository.save(cart);
@@ -139,7 +139,7 @@ public class CartService {
     public ShoppingCartResponse getCartByClientId(int personId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         SysUser loggedInUser = userRepository.findByUsernameAndIsActiveTrue(auth.getName())
-                .orElseThrow(() -> new RuntimeException("User not found with username: " + auth.getName()));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + auth.getName()));
 
         if (!loggedInUser.getRole().getName().toString().equals(RoleEnum.MANAGER.toString())
                 && loggedInUser.getPerson().getId() != personId) {
@@ -150,7 +150,7 @@ public class CartService {
 
         if (cart.isEmpty()) {
             Person person = personRepository.findById(personId)
-                    .orElseThrow(() -> new RuntimeException("Person not found with id: " + personId));
+                    .orElseThrow(() -> new ResourceNotFoundException("Person not found with id: " + personId));
             ShoppingCart newCart = new ShoppingCart(person, ShoppingCartStatusEnum.ACTIVE);
             newCart.setProducts(Collections.emptyList());
             shoppingCartRepository.save(newCart);
@@ -164,7 +164,7 @@ public class CartService {
     @Transactional
     public ShoppingCartResponse updateCartItem(int id, int itemId, CartProductRequest cartProductRequest) {
         ShoppingCart cart = shoppingCartRepository.findByIdAndStatus(id, ShoppingCartStatusEnum.ACTIVE)
-                .orElseThrow(() -> new RuntimeException("Active cart not found for client id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Active cart not found for client id: " + id));
 
         ShoppingCartDetails item = cart.getProducts().stream()
                 .filter(i -> i.getId() == itemId)

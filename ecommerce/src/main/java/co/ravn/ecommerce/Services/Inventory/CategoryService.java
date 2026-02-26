@@ -43,7 +43,7 @@ public class CategoryService {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         SysUser loggedInUser = userRepository.findByUsernameAndIsActiveTrue(auth.getName())
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "User not found with username: " + auth.getName()));
 
         category.setCreatedBy(loggedInUser.getId());

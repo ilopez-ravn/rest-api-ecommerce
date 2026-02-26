@@ -11,6 +11,7 @@ import co.ravn.ecommerce.Entities.Auth.Person;
 import co.ravn.ecommerce.Entities.Auth.Role;
 import co.ravn.ecommerce.Entities.Auth.SysUser;
 import co.ravn.ecommerce.Entities.Auth.UserRefreshToken;
+import co.ravn.ecommerce.Exception.ConflictException;
 import co.ravn.ecommerce.Exception.ResourceNotFoundException;
 import co.ravn.ecommerce.Mappers.Auth.AuthMapper;
 import co.ravn.ecommerce.Repositories.Auth.PasswordRecoveryTokenRepository;
@@ -69,7 +70,7 @@ public class AuthService {
                         "Role with ID " + userRegisterRequest.getRoleId() + " not found"));
 
         if (userRepository.findByUsername(userRegisterRequest.getUsername()).isPresent()) {
-            throw new RuntimeException("Username already exists");
+            throw new ConflictException("Username already exists");
         }
 
         SysUser sysUser = new SysUser(
@@ -188,7 +189,7 @@ public class AuthService {
 
         PasswordRecoveryToken token = passwordRecoveryTokenRepository
                 .findByRecoveryToken(passwordResetRequest.getToken())
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Password recovery token not found: " + passwordResetRequest.getToken()));
 
         sysUser.setPassword(encoder.encode(passwordResetRequest.getPassword()));

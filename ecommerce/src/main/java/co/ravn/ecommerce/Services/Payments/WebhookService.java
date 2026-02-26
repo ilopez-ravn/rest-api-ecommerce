@@ -10,6 +10,8 @@ import co.ravn.ecommerce.Entities.Order.ProcessedStripeEvent;
 import co.ravn.ecommerce.Entities.Order.SaleOrder;
 import co.ravn.ecommerce.Entities.Order.StripePayment;
 import co.ravn.ecommerce.Entities.Order.StripePaymentEventLog;
+import co.ravn.ecommerce.Exception.PaymentFailureException;
+import co.ravn.ecommerce.Exception.ResourceNotFoundException;
 import co.ravn.ecommerce.Repositories.Cart.ShoppingCartDetailsRepository;
 import co.ravn.ecommerce.Repositories.Cart.ShoppingCartRepository;
 import co.ravn.ecommerce.Repositories.Inventory.ProductStockRepository;
@@ -111,7 +113,7 @@ public class WebhookService {
         saleOrderRepository.save(order);
 
         if (order.getWarehouse() == null) {
-            throw new RuntimeException("Warehouse not found for order id: " + order.getId());
+            throw new ResourceNotFoundException("Warehouse not found for order id: " + order.getId());
         }
 
         ShoppingCart cart = order.getShoppingCart();
@@ -147,7 +149,7 @@ public class WebhookService {
                         .build());
             } catch (StripeException e) {
                 log.error("Stripe refund failed for PaymentIntent id={}: {}", intent.getId(), e.getMessage());
-                throw new RuntimeException("Refund failed: " + e.getMessage(), e);
+                throw new PaymentFailureException("Refund failed: " + e.getMessage(), e);
             }
             stripePayment.setPaymentStatus("REFUNDED");
             stripePaymentRepository.save(stripePayment);

@@ -11,6 +11,7 @@ import co.ravn.ecommerce.Entities.Inventory.ProductChangesLog;
 import co.ravn.ecommerce.Entities.Inventory.ProductStock;
 import co.ravn.ecommerce.Entities.Inventory.StockOperationType;
 import co.ravn.ecommerce.Entities.Inventory.Warehouse;
+import co.ravn.ecommerce.Exception.ResourceNotFoundException;
 import co.ravn.ecommerce.Repositories.Auth.UserRepository;
 import co.ravn.ecommerce.Repositories.Inventory.ProductChangesLogRepository;
 import co.ravn.ecommerce.Repositories.Inventory.ProductStockRepository;
@@ -53,7 +54,7 @@ public class StockService {
         // Register the changes in ProductChangesLog
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         SysUser loggedInUser = userRepository.findByUsernameAndIsActiveTrue(auth.getName())
-                .orElseThrow(() -> new RuntimeException("User not found with username: " + auth.getName()));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + auth.getName()));
 
         ProductChangesLog logEntry = new ProductChangesLog(
                 product,

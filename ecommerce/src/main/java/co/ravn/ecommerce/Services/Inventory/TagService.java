@@ -5,6 +5,7 @@ import co.ravn.ecommerce.DTO.Request.Inventory.TagUpdateRequest;
 import co.ravn.ecommerce.DTO.Response.Inventory.TagResponse;
 import co.ravn.ecommerce.Entities.Inventory.Tag;
 import co.ravn.ecommerce.Entities.Inventory.Product;
+import co.ravn.ecommerce.Exception.ResourceNotFoundException;
 import co.ravn.ecommerce.Mappers.Inventory.TagMapper;
 import co.ravn.ecommerce.Repositories.Inventory.ProductRepository;
 import co.ravn.ecommerce.Repositories.Inventory.TagRepository;
@@ -39,7 +40,7 @@ public class TagService {
     @Transactional
     public TagResponse updateTag(int id, TagUpdateRequest tagUpdateRequest) {
         Tag tag = tagRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Tag not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Tag not found"));
 
         tagMapper.updateFromRequest(tagUpdateRequest, tag);
         Tag updatedTag = tagRepository.save(tag);
@@ -49,7 +50,7 @@ public class TagService {
     @Transactional
     public void deleteTag(int id) {
         Tag tag = tagRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Tag not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Tag not found"));
 
         tag.setIsActive(false);
         List<Product> products = productRepository.findAllByTags_Id(id);

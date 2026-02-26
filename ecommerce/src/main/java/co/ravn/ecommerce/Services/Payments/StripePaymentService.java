@@ -18,6 +18,8 @@ import co.ravn.ecommerce.Entities.Order.OrderTrackingLog;
 import co.ravn.ecommerce.Entities.Order.SaleOrder;
 import co.ravn.ecommerce.Entities.Order.StripePayment;
 import co.ravn.ecommerce.Exception.BadRequestException;
+import co.ravn.ecommerce.Exception.ConfigurationException;
+import co.ravn.ecommerce.Exception.PaymentFailureException;
 import co.ravn.ecommerce.Exception.ResourceNotFoundException;
 import co.ravn.ecommerce.Repositories.Auth.UserRepository;
 import co.ravn.ecommerce.Repositories.Cart.ShoppingCartDetailsRepository;
@@ -76,7 +78,7 @@ public class StripePaymentService {
     public PaymentIntentResponse createOrRetrievePaymentIntent(PaymentIntentRequest request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         SysUser currentUser = userRepository.findByUsernameAndIsActiveTrue(auth.getName())
-                .orElseThrow(() -> new RuntimeException("Authenticated user not found: " + auth.getName()));
+                .orElseThrow(() -> new ResourceNotFoundException("Authenticated user not found: " + auth.getName()));
 
         ShoppingCart cart = shoppingCartRepository
                 .findByIdAndStatus(request.getShoppingCartId(), ShoppingCartStatusEnum.ACTIVE)
@@ -138,7 +140,7 @@ public class StripePaymentService {
 
         // Create DeliveryTracking with the provided address and initial status
         DeliveryStatus initialStatus = deliveryStatusRepository.findFirstByOrderByStepOrder()
-                .orElseThrow(() -> new RuntimeException("No delivery statuses configured"));
+                .orElseThrow(() -> new ConfigurationException("No delivery statuses configured"));
 
         String trackingNumber = "TRK-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         DeliveryTracking tracking = deliveryTrackingRepository.save(
@@ -179,7 +181,7 @@ public class StripePaymentService {
             intent = PaymentIntent.create(params);
         } catch (StripeException e) {
             log.error("Stripe PaymentIntent creation failed: {}", e.getMessage());
-            throw new RuntimeException("Failed to create payment intent: " + e.getMessage());
+            throw new PaymentFailureException("Failed to create payment intent: " + e.getMessage(), e);
         }
 
         log.info("Stripe PaymentIntent created successfully: {}", intent.getId());
@@ -202,7 +204,7 @@ public class StripePaymentService {
     public OrderStatusResponse getOrderStatusByShoppingCartId(int shoppingCartId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         SysUser currentUser = userRepository.findByUsernameAndIsActiveTrue(auth.getName())
-                .orElseThrow(() -> new RuntimeException("Authenticated user not found: " + auth.getName()));
+                .orElseThrow(() -> new ResourceNotFoundException("Authenticated user not found: " + auth.getName()));
 
         SaleOrder order = saleOrderRepository.findByShoppingCartId(shoppingCartId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found for cart id: " + shoppingCartId));
