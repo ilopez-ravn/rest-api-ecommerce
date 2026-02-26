@@ -77,15 +77,15 @@ jobs:
             --allow-unauthenticated \
             --port 8080 \
             --no-cpu-throttling \
-            --set-env-vars SPRING_PROFILES_ACTIVE=prod
-            --set-env-vars DB_URL=${{ secrets.DB_URL }}
-            --set-env-vars DB_USERNAME=${{ secrets.DB_USERNAME }}
-            --set-env-vars APP_JWT_EXPIRATION_MINUTES=900000
-            --set-env-vars APP_REFRESH_TOKEN_EXPIRATION_DAYS=604800000
-            --set-env-vars STRIPE_CURRENCY=usd
-            --set-env-vars RATE_LIMIT_ENABLED=true
-            --set-env-vars SPRING_MAIL_HOST=${{ secrets.SPRING_MAIL_HOST }}
-            --set-env-vars SPRING_MAIL_PORT=587
-            --set-env-vars SPRING_MAIL_USERNAME=${{ secrets.SPRING_MAIL_USERNAME }}
-            --set-env-vars CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }}
+            --set-env-vars SPRING_PROFILES_ACTIVE=prod \
+            --set-env-vars DB_URL=${{ secrets.DB_URL }} \
+            --set-env-vars DB_USERNAME=${{ secrets.DB_USERNAME }} \
+            --set-env-vars APP_JWT_EXPIRATION_MINUTES=900000 \
+            --set-env-vars APP_REFRESH_TOKEN_EXPIRATION_DAYS=604800000 \
+            --set-env-vars STRIPE_CURRENCY=usd \
+            --set-env-vars RATE_LIMIT_ENABLED=true \
+            --set-env-vars SPRING_MAIL_HOST=${{ secrets.SPRING_MAIL_HOST }} \
+            --set-env-vars SPRING_MAIL_PORT=587 \
+            --set-env-vars SPRING_MAIL_USERNAME=${{ secrets.SPRING_MAIL_USERNAME }} \
+            --set-env-vars CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }} \
             --set-secrets "DB_PASSWORD=DB_PASSWORD:latest,APP_JWT_SECRET=APP_JWT_SECRET:latest,STRIPE_API_KEY=STRIPE_API_KEY:latest,STRIPE_WEBHOOK_SECRET=STRIPE_WEBHOOK_SECRET:latest,SPRING_MAIL_PASSWORD=SPRING_MAIL_PASSWORD:latest,CLOUDINARY_API_KEY=CLOUDINARY_API_KEY:latest,CLOUDINARY_API_SECRET=CLOUDINARY_API_SECRET:latest"
