@@ -16,6 +16,7 @@ public interface ProductMapper {
     @Mapping(source = "isActive", target = "is_active")
     @Mapping(source = "productImages", target = "product_images")
     @Mapping(source = "createdAt", target = "created_at")
+    @Mapping(target = "stock", ignore = true)
     ProductResponse toResponse(Product product);
 
     @AfterMapping
