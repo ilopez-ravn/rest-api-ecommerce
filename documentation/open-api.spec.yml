@@ -423,6 +423,99 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /api/v1/products/{id}/images:
+    post:
+      tags:
+        - products
+      summary: Upload product images for an existing product
+      operationId: uploadProductImages
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                is_primary_image:
+                  type: boolean
+      responses:
+        '200':
+          description: Images uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductImage'
+
+  /api/v1/products/{productId}/images/{imageId}:
+    delete:
+      tags:
+        - products
+      summary: Delete a product image
+      operationId: deleteProductImage
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: imageId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Image deleted successfully
+
+  /api/v1/products/images/upload:
+    post:
+      tags:
+        - products
+      summary: Upload images without binding to a product
+      operationId: uploadImages
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        '200':
+          description: Images uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    url:
+                      type: string
+                    public_id:
+                      type: string
+
       
 
   /products/{productId}/image:
@@ -2799,19 +2892,17 @@ components:
     NewProductImage:
       type: object
       required:
-        - product_id
         - image_url
       properties:
-        product_id:
-          type: integer
-          format: int64
-          example: 10
         image_url:
           type: string
           example: "https://example.com/image.jpg"
         is_primary_image:
           type: boolean
           example: true
+        public_id:
+          type: string
+          example: "sample_public_id"
         
       
     NewOrder:
@@ -3041,7 +3132,7 @@ components:
           example: StrongPassword123
         role: 
           type: string
-          example: manager
+          example: MANAGER
         first_name:
           type: string
           example: Israel
