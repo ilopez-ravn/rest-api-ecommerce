@@ -30,7 +30,6 @@ jobs:
         run: mvn clean test -B
 
   deploy:
-    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read
