@@ -67,6 +67,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1/payments/stripe/webhook").permitAll()
                         .requestMatchers("/graphiql", "graphiql/**").permitAll()
                         .requestMatchers("/graphql", "graphql/**").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/api/v1/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/users").hasRole("MANAGER")
                         .requestMatchers(HttpMethod.GET, "/api/v1/users/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/v1/orders", "/api/v1/orders/**")
