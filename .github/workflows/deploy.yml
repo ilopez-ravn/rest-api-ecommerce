@@ -1,7 +1,7 @@
 # Deploy to GCP Cloud Run on push to main.
-# Required secrets: GCP_PROJECT_ID, GCP_SA_KEY, DB_URL, DB_USERNAME; Secret Manager: DB_PASSWORD,
-# APP_JWT_SECRET, STRIPE_*, SPRING_MAIL_PASSWORD, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET.
-# Required for app to start: DB_URL, DB_USERNAME, SPRING_MAIL_HOST, SPRING_MAIL_USERNAME, CLOUDINARY_CLOUD_NAME (set as repo secrets).
+# Repository secrets for DEPLOY (not TEST_*): GCP_PROJECT_ID, GCP_SA_KEY, DB_URL, DB_USERNAME,
+# SPRING_MAIL_HOST, SPRING_MAIL_USERNAME, CLOUDINARY_CLOUD_NAME. Secret Manager: DB_PASSWORD, etc.
+# DB_URL must be the full JDBC URL (e.g. Cloud SQL or public Postgres). If missing, deploy fails validation.
 
 name: Deploy to Cloud Run
 
@@ -62,6 +62,18 @@ jobs:
           docker push "${REGISTRY}/${{ env.CLOUD_RUN_SERVICE }}:latest"
           echo "image=${IMAGE}" >> $GITHUB_OUTPUT
 
+      - name: Validate deploy secrets
+        run: |
+          if [ -z "${{ secrets.DB_URL }}" ]; then
+            echo "::error::Repository secret DB_URL is required for deploy. Add it in Settings → Secrets and variables → Actions (e.g. your Cloud SQL JDBC URL)."
+            exit 1
+          fi
+          if [ -z "${{ secrets.DB_USERNAME }}" ]; then
+            echo "::error::Repository secret DB_USERNAME is required for deploy."
+            exit 1
+          fi
+          echo "DB_URL and DB_USERNAME are set."
+
       - name: Deploy to Cloud Run
         env:
           DB_URL: ${{ secrets.DB_URL }}
@@ -77,15 +89,10 @@ jobs:
             --allow-unauthenticated \
             --port 8080 \
             --no-cpu-throttling \
-            --set-env-vars SPRING_PROFILES_ACTIVE=prod \
-            --set-env-vars DB_URL=${{ secrets.DB_URL }} \
-            --set-env-vars DB_USERNAME=${{ secrets.DB_USERNAME }} \
-            --set-env-vars APP_JWT_EXPIRATION_MINUTES=900000 \
-            --set-env-vars APP_REFRESH_TOKEN_EXPIRATION_DAYS=604800000 \
-            --set-env-vars STRIPE_CURRENCY=usd \
-            --set-env-vars RATE_LIMIT_ENABLED=true \
-            --set-env-vars SPRING_MAIL_HOST=${{ secrets.SPRING_MAIL_HOST }} \
-            --set-env-vars SPRING_MAIL_PORT=587 \
-            --set-env-vars SPRING_MAIL_USERNAME=${{ secrets.SPRING_MAIL_USERNAME }} \
-            --set-env-vars CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }} \
+            --set-env-vars "SPRING_PROFILES_ACTIVE=prod,APP_JWT_EXPIRATION_MINUTES=900000,APP_REFRESH_TOKEN_EXPIRATION_DAYS=604800000,STRIPE_CURRENCY=usd,RATE_LIMIT_ENABLED=true,SPRING_MAIL_PORT=587" \
+            --set-env-vars "DB_URL=$DB_URL" \
+            --set-env-vars "DB_USERNAME=$DB_USERNAME" \
+            --set-env-vars "SPRING_MAIL_HOST=$SPRING_MAIL_HOST" \
+            --set-env-vars "SPRING_MAIL_USERNAME=$SPRING_MAIL_USERNAME" \
+            --set-env-vars "CLOUDINARY_CLOUD_NAME=$CLOUDINARY_CLOUD_NAME" \
             --set-secrets "DB_PASSWORD=DB_PASSWORD:latest,APP_JWT_SECRET=APP_JWT_SECRET:latest,STRIPE_API_KEY=STRIPE_API_KEY:latest,STRIPE_WEBHOOK_SECRET=STRIPE_WEBHOOK_SECRET:latest,SPRING_MAIL_PASSWORD=SPRING_MAIL_PASSWORD:latest,CLOUDINARY_API_KEY=CLOUDINARY_API_KEY:latest,CLOUDINARY_API_SECRET=CLOUDINARY_API_SECRET:latest"
