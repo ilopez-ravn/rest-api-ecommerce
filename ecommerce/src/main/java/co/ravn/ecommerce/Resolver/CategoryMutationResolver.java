@@ -17,7 +17,7 @@ public class CategoryMutationResolver {
     public Category addCategory(@Argument String name,
                                 @Argument String description,
                                 @Argument Integer userId) {
-        Category category = new Category(name, description, userId);
+        Category category = Category.builder().name(name).description(description).createdBy(userId).build();
         return categoryRepository.save(category);
     }
 

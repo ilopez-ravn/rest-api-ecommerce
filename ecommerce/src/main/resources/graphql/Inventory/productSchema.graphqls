@@ -94,10 +94,10 @@ input ProductFilter {
 
 type ProductImage {
     id: ID!
-    product: Product!
-    createdBy: User!
     imageUrl: String!
-    isPrimary: Boolean!
+    productId: ID!
+    publicId: String
+    isPrimaryImage: Boolean!
     isActive: Boolean!
     createdAt: LocalDateTime!
 }
@@ -111,10 +111,9 @@ type Product {
     isActive: Boolean!
     categories: [Category!]
     tags: [Tag!]
-    images: [ProductImage!]
+    productImages: [ProductImage!]
     stock: [ProductStock]!
     createdAt: LocalDateTime!
-    updatedAt: LocalDateTime!
     deletedAt: LocalDateTime
 }
 

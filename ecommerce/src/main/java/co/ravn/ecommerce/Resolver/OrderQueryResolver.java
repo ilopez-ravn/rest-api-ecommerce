@@ -19,12 +19,14 @@ public class OrderQueryResolver {
 
     @QueryMapping
     @PreAuthorize("hasRole('MANAGER')")
-    public OrderPage orders(@Argument int page, @Argument int size) {
+    public OrderPage orders(@Argument Integer page, @Argument Integer size) {
+        int pageNum = (page != null && page > 0) ? page : 1;
+        int pageSize = (size != null && size > 0) ? size : 10;
         PaginatedOrderResponse response = orderService.getOrders(
                 null,
                 null,
-                page,
-                size,
+                pageNum,
+                pageSize,
                 null,
                 "desc",
                 null,
@@ -35,12 +37,14 @@ public class OrderQueryResolver {
 
     @QueryMapping
     @PreAuthorize("hasAnyRole('MANAGER','CLIENT')")
-    public OrderPage myOrders(@Argument int page, @Argument int size) {
+    public OrderPage myOrders(@Argument Integer page, @Argument Integer size) {
+        int pageNum = (page != null && page > 0) ? page : 1;
+        int pageSize = (size != null && size > 0) ? size : 10;
         PaginatedOrderResponse response = orderService.getOrders(
                 null,
                 null,
-                page,
-                size,
+                pageNum,
+                pageSize,
                 null,
                 "desc",
                 null,

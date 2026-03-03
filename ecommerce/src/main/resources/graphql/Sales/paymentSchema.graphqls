@@ -1,25 +1,30 @@
 extend type Mutation {
     """
-    This query will create a Stripe payment intent based on a shopping cart
+    Create or retrieve a Stripe payment intent for a cart. Use the returned client_secret in Stripe.js.
     """
-    createPaymentIntent(shoppingCartId: ID!): PaymentIntentResponse!
+    createPaymentIntent(input: CreatePaymentIntentInput!): PaymentIntentResponse!
 }
-
 
 type Subscription {
     """
-    This subscription will check if an order has been created based on a shopping cart.
-    This will trigger when createPaymentIntent has been called and the payment has been successful
+    Emits the order when its payment status changes to paid (after Stripe webhook payment_intent.succeeded).
+    Subscribe with the same shoppingCartId used in createPaymentIntent.
     """
-    checkOrderPaymentStatus(shoppingCartId: ID!): Order!
+    checkOrderPaymentStatus(shoppingCartId: ID!): Order
+}
+
+input CreatePaymentIntentInput {
+    shoppingCartId: ID!
+    warehouseId: ID!
+    addressId: ID!
+    deliveryFee: Float
 }
 
 """
-The payment intent returns the clientSecret to allow payment in the frontend via stripe
+Payment intent response (client_secret for Stripe.js). Aligned with PaymentIntentResponse DTO.
 """
 type PaymentIntentResponse {
-    clientSecret: String!
-    paymentIntentId: String!
+    client_secret: String!
 }
 
 type StripePayment {

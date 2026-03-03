@@ -20,7 +20,7 @@ public class CartMutationResolver {
     private final CartService cartService;
 
     @MutationMapping
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasAnyRole('CLIENT', 'MANAGER')")
     @Transactional
     public ShoppingCartResponse createMyCart() {
         // Create an empty cart for the current client
@@ -29,7 +29,7 @@ public class CartMutationResolver {
     }
 
     @MutationMapping
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasAnyRole('CLIENT', 'MANAGER')")
     @Transactional
     public ShoppingCartResponse addItemToCart(@Argument int cartId,
                                               @Argument int productId,
@@ -43,22 +43,21 @@ public class CartMutationResolver {
     }
 
     @MutationMapping
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasAnyRole('CLIENT', 'MANAGER')")
     @Transactional
     public ShoppingCartResponse updateCartItem(@Argument int cartId,
-                                               @Argument int productId,
+                                               @Argument int itemId,
                                                @Argument int quantity) {
         CartProductRequest request = new CartProductRequest(
                 null,
                 quantity,
-                productId
+                itemId
         );
-        // CartService.updateCartItem expects itemId, not productId; here we reuse cartId as id and productId as itemId
-        return cartService.updateCartItem(cartId, productId, request);
+        return cartService.updateCartItem(cartId, itemId, request);
     }
 
     @MutationMapping
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasAnyRole('CLIENT', 'MANAGER')")
     @Transactional
     public ShoppingCartResponse removeItemFromCart(@Argument int cartId,
                                                    @Argument int productId) {
@@ -67,7 +66,7 @@ public class CartMutationResolver {
     }
 
     @MutationMapping
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasAnyRole('CLIENT', 'MANAGER')")
     @Transactional
     public ShoppingCartResponse clearCart(@Argument int cartId) {
         ShoppingCartResponse cart = cartService.getCartById(cartId);

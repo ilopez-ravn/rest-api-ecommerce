@@ -29,7 +29,7 @@ extend type Mutation {
     """
     Change the quantity of an item inside a cart
     """
-    updateCartItem(cartId: ID!, productId: ID!, quantity: Int!): Cart!
+    updateCartItem(cartId: ID!, itemId: ID!, quantity: Int!): Cart!
     """
     Remove an item from a cart
     """
@@ -40,19 +40,23 @@ extend type Mutation {
     clearCart(cartId: ID!): Cart!
 }
 
+"""
+Cart type aligned with ShoppingCartResponse DTO.
+"""
 type Cart {
     id: ID!
-    client: Person!
-    status: CartStatus!
-    createdAt: LocalDateTime!
-    updatedAt: LocalDateTime!
-    items: [CartItem!]!
+    client_id: Int!
+    status: String!
+    products: [CartProduct!]!
 }
 
-type CartItem {
+"""
+Cart line item aligned with CartProductResponse DTO.
+"""
+type CartProduct {
     id: ID!
     product: Product!
     price: Float!
     quantity: Int!
-    addedAt: LocalDateTime!
+    total: Float!
 }

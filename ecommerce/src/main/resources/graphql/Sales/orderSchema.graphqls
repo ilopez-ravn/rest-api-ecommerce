@@ -1,36 +1,23 @@
 extend type Query {
     """
-    Retrieve a page of orders with the whole list metadata
+    Retrieve a page of orders with the whole list metadata. page is 1-based; default 1. size default 10.
     """
     orders(page: Int, size: Int): OrderPage!
     """
     Retrieve an order details by its ID
     """
-    getOrderById(id: ID!): Order!
+    getOrderById(id: ID!): Order
     """
-    Retrieve a page of orders for the currently authenticated client
+    Retrieve a page of orders for the currently authenticated client. page is 1-based; default 1. size default 10.
     """
     myOrders(page: Int, size: Int): OrderPage!
 }
 
 extend type Mutation {
     """
-    Create an order based on a cart
-    """
-
-    createOrderByShoppingCart(newOrder: NewOrderInput): Order!
-
-    """
-    Deletes an order by its ID.
-    This action will return the stock to the warehouse
+    Deletes an order by its ID (soft delete). Returns stock to the warehouse.
     """
     deleteOrder(id: ID!): Boolean!
-}
-
-input NewOrderInput {
-    cartId: ID!
-    warehouseId: ID!
-    addressId: ID!
 }
 
 type OrderPage {
@@ -42,24 +29,24 @@ type OrderPage {
 }
 
 """
-Represents an order with billing, client, warehouse and tracking information
+Order type aligned with OrderResponse DTO.
 """
 type Order {
     id: ID!
     order_date: LocalDateTime!
-    bill: BillingInfo!
-    address: Address!
-    payment: StripePayment!
-    client: Person!
-    warehouse: Warehouse!
-    tracking: DeliveryTracking!
+    bill: OrderBillingInfo!
+    address: OrderAddress!
+    payment: OrderPayment!
+    client: OrderClientInfo!
+    warehouse: OrderWarehouseInfo!
+    tracking: OrderDeliveryTracking!
     items: [OrderItem!]!
 }
 
 """
-Billing information for an order
+Billing info for an order (BillingInfoResponse).
 """
-type BillingInfo {
+type OrderBillingInfo {
     document_number: String!
     document_type: String!
     total_amount: Float!
@@ -68,14 +55,80 @@ type BillingInfo {
 }
 
 """
-Item inside an order
+Address for an order (AddressResponse).
+"""
+type OrderAddress {
+    id: ID!
+    client_id: Int!
+    address_line1: String
+    address_line2: String
+    city: String
+    state: String
+    postal_code: String
+    country: String
+    created_at: LocalDateTime
+}
+
+"""
+Payment info for an order (StripePaymentResponse).
+"""
+type OrderPayment {
+    id: ID!
+    order_id: Int!
+    payment_type: String
+    amount: Float!
+    currency: String
+    status: String
+    payment_method: String
+}
+
+"""
+Client info for an order (ClientInfoResponse).
+"""
+type OrderClientInfo {
+    id: ID!
+    first_name: String!
+    last_name: String!
+    email: String!
+    phone: String
+    document: String
+    document_type: String
+    created_at: LocalDateTime
+}
+
+"""
+Warehouse info for an order (WarehouseInfoResponse).
+"""
+type OrderWarehouseInfo {
+    id: ID!
+    name: String!
+    location: String
+    is_active: Boolean!
+    created_at: LocalDateTime
+}
+
+"""
+Delivery tracking for an order (DeliveryTrackingResponse).
+"""
+type OrderDeliveryTracking {
+    id: ID!
+    order_id: Int!
+    address_id: Int!
+    tracking_number: String
+    assigned_to: Int
+    status: String
+    estimated_delivery_date: LocalDateTime
+}
+
+"""
+Item inside an order (OrderItemResponse).
 """
 type OrderItem {
     product_id: ID!
     product_name: String!
     price: Float!
     quantity: Int!
-    tax_percent: Int!
+    tax_percent: Int
     total_amount: Float!
     tax_amount: Float!
 }

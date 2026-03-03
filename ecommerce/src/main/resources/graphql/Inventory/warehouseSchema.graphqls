@@ -2,7 +2,7 @@ extend type Query {
     """
     Get a warehouse by its ID
     """
-    getWarehouseById(id: ID!): Warehouse!
+    getWarehouseById(id: ID!): Warehouse
     """
     Retrieve all active warehouses
     """
@@ -12,45 +12,42 @@ extend type Query {
 extend type Mutation {
     """
     Create a warehouse by its name and location.
-    When a warehouse is created, a trigger will create the stock register for this warehouse and each products
+    When a warehouse is created, a trigger will create the stock register for this warehouse and each product.
     """
-    createWarehouse(name: String!, location: String!): Warehouse!
+    createWarehouse(name: String!, location: String): Warehouse!
     """
-    Update a warehouse by its ID
+    Update a warehouse by its ID (name and location).
     """
-    updateWarehouse(id: ID!, name: String, location: String, isActive: Boolean): Warehouse!
+    updateWarehouse(id: ID!, name: String!, location: String): Warehouse!
     """
-    Delete a warehouse by its ID
+    Soft delete a warehouse by its ID (sets is_active to false).
     """
     deleteWarehouse(id: ID!): Boolean!
     """
-    This query allows to add or subtract stock to a product for an specific warehouse
+    Add or subtract stock for a product in a warehouse. type: "ADD" or "SUBTRACT".
     """
     updateProductStock(productId: ID!, warehouseId: ID!, quantity: Int!, type: String!): ProductStock!
 }
 
 """
-A warehouse is a physical location where products are stored.
-Each warehouse contains a number of products that will we used/reduced when an order is created
+Warehouse type aligned with WarehouseResponse DTO.
 """
 type Warehouse {
     id: ID!
-    createdBy: User!
     name: String!
-    location: String!
-    isActive: Boolean!
-    createdAt: LocalDateTime!
-    lastUpdated: LocalDateTime!
+    location: String
+    is_active: Boolean!
+    created_at: LocalDateTime!
+    last_updated: LocalDateTime!
 }
 
 """
-ProductStock is the register that tracks the stock for a product in a warehouse.
-This stock will be used up when an order is created
+ProductStock type aligned with ProductStockResponse DTO.
 """
 type ProductStock {
     id: ID!
-    product: Product!
-    warehouse: Warehouse!
+    product_id: Int!
+    warehouse_id: Int!
     quantity: Int!
-    lastUpdated: LocalDateTime!
+    last_updated: LocalDateTime!
 }
