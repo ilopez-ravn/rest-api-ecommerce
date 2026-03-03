@@ -2,6 +2,7 @@ package co.ravn.ecommerce.Services.Payments;
 
 import co.ravn.ecommerce.Config.StripeConfig;
 import co.ravn.ecommerce.DTO.LowStockNotificationEvent;
+import co.ravn.ecommerce.DTO.OrderPaidEvent;
 import co.ravn.ecommerce.Entities.Cart.ShoppingCart;
 import co.ravn.ecommerce.Entities.Cart.ShoppingCartDetails;
 import co.ravn.ecommerce.Entities.Inventory.Product;
@@ -30,6 +31,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
+import reactor.core.publisher.Sinks;
 
 import java.util.List;
 import java.util.Optional;
@@ -73,6 +75,9 @@ class WebhookServiceTest {
 
     @Mock
     private ApplicationEventPublisher applicationEventPublisher;
+
+    @Mock
+    private Sinks.Many<OrderPaidEvent> orderPaidSink;
 
     @InjectMocks
     private WebhookService webhookService;

@@ -35,13 +35,4 @@ class ClientControllerTest {
 
     private static final String BASE_URL = "/api/v1/clients";
 
-    @Test
-    @DisplayName("base path has no GET handler - returns 4xx or 5xx until endpoints exist")
-    void basePath_noHandler_returnsError() throws Exception {
-        int status = mockMvc.perform(get(BASE_URL))
-                .andReturn()
-                .getResponse()
-                .getStatus();
-        assertThat(status).isGreaterThanOrEqualTo(400);
-    }
 }

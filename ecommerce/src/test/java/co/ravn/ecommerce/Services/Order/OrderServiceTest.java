@@ -1,13 +1,13 @@
 package co.ravn.ecommerce.Services.Order;
 
 import co.ravn.ecommerce.DTO.Request.Order.ShippingStatusUpdateRequest;
+import co.ravn.ecommerce.DTO.DeliveryStatusChangedEvent;
 import co.ravn.ecommerce.DTO.Response.Order.OrderResponse;
 import co.ravn.ecommerce.DTO.Response.Order.PaginatedOrderResponse;
 import co.ravn.ecommerce.DTO.Response.Order.ShippingDetailsResponse;
 import co.ravn.ecommerce.Entities.Auth.Person;
 import co.ravn.ecommerce.Entities.Auth.Role;
 import co.ravn.ecommerce.Entities.Auth.SysUser;
-import co.ravn.ecommerce.Entities.Clients.ClientAddress;
 import co.ravn.ecommerce.Entities.Order.DeliveryStatus;
 import co.ravn.ecommerce.Entities.Order.DeliveryTracking;
 import co.ravn.ecommerce.Entities.Order.OrderTrackingLog;
@@ -27,6 +27,7 @@ import co.ravn.ecommerce.Repositories.Order.OrderDetailsRepository;
 import co.ravn.ecommerce.Repositories.Order.OrderTrackingLogRepository;
 import co.ravn.ecommerce.Repositories.Order.SaleOrderRepository;
 import co.ravn.ecommerce.Repositories.Order.StripePaymentRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -43,7 +44,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -96,6 +96,9 @@ class OrderServiceTest {
 
     @Mock
     private DeliveryStatusEmailService deliveryStatusEmailService;
+
+    @Mock
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @InjectMocks
     private OrderService orderService;
@@ -257,7 +260,7 @@ class OrderServiceTest {
 
             verify(orderTrackingLogRepository).save(any(OrderTrackingLog.class));
             verify(deliveryTrackingRepository).save(tracking);
-            verify(deliveryStatusEmailService).sendDeliveryStatusUpdateEmail(tracking, previous, newStatus);
+            verify(applicationEventPublisher).publishEvent(any(DeliveryStatusChangedEvent.class));
         }
 
         @Test
@@ -295,8 +298,8 @@ class OrderServiceTest {
 
             verify(orderTrackingLogRepository, never()).save(any());
             verify(deliveryTrackingRepository, never()).save(any());
-            verify(deliveryStatusEmailService, never())
-                    .sendDeliveryStatusUpdateEmail(any(), any(), any());
+            verify(applicationEventPublisher, never())
+                    .publishEvent(any(DeliveryStatusChangedEvent.class));
         }
     }
 
