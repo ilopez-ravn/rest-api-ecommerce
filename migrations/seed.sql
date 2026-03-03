@@ -161,6 +161,14 @@ INSERT INTO product_stock (product_id, warehouse_id, quantity, last_updated) VAL
 (10, 2, 18, CURRENT_TIMESTAMP)
 ON CONFLICT DO NOTHING;
 
+
+INSERT INTO delivery_status (name, step_order)
+VALUES ('PENDING', 1),
+('ACCEPTED', 2),
+('IN TRANSIT', 3),
+('DELIVERED', 4),
+('CANCELLED', 5);
+
 -- ========== CLIENT DATA SEEDING ==========
 
 -- Insert client addresses
@@ -168,7 +176,7 @@ INSERT INTO client_address (client_id, address_line1, address_line2, city, state
 (6, 'Calle Sucre 456', 'Apartamento 302', 'Lima', 'Lima', '15001', 'Peru', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (6, 'Av. Larco 1289', 'Piso 5', 'Lima', 'Lima', '15047', 'Peru', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (7, 'Carrera 7 No. 123', 'Edificio Comercial', 'Arequipa', 'Arequipa', '04000', 'Peru', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(8, 'Jr. Junín 789', 'Casa 45', 'Lima', 'Lima', '15002', 'Peru', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+(1, 'Jr. Junín 789', 'Casa 45', 'Lima', 'Lima', '15002', 'Peru', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 ON CONFLICT DO NOTHING;
 
 -- Insert product liked by clients (for product alerts)

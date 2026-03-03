@@ -49,6 +49,7 @@ co.ravn.ecommerce/
 ├── Entities/        # JPA entities, mirroring DB schema
 ├── Exception/       # GlobalExceptionHandler (@RestControllerAdvice)
 ├── Filters/         # JwtAuthFilter, XSSFilter, XSSRequestWrapper
+├── Mappers/         # MapStruct interfaces (Auth, Cart, Inventory, Order); use `uses = {}` to delegate
 ├── Models/          # Non-entity models (e.g., GraphQL pagination types)
 ├── Repositories/    # Spring Data JPA interfaces
 ├── Resolver/        # GraphQL query/mutation resolvers
@@ -99,7 +100,9 @@ GraphQL is available alongside REST. Schemas live in `ecommerce/src/main/resourc
 
 - Entity packages use PascalCase subdirectories (e.g., `Entities/Cart/`, `Entities/Inventory/`).
 - DTOs are strictly separated from entities; controllers receive/return DTOs only.
-- Use mapStruct to map DTOs with Entities in services
+- Use MapStruct to map DTOs with entities in services.
+- **MapStruct: use mappers inside other mappers when available.** Prefer delegating to existing mappers via `uses = { OtherMapper.class }` instead of duplicating mapping logic. Examples: `OrderMapper` uses `BillingInfoMapper`, `AddressMapper`, `ClientInfoMapper`, `WarehouseInfoMapper`, `StripePaymentMapper`, `DeliveryTrackingMapper`, `TrackingLogMapper`, `OrderItemMapper`; `ShippingDetailsMapper` uses `DeliveryTrackingMapper`, `AddressMapper`, `TrackingLogMapper`; `ProductMapper` uses `CategoryMapper`, `TagMapper`, `ProductImageMapper`; `CartMapper` uses `ProductMapper` for nested `ProductResponse`.
 - For autowiring use the constructor injection with @AllArgsConstructor from lombok
 - Enums used as JPA column types (e.g., `@Enumerated(EnumType.STRING)`).
 - Lombok (`@Data`, `@Builder`, `@NoArgsConstructor`, etc.) is used across entities and DTOs.
+- **Exceptions:** Do not throw `RuntimeException` directly. Use domain-specific exceptions so `GlobalExceptionHandler` can map to the correct HTTP status: `ResourceNotFoundException` (404), `BadRequestException` (400), `ConflictException` (409), `PaymentFailureException` (502), `ConfigurationException` (500), `InternalServiceException` (500). Add new exception types in `Exception/` and register a handler in `GlobalExceptionHandler` when needed.

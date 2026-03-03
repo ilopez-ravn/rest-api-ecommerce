@@ -5,11 +5,15 @@ import co.ravn.ecommerce.DTO.Response.Order.OrderResponse;
 import co.ravn.ecommerce.DTO.Response.Order.OrderStatusResponse;
 import co.ravn.ecommerce.DTO.Response.Order.PaginatedOrderResponse;
 import co.ravn.ecommerce.DTO.Response.Order.ShippingDetailsResponse;
+import co.ravn.ecommerce.DTO.Response.Order.DeliveryStatusResponse;
 import co.ravn.ecommerce.Services.Order.OrderService;
 import co.ravn.ecommerce.Services.Payments.StripePaymentService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -64,5 +68,10 @@ public class OrderController {
             @Valid @RequestBody ShippingStatusUpdateRequest request
     ) {
         return ResponseEntity.ok(orderService.updateShippingStatus(orderId, request));
+    }
+
+    @GetMapping("/delivery-status")
+    public ResponseEntity<List<DeliveryStatusResponse>> getDeliveryStatuses() {
+        return ResponseEntity.ok(orderService.getDeliveryStatuses());
     }
 }
