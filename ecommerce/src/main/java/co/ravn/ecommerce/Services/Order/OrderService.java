@@ -1,14 +1,12 @@
 package co.ravn.ecommerce.Services.Order;
 
-import co.ravn.ecommerce.DTO.Request.Order.NewOrderRequest;
 import co.ravn.ecommerce.DTO.Request.Order.ShippingStatusUpdateRequest;
+import co.ravn.ecommerce.DTO.Response.Order.DeliveryStatusResponse;
 import co.ravn.ecommerce.DTO.Response.Order.OrderResponse;
 import co.ravn.ecommerce.DTO.Response.Order.PaginatedOrderResponse;
 import co.ravn.ecommerce.DTO.Response.Order.ShippingDetailsResponse;
-import co.ravn.ecommerce.Entities.Cart.ShoppingCart;
-import co.ravn.ecommerce.Entities.Cart.ShoppingCartDetails;
+import co.ravn.ecommerce.DTO.DeliveryStatusChangedEvent;
 import co.ravn.ecommerce.Entities.Clients.ClientAddress;
-import co.ravn.ecommerce.Entities.Inventory.Warehouse;
 import co.ravn.ecommerce.Entities.Order.DeliveryStatus;
 import co.ravn.ecommerce.Entities.Order.DeliveryTracking;
 import co.ravn.ecommerce.Entities.Order.OrderBill;
@@ -21,10 +19,8 @@ import co.ravn.ecommerce.Exception.BadRequestException;
 import co.ravn.ecommerce.Exception.ResourceNotFoundException;
 import co.ravn.ecommerce.Mappers.Order.OrderMapper;
 import co.ravn.ecommerce.Mappers.Order.ShippingDetailsMapper;
+import co.ravn.ecommerce.Mappers.Order.DeliveryStatusMapper;
 import co.ravn.ecommerce.Repositories.Auth.UserRepository;
-import co.ravn.ecommerce.Repositories.Cart.ShoppingCartRepository;
-import co.ravn.ecommerce.Repositories.Clients.ClientAddressRepository;
-import co.ravn.ecommerce.Repositories.Inventory.WarehouseRepository;
 import co.ravn.ecommerce.Repositories.Order.DeliveryStatusRepository;
 import co.ravn.ecommerce.Repositories.Order.DeliveryTrackingRepository;
 import co.ravn.ecommerce.Repositories.Order.OrderBillRepository;
@@ -33,9 +29,7 @@ import co.ravn.ecommerce.Repositories.Order.OrderSpecs;
 import co.ravn.ecommerce.Repositories.Order.OrderTrackingLogRepository;
 import co.ravn.ecommerce.Repositories.Order.SaleOrderRepository;
 import co.ravn.ecommerce.Repositories.Order.StripePaymentRepository;
-import co.ravn.ecommerce.Utils.enums.BillDocumentTypeEnum;
 import co.ravn.ecommerce.Utils.enums.RoleEnum;
-import co.ravn.ecommerce.Utils.enums.ShoppingCartStatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -45,10 +39,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
@@ -61,9 +55,6 @@ import java.util.Optional;
 public class OrderService {
 
     private final SaleOrderRepository saleOrderRepository;
-    private final ShoppingCartRepository shoppingCartRepository;
-    private final WarehouseRepository warehouseRepository;
-    private final ClientAddressRepository clientAddressRepository;
     private final OrderDetailsRepository orderDetailsRepository;
     private final OrderBillRepository orderBillRepository;
     private final DeliveryTrackingRepository deliveryTrackingRepository;
@@ -73,7 +64,9 @@ public class OrderService {
     private final UserRepository userRepository;
     private final OrderMapper orderMapper;
     private final ShippingDetailsMapper shippingDetailsMapper;
-    private final DeliveryStatusEmailService deliveryStatusEmailService;
+    private final DeliveryStatusMapper deliveryStatusMapper;
+    private final ApplicationEventPublisher applicationEventPublisher;
+
 
     public PaginatedOrderResponse getOrders(
             Integer clientId,
@@ -116,48 +109,6 @@ public class OrderService {
                 .toList();
 
         return new PaginatedOrderResponse(ordersPage, items);
-    }
-
-    @Transactional
-    public OrderResponse createOrder(NewOrderRequest req) {
-        ShoppingCart cart = shoppingCartRepository.findById(req.getCartId())
-                .orElseThrow(() -> new ResourceNotFoundException("Cart not found with id: " + req.getCartId()));
-
-        if (cart.getStatus() != ShoppingCartStatusEnum.ACTIVE) {
-            throw new BadRequestException("Cart is not active");
-        }
-
-        if (saleOrderRepository.findByShoppingCartId(req.getCartId()).isPresent()) {
-            throw new BadRequestException("An order already exists for this cart");
-        }
-
-        Warehouse warehouse = warehouseRepository.findById(req.getWarehouseId())
-                .orElseThrow(() -> new ResourceNotFoundException("Warehouse not found with id: " + req.getWarehouseId()));
-
-        clientAddressRepository.findById(req.getAddressId())
-                .orElseThrow(() -> new ResourceNotFoundException("Address not found with id: " + req.getAddressId()));
-
-        SaleOrder order = saleOrderRepository.save(
-                new SaleOrder(cart.getClient(), cart, warehouse, false)
-        );
-
-        List<ShoppingCartDetails> cartItems = cart.getProducts();
-        BigDecimal totalAmount = BigDecimal.ZERO;
-
-        for (ShoppingCartDetails item : cartItems) {
-            orderDetailsRepository.save(
-                    new OrderDetails(order, item.getProduct(), item.getPrice(), item.getQuantity(), 18)
-            );
-            totalAmount = totalAmount.add(item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
-        }
-
-        String documentNumber = "BILL-" + order.getId() + "-" + System.currentTimeMillis();
-        OrderBill bill = orderBillRepository.save(
-                new OrderBill(order, BillDocumentTypeEnum.RECEIPT, documentNumber, 18, totalAmount, BigDecimal.ZERO, true)
-        );
-
-        Optional<StripePayment> payment = stripePaymentRepository.findByOrderId(order.getId());
-        return orderMapper.toResponse(order, bill, payment.orElse(null));
     }
 
     public OrderResponse getOrderById(int orderId) {
@@ -211,6 +162,10 @@ public class OrderService {
             throw new BadRequestException("Delivery status update cannot go backwards");
         }
 
+        if(previousStatus.getId() == newStatus.getId()) {
+            throw new BadRequestException("Delivery status update cannot be the same as the previous status");
+        }
+
         orderTrackingLogRepository.save(new OrderTrackingLog(tracking, previousStatus, newStatus, changedBy));
         log.info("Logging shipping status change");
 
@@ -218,12 +173,21 @@ public class OrderService {
         tracking.setUpdatedAt(LocalDateTime.now());
         deliveryTrackingRepository.save(tracking);
 
-        deliveryStatusEmailService.sendDeliveryStatusUpdateEmail(tracking, previousStatus, newStatus);
+        applicationEventPublisher.publishEvent(
+                new DeliveryStatusChangedEvent(tracking, previousStatus, newStatus)
+        );
 
         List<OrderTrackingLog> logs = orderTrackingLogRepository
                 .findByDeliveryTrackingIdOrderByChangedAtDesc(tracking.getId());
-
+        log.info("Order status updated to {}", newStatus.getName() + " for order " + orderId);
         return shippingDetailsMapper.toResponse(tracking, logs);
+    }
+    
+    public List<DeliveryStatusResponse> getDeliveryStatuses() {
+        return deliveryStatusRepository.findAllByOrderByStepOrder()
+                .stream()
+                .map(deliveryStatusMapper::toResponse)
+                .toList();
     }
 
     public OrderResponse buildOrderResponse(SaleOrder order) {

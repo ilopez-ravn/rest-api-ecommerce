@@ -13,11 +13,11 @@ import jakarta.mail.MessagingException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
+import org.springframework.scheduling.annotation.Async;
 
 import java.io.IOException;
 
@@ -31,6 +31,7 @@ public class ResetPasswordListener {
     private final PasswordRecoveryTokenRepository passwordRecoveryTokenRepository;
     private final MailService mailService;
 
+    @Async
     @EventListener
     public void handleResetPassword(PasswordResetEvent passwordResetEvent) {
         Email email = new Email(

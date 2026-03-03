@@ -2,9 +2,11 @@ package co.ravn.ecommerce.DTO.Response.Inventory;
 
 import co.ravn.ecommerce.Entities.Inventory.Tag;
 import lombok.*;
+import lombok.Builder;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString

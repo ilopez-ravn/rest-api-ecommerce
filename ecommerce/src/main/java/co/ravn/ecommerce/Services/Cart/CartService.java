@@ -17,7 +17,6 @@ import co.ravn.ecommerce.Repositories.Auth.PersonRepository;
 import co.ravn.ecommerce.Repositories.Auth.UserRepository;
 import co.ravn.ecommerce.Repositories.Cart.ShoppingCartRepository;
 import co.ravn.ecommerce.Repositories.Inventory.ProductRepository;
-import co.ravn.ecommerce.Repositories.Inventory.ProductStockRepository;
 import co.ravn.ecommerce.Utils.enums.RoleEnum;
 import co.ravn.ecommerce.Utils.enums.ShoppingCartStatusEnum;
 import jakarta.transaction.Transactional;
@@ -28,6 +27,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -111,6 +111,8 @@ public class CartService {
             throw new BadRequestException("Insufficient stock for product id: " + product.getId());
         }
 
+        BigDecimal price = (cartProductRequest.getPrice() != null) ? cartProductRequest.getPrice() : product.getPrice();
+
         // check if product already exists in cart and update the quantity
         ShoppingCartDetails existingItem = cart.getProducts().stream()
                 .filter(d -> d.getProduct().getId() == product.getId())
@@ -118,7 +120,7 @@ public class CartService {
                 .orElse(null);
         if (existingItem != null) {
             existingItem.setQuantity(existingItem.getQuantity() + cartProductRequest.getQuantity());
-            existingItem.setPrice(cartProductRequest.getPrice());
+            existingItem.setPrice(price);
             existingItem.setUpdatedAt(LocalDateTime.now());
             shoppingCartRepository.save(cart);
             return cartMapper.toResponse(cart);
@@ -127,7 +129,7 @@ public class CartService {
        cart.getProducts().add(ShoppingCartDetails.builder()
                 .cart(cart)
                 .product(product)
-                .price(cartProductRequest.getPrice())
+                .price(price)
                 .quantity(cartProductRequest.getQuantity())
                 .build());
         shoppingCartRepository.save(cart);
@@ -196,7 +198,9 @@ public class CartService {
             throw new BadRequestException("Insufficient stock for product id: " + product.getId());
         }
 
-        item.setPrice(cartProductRequest.getPrice());
+        BigDecimal price = (cartProductRequest.getPrice() != null) ? cartProductRequest.getPrice() : product.getPrice();
+
+        item.setPrice(price);
         item.setQuantity(newQuantityForItem);
         shoppingCartRepository.save(cart);
         return cartMapper.toResponse(cart);

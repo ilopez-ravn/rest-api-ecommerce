@@ -2,6 +2,9 @@ package co.ravn.ecommerce.Services.Payments;
 
 import co.ravn.ecommerce.Config.StripeConfig;
 import co.ravn.ecommerce.DTO.LowStockNotificationEvent;
+import co.ravn.ecommerce.DTO.OrderAutoRefundEvent;
+import co.ravn.ecommerce.DTO.OrderConfirmationEvent;
+import co.ravn.ecommerce.DTO.OrderPaidEvent;
 import co.ravn.ecommerce.Entities.Cart.ShoppingCart;
 import co.ravn.ecommerce.Entities.Cart.ShoppingCartDetails;
 import co.ravn.ecommerce.Entities.Inventory.Product;
@@ -17,11 +20,9 @@ import co.ravn.ecommerce.Repositories.Cart.ShoppingCartRepository;
 import co.ravn.ecommerce.Repositories.Inventory.ProductStockRepository;
 import co.ravn.ecommerce.Repositories.Order.ProcessedStripeEventRepository;
 import co.ravn.ecommerce.Repositories.Order.SaleOrderRepository;
-import co.ravn.ecommerce.Repositories.Order.DeliveryTrackingRepository;
 import co.ravn.ecommerce.Repositories.Order.StripePaymentEventLogRepository;
 import co.ravn.ecommerce.Repositories.Order.StripePaymentRepository;
 import co.ravn.ecommerce.Utils.enums.ShoppingCartStatusEnum;
-import co.ravn.ecommerce.Services.Order.ShippingService;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.exception.StripeException;
 import com.stripe.exception.EventDataObjectDeserializationException;
@@ -58,8 +59,6 @@ public class WebhookService {
     private final ShoppingCartRepository shoppingCartRepository;
     private final ShoppingCartDetailsRepository shoppingCartDetailsRepository;
     private final ProductStockRepository productStockRepository;
-    private final DeliveryTrackingRepository deliveryTrackingRepository;
-    private final ShippingService shippingService;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final Sinks.Many<OrderPaidEvent> orderPaidSink;
 
@@ -163,6 +162,8 @@ public class WebhookService {
             shoppingCartRepository.save(cart);
             stripePaymentEventLogRepository.save(
                     new StripePaymentEventLog(stripePayment, "refund.created", "REFUNDED", intent.toJson()));
+            // Notify user that payment succeeded but was immediately refunded due to stock issues
+            applicationEventPublisher.publishEvent(new OrderAutoRefundEvent(order, refundReason));
             return;
         }
 

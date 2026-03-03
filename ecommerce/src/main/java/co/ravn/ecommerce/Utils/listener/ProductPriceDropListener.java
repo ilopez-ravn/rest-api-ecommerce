@@ -7,6 +7,7 @@ import co.ravn.ecommerce.Services.Cart.ProductPriceDropNotificationService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -19,6 +20,7 @@ public class ProductPriceDropListener {
     private final ProductRepository productRepository;
     private final ProductPriceDropNotificationService notificationService;
 
+    @Async
     @EventListener
     public void handlePriceDrop(ProductPriceDropEvent event) {
         Optional<Product> productOpt = productRepository.findByIdAndDeletedAtIsNull(event.productId());

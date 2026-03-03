@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @Builder
+@ToString
 @NoArgsConstructor
 @Table(name = "shopping_cart_details")
 public class ShoppingCartDetails {

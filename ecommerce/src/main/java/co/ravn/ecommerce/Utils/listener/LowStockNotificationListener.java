@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -29,6 +30,7 @@ public class LowStockNotificationListener {
     private final MailService mailService;
     private final EmailRepository emailRepository;
 
+    @Async
     @EventListener
     public void handleLowStock(LowStockNotificationEvent event) {
         List<ProductLiked> toNotify = productLikedRepository

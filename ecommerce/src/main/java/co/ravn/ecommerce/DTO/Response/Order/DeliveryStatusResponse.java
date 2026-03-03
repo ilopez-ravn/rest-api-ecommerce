@@ -1,19 +1,19 @@
-package co.ravn.ecommerce.DTO.Response.Inventory;
+package co.ravn.ecommerce.DTO.Response.Order;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryResponse {
+public class DeliveryStatusResponse {
+
     private int id;
     private String name;
+    private Integer step_order;
     private String description;
-    private Boolean is_active;
 }
+

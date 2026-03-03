@@ -96,7 +96,6 @@ public class StripePaymentService {
         ClientAddress address = clientAddressRepository.findById(request.getAddressId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Address not found with id: " + request.getAddressId()));
-
         if (address.getClient().getId() != currentUser.getPerson().getId()) {
             throw new AccessDeniedException("You do not own this address");
         }
@@ -134,6 +133,8 @@ public class StripePaymentService {
                         + ". Available: " + available + ", required: " + item.getQuantity());
             }
         }
+
+        log.info("Creating provisional SaleOrder for cart: {}", cart.getId());
 
         // Create provisional SaleOrder (isActive=false until payment succeeds)
         SaleOrder order = saleOrderRepository.save(new SaleOrder(currentUser.getPerson(), cart, warehouse, false));

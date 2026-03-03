@@ -36,6 +36,13 @@ public class WarehouseService {
                 .toList();
     }
 
+    public WarehouseResponse getWarehouseById(int id) {
+        Warehouse warehouse = warehouseRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Warehouse with id " + id + " not found")
+        );
+        return warehouseMapper.toResponse(warehouse);
+    }
+
     @Transactional
     public WarehouseResponse createWarehouse(NewWarehouseRequest newWarehouseRequest) {
         if (warehouseRepository.findAll().stream()
