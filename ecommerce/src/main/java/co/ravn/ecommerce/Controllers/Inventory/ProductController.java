@@ -96,10 +96,9 @@ public class ProductController {
     @PostMapping("/{id}/images")
     public ResponseEntity<List<ProductImageResponse>> uploadProductImages(
             @PathVariable @Min(1) int id,
-            @RequestParam("files") List<MultipartFile> files,
-            @RequestParam(value = "is_primary_image", required = false) Boolean isPrimaryImage
+            @RequestParam("files") List<MultipartFile> files
     ) {
-        return ResponseEntity.ok(productService.addProductImages(id, files, isPrimaryImage));
+        return ResponseEntity.ok(productService.addProductImages(id, files));
     }
 
     @DeleteMapping("/{productId}/images/{imageId}")

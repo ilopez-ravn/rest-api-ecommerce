@@ -7,6 +7,7 @@ import lombok.*;
 @Getter
 @Setter
 @ToString
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "tag")
@@ -21,7 +22,4 @@ public class Tag {
     @Column(name = "is_active")
     private Boolean isActive;
 
-    public Tag(String name) {
-        this.name = name;
-    }
 }

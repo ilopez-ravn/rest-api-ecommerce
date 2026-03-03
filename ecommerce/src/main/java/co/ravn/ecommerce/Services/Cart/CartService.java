@@ -63,10 +63,14 @@ public class CartService {
         }
 
         List<ShoppingCartDetails> shoppingCartDetails = newCartRequest.getProducts().stream()
-                .map(product -> new ShoppingCartDetails(cart, productRepository
-                        .findByIdAndIsActiveTrueAndDeletedAtIsNull(product.getProductId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + product.getProductId())),
-                        product.getPrice(), product.getQuantity()))
+                .map(product -> ShoppingCartDetails.builder()
+                        .cart(cart)
+                        .product(productRepository
+                                .findByIdAndIsActiveTrueAndDeletedAtIsNull(product.getProductId())
+                                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + product.getProductId())))
+                        .price(product.getPrice())
+                        .quantity(product.getQuantity())
+                        .build())
                 .collect(Collectors.toList());
 
         cart.setProducts(shoppingCartDetails);
@@ -120,7 +124,12 @@ public class CartService {
             return cartMapper.toResponse(cart);
         }
 
-        cart.getProducts().add(new ShoppingCartDetails(cart, product, cartProductRequest.getPrice(), cartProductRequest.getQuantity()));
+       cart.getProducts().add(ShoppingCartDetails.builder()
+                .cart(cart)
+                .product(product)
+                .price(cartProductRequest.getPrice())
+                .quantity(cartProductRequest.getQuantity())
+                .build());
         shoppingCartRepository.save(cart);
         return cartMapper.toResponse(cart);
     }

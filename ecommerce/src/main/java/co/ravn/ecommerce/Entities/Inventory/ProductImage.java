@@ -1,7 +1,10 @@
 package co.ravn.ecommerce.Entities.Inventory;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -9,6 +12,9 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "product_image")
 public class ProductImage {
     @Id
@@ -33,18 +39,4 @@ public class ProductImage {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    public ProductImage() {
-    }
-
-    public ProductImage(int id, String imageUrl, Boolean isPrimaryImage, int productId) {
-        this.id = id;
-        this.imageUrl = imageUrl;
-        this.isPrimaryImage = isPrimaryImage;
-        this.productId = productId;
-    }
-
-    public ProductImage(String imageUrl, Boolean isPrimaryImage) {
-        this.imageUrl = imageUrl;
-        this.isPrimaryImage = isPrimaryImage;
-    }
 }

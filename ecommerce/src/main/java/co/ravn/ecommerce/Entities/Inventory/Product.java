@@ -1,7 +1,10 @@
 package co.ravn.ecommerce.Entities.Inventory;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -12,6 +15,9 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @ToString
 @Table(name = "product")
 public class Product {
@@ -61,8 +67,6 @@ public class Product {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    public Product() {
-    }
 
     public Product(int id, String name, String description, BigDecimal price, Boolean isActive, List<Category> categories, List<Tag> tags, List<ProductImage> productImages, LocalDateTime createdAt) {
         this.id = id;

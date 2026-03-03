@@ -1,16 +1,19 @@
 package co.ravn.ecommerce.Entities.Inventory;
 
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.Builder;
 
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Table(name = "category")
 public class Category {
     @Id
@@ -28,18 +31,5 @@ public class Category {
     @Column(name = "is_active")
     private boolean isActive;
 
-
-    public Category(String name, String description) {
-        this.name = name;
-        this.description = description;
-        this.isActive = true;
-    }
-
-    public Category(String name, String description, int createdBy) {
-        this.name = name;
-        this.createdBy = createdBy;
-        this.description = description;
-        this.isActive = true;
-    }
 
 }

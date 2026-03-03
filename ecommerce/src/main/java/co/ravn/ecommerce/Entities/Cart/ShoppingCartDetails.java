@@ -2,11 +2,7 @@ package co.ravn.ecommerce.Entities.Cart;
 
 import co.ravn.ecommerce.Entities.Inventory.Product;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -15,6 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @AllArgsConstructor
+@Builder
 @NoArgsConstructor
 @Table(name = "shopping_cart_details")
 public class ShoppingCartDetails {
@@ -44,13 +41,4 @@ public class ShoppingCartDetails {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-    public ShoppingCartDetails(ShoppingCart cart, Product product, BigDecimal price, Integer quantity) {
-        this.cart = cart;
-        this.product = product;
-        this.price = price;
-        this.quantity = quantity;
-        this.addedAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
 }

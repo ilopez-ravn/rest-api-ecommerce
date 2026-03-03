@@ -16,7 +16,7 @@ public interface CategoryMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "active", expression = "java(true)")
+    @Mapping(target = "isActive", expression = "java(true)")
     Category toEntity(CategoryCreateRequest request);
 
     @Mapping(target = "id", ignore = true)

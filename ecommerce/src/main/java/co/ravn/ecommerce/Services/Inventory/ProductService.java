@@ -294,11 +294,12 @@ public class ProductService {
 
     @Transactional
     public ProductResponse createProduct(ProductUpdateRequest productUpdateRequest) {
-        Product product = new Product();
-        product.setName(productUpdateRequest.getName());
-        product.setDescription(productUpdateRequest.getDescription());
-        product.setPrice(productUpdateRequest.getPrice());
-        product.setIsActive(productUpdateRequest.getIsActive());
+        Product product = Product.builder()
+        .name(productUpdateRequest.getName())
+        .description(productUpdateRequest.getDescription())
+        .price(productUpdateRequest.getPrice())
+        .isActive(productUpdateRequest.getIsActive())
+        .build();
 
         // Set tags if provided
         if (productUpdateRequest.getTagList() != null && !productUpdateRequest.getTagList().isEmpty()) {
@@ -368,13 +369,13 @@ public class ProductService {
     }
 
     @Transactional
-    public List<ProductImageResponse> addProductImages(int productId, List<MultipartFile> files, Boolean isPrimaryImage) {
+    public List<ProductImageResponse> addProductImages(int productId, List<MultipartFile> files) {
         Product product = productRepository.findByIdAndDeletedAtIsNull(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
 
         List<ProductImage> images = new ArrayList<>();
 
-        if (Boolean.TRUE.equals(isPrimaryImage)) {
+        if (!files.isEmpty()) {
             List<ProductImage> existingImages = productImageRepository.findByProductId(productId);
             for (ProductImage existing : existingImages) {
                 if (Boolean.TRUE.equals(existing.getIsPrimaryImage())) {
@@ -384,16 +385,18 @@ public class ProductService {
             productImageRepository.saveAll(existingImages);
         }
 
+        boolean isFirst = true;
         for (MultipartFile file : files) {
             ImageUploadResponse uploadResponse = cloudinaryService.upload(file);
             ProductImage image = new ProductImage();
             image.setProductId(product.getId());
             image.setImageUrl(uploadResponse.getUrl());
             image.setPublicId(uploadResponse.getPublic_id());
-            image.setIsPrimaryImage(isPrimaryImage);
+            image.setIsPrimaryImage(isFirst);
             image.setIsActive(true);
             image.setCreatedAt(LocalDateTime.now());
             images.add(image);
+            isFirst = false;
         }
 
         if (!images.isEmpty()) {

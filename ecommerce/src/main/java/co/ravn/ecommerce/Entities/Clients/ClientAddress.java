@@ -3,6 +3,7 @@ package co.ravn.ecommerce.Entities.Clients;
 import co.ravn.ecommerce.Entities.Auth.Person;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "client_address")
@@ -48,15 +50,4 @@ public class ClientAddress {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public ClientAddress(Person client, String addressLine1, String addressLine2, String city, String state, String postalCode, String country) {
-        this.client = client;
-        this.addressLine1 = addressLine1;
-        this.addressLine2 = addressLine2;
-        this.city = city;
-        this.state = state;
-        this.postalCode = postalCode;
-        this.country = country;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
 }
