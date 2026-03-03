@@ -37,6 +37,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Sinks;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -60,6 +61,7 @@ public class WebhookService {
     private final DeliveryTrackingRepository deliveryTrackingRepository;
     private final ShippingService shippingService;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final Sinks.Many<OrderPaidEvent> orderPaidSink;
 
     @Transactional
     public void handleStripeEvent(String payload, String stripeSignature) throws SignatureVerificationException {
@@ -191,6 +193,10 @@ public class WebhookService {
 
         stripePaymentEventLogRepository.save(
                 new StripePaymentEventLog(stripePayment, "payment_intent.succeeded", "SUCCEEDED", intent.toJson()));
+
+        // Notify client via email and GraphQL subscription that the order has been confirmed
+        applicationEventPublisher.publishEvent(new OrderConfirmationEvent(order));
+        orderPaidSink.tryEmitNext(new OrderPaidEvent(cart.getId(), order.getId()));
     }
 
     protected void handlePaymentFailed(PaymentIntent intent) {

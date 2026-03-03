@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Your order has been confirmed</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f7;
+        margin: 0;
+        padding: 0;
+      }
+
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        border-radius: 8px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      }
+
+      .header {
+        border-bottom: 1px solid #e5e5e9;
+        padding-bottom: 16px;
+        margin-bottom: 24px;
+      }
+
+      .header h1 {
+        margin: 0;
+        font-size: 20px;
+        color: #111827;
+      }
+
+      .content p {
+        margin: 0 0 12px 0;
+        color: #4b5563;
+        line-height: 1.6;
+      }
+
+      .order-badge {
+        display: inline-block;
+        background-color: #eff6ff;
+        color: #1d4ed8;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 13px;
+        margin: 8px 0 16px 0;
+      }
+
+      .button {
+        display: inline-block;
+        margin-top: 16px;
+        padding: 10px 18px;
+        background-color: #2563eb;
+        color: #ffffff !important;
+        text-decoration: none;
+        border-radius: 999px;
+        font-size: 14px;
+      }
+
+      .button:hover {
+        background-color: #1d4ed8;
+      }
+
+      .footer {
+        margin-top: 24px;
+        font-size: 12px;
+        color: #9ca3af;
+        border-top: 1px solid #e5e5e9;
+        padding-top: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Your order has been confirmed</h1>
+      </div>
+
+      <div class="content">
+        <p>Hi {{name}},</p>
+        <p>
+          Thank you for your purchase. Your order
+          <span class="order-badge">#{{order_id}}</span>
+          has been successfully confirmed and is now being prepared.
+        </p>
+
+        <p>
+          You can view the details and current status of your order at any time by visiting the
+          following link:
+        </p>
+
+        <p>
+          <a
+            class="button"
+            href="https://your-frontend-url.com/orders/{{order_id}}"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View my order
+          </a>
+        </p>
+
+        <p>
+          You will receive another email as soon as your order ships, including tracking
+          information if available.
+        </p>
+
+        <p>
+          If you did not make this purchase, please contact our support team immediately so we can
+          investigate.
+        </p>
+      </div>
+
+      <div class="footer">
+        <p>
+          This is an automated message. Please do not reply directly to this email.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
