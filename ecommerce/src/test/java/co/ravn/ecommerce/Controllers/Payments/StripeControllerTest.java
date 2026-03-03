@@ -81,6 +81,30 @@ class StripeControllerTest {
 
         @Test
         @WithMockUser(roles = "CLIENT")
+        @DisplayName("forwards request body to service and returns 201 with client_secret")
+        void createPaymentIntent_forwardsRequestToService() throws Exception {
+            PaymentIntentRequest dto =
+                    new PaymentIntentRequest(3, 10, 20, new BigDecimal("7.50"));
+            String body = objectMapper.writeValueAsString(dto);
+            PaymentIntentResponse response = new PaymentIntentResponse("pi_secret_cart_flow");
+            when(stripePaymentService.createOrRetrievePaymentIntent(any())).thenReturn(response);
+
+            mockMvc.perform(put(BASE_URL + "/payment")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(body))
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.client_secret").value("pi_secret_cart_flow"));
+
+            verify(stripePaymentService).createOrRetrievePaymentIntent(argThat(req ->
+                    req.getShoppingCartId().equals(3)
+                            && req.getWarehouseId().equals(10)
+                            && req.getAddressId().equals(20)
+                            && req.getDeliveryFee().compareTo(new BigDecimal("7.50")) == 0
+            ));
+        }
+
+        @Test
+        @WithMockUser(roles = "CLIENT")
         @DisplayName("returns 400 when shopping_cart_id is missing")
         void createPaymentIntent_missingCartId_returns400() throws Exception {
             String body = objectMapper.writeValueAsString(

@@ -1,8 +1,13 @@
 package co.ravn.ecommerce.Services.Inventory;
 
+import co.ravn.ecommerce.DTO.Request.Inventory.AddStockRequest;
 import co.ravn.ecommerce.DTO.Request.Inventory.NewWarehouseRequest;
 import co.ravn.ecommerce.DTO.Request.Inventory.UpdateWarehouseRequest;
+import co.ravn.ecommerce.DTO.Response.Inventory.ProductStockResponse;
 import co.ravn.ecommerce.DTO.Response.Inventory.WarehouseResponse;
+import co.ravn.ecommerce.Entities.Inventory.Product;
+import co.ravn.ecommerce.Entities.Inventory.ProductStock;
+import co.ravn.ecommerce.Entities.Inventory.StockOperationType;
 import co.ravn.ecommerce.Entities.Inventory.Warehouse;
 import co.ravn.ecommerce.Exception.BadRequestException;
 import co.ravn.ecommerce.Exception.ResourceNotFoundException;
@@ -180,6 +185,63 @@ class WarehouseServiceTest {
             assertThatThrownBy(() -> warehouseService.deleteWarehouse(99))
                     .isInstanceOf(ResourceNotFoundException.class);
             verify(warehouseRepository, never()).save(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("addStockToWarehouse")
+    class AddStockToWarehouse {
+
+        @Test
+        @DisplayName("delegates to StockService and returns stock response when product and warehouse exist")
+        void returnsStockResponseOnSuccess() {
+            Product product = new Product();
+            product.setId(1);
+            Warehouse warehouse = new Warehouse();
+            warehouse.setId(2);
+            AddStockRequest request = new AddStockRequest(1, StockOperationType.ADD, 5);
+            ProductStock updatedStock = new ProductStock();
+            updatedStock.setQuantity(5);
+            ProductStockResponse stockResponse = new ProductStockResponse();
+            stockResponse.setQuantity(5);
+
+            when(productRepository.findById(1)).thenReturn(Optional.of(product));
+            when(warehouseRepository.findById(2)).thenReturn(Optional.of(warehouse));
+            when(stockService.modifyStock(warehouse, product, StockOperationType.ADD, 5)).thenReturn(updatedStock);
+            when(productStockMapper.toResponse(updatedStock)).thenReturn(stockResponse);
+
+            ProductStockResponse result = warehouseService.addStockToWarehouse(2, request);
+
+            assertThat(result.getQuantity()).isEqualTo(5);
+            verify(stockService).modifyStock(warehouse, product, StockOperationType.ADD, 5);
+        }
+
+        @Test
+        @DisplayName("throws ResourceNotFoundException when product does not exist")
+        void throwsWhenProductNotFound() {
+            AddStockRequest request = new AddStockRequest(99, StockOperationType.ADD, 5);
+            when(productRepository.findById(99)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> warehouseService.addStockToWarehouse(1, request))
+                    .isInstanceOf(ResourceNotFoundException.class)
+                    .hasMessageContaining("Product");
+            verify(stockService, never()).modifyStock(any(), any(), any(), anyInt());
+        }
+
+        @Test
+        @DisplayName("throws ResourceNotFoundException when warehouse does not exist")
+        void throwsWhenWarehouseNotFound() {
+            Product product = new Product();
+            product.setId(1);
+            AddStockRequest request = new AddStockRequest(1, StockOperationType.ADD, 5);
+
+            when(productRepository.findById(1)).thenReturn(Optional.of(product));
+            when(warehouseRepository.findById(99)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> warehouseService.addStockToWarehouse(99, request))
+                    .isInstanceOf(ResourceNotFoundException.class)
+                    .hasMessageContaining("Warehouse");
+            verify(stockService, never()).modifyStock(any(), any(), any(), anyInt());
         }
     }
 }

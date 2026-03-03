@@ -4,6 +4,7 @@ import co.ravn.ecommerce.DTO.Request.Cart.CartProductRequest;
 import co.ravn.ecommerce.DTO.Request.Cart.NewCartRequest;
 import co.ravn.ecommerce.DTO.Response.Cart.ShoppingCartResponse;
 import co.ravn.ecommerce.Entities.Auth.Person;
+import co.ravn.ecommerce.Entities.Auth.Role;
 import co.ravn.ecommerce.Entities.Auth.SysUser;
 import co.ravn.ecommerce.Entities.Cart.ShoppingCart;
 import co.ravn.ecommerce.Entities.Cart.ShoppingCartDetails;
@@ -16,6 +17,7 @@ import co.ravn.ecommerce.Repositories.Auth.PersonRepository;
 import co.ravn.ecommerce.Repositories.Auth.UserRepository;
 import co.ravn.ecommerce.Repositories.Cart.ShoppingCartRepository;
 import co.ravn.ecommerce.Repositories.Inventory.ProductRepository;
+import co.ravn.ecommerce.Utils.enums.RoleEnum;
 import co.ravn.ecommerce.Utils.enums.ShoppingCartStatusEnum;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -233,7 +235,12 @@ class CartServiceTest {
             stock.setQuantity(20);
             product.setStock(List.of(stock));
 
-            ShoppingCartDetails existingItem = new ShoppingCartDetails(null, product, BigDecimal.TEN, 3);
+            ShoppingCartDetails existingItem = ShoppingCartDetails.builder()
+                    .cart(null)
+                    .product(product)
+                    .price(BigDecimal.TEN)
+                    .quantity(3)
+                    .build();
             List<ShoppingCartDetails> items = new ArrayList<>();
             items.add(existingItem);
             ShoppingCart cart = new ShoppingCart(1, null, ShoppingCartStatusEnum.ACTIVE, null, null, items);
@@ -316,7 +323,12 @@ class CartServiceTest {
         void removesItemFromCart() {
             Product product = new Product();
             product.setId(1);
-            ShoppingCartDetails item = new ShoppingCartDetails(null, product, BigDecimal.TEN, 1);
+            ShoppingCartDetails item = ShoppingCartDetails.builder()
+                    .cart(null)
+                    .product(product)
+                    .price(BigDecimal.TEN)
+                    .quantity(1)
+                    .build();
             item.setId(5);
             List<ShoppingCartDetails> items = new ArrayList<>();
             items.add(item);
@@ -343,6 +355,199 @@ class CartServiceTest {
             assertThatThrownBy(() -> cartService.removeItemFromCart(99, 5))
                     .isInstanceOf(ResourceNotFoundException.class)
                     .hasMessageContaining("Cart not found");
+            verify(shoppingCartRepository, never()).save(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("getCartByClientId")
+    class GetCartByClientId {
+
+        private SysUser setupUser(String username, RoleEnum roleEnum, int personId) {
+            SecurityContextHolder.getContext().setAuthentication(
+                    new UsernamePasswordAuthenticationToken(username, null));
+            Person person = new Person();
+            person.setId(personId);
+            Role role = new Role();
+            role.setName(roleEnum);
+            SysUser user = new SysUser();
+            user.setId(100);
+            user.setUsername(username);
+            user.setPerson(person);
+            user.setRole(role);
+            when(userRepository.findByUsernameAndIsActiveTrue(username)).thenReturn(Optional.of(user));
+            return user;
+        }
+
+        @Test
+        @DisplayName("returns existing cart when client has active cart")
+        void returnsExistingCartForClient() {
+            setupUser("client1", RoleEnum.CLIENT, 5);
+
+            Person client = new Person();
+            client.setId(5);
+            List<ShoppingCartDetails> items = new ArrayList<>();
+            ShoppingCart cart = new ShoppingCart(1, client, ShoppingCartStatusEnum.ACTIVE, null, null, items);
+
+            when(shoppingCartRepository.findByClientIdAndStatus(5, ShoppingCartStatusEnum.ACTIVE))
+                    .thenReturn(Optional.of(cart));
+
+            ShoppingCartResponse response = cartService.getCartByClientId(5);
+
+            assertThat(response.getId()).isEqualTo(1);
+            assertThat(response.getClient_id()).isEqualTo(5);
+            assertThat(response.getStatus()).isEqualTo(ShoppingCartStatusEnum.ACTIVE.toString());
+            verify(shoppingCartRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("creates new empty cart when client has no active cart")
+        void createsNewCartWhenNoneExists() {
+            setupUser("client1", RoleEnum.CLIENT, 5);
+
+            Person person = new Person();
+            person.setId(5);
+            when(shoppingCartRepository.findByClientIdAndStatus(5, ShoppingCartStatusEnum.ACTIVE))
+                    .thenReturn(Optional.empty());
+            when(personRepository.findById(5)).thenReturn(Optional.of(person));
+
+            ShoppingCartResponse response = cartService.getCartByClientId(5);
+
+            assertThat(response.getClient_id()).isEqualTo(5);
+            assertThat(response.getProducts()).isEmpty();
+            verify(shoppingCartRepository).save(any(ShoppingCart.class));
+        }
+
+        @Test
+        @DisplayName("throws AccessDeniedException when non-manager tries to access other client cart")
+        void throwsWhenClientAccessesOtherClientCart() {
+            setupUser("client1", RoleEnum.CLIENT, 5);
+
+            assertThatThrownBy(() -> cartService.getCartByClientId(99))
+                    .isInstanceOf(org.springframework.security.access.AccessDeniedException.class)
+                    .hasMessageContaining("You do not own this cart");
+
+            verify(shoppingCartRepository, never()).findByClientIdAndStatus(anyInt(), any());
+        }
+
+        @Test
+        @DisplayName("allows manager to access any client cart")
+        void managerCanAccessAnyClientCart() {
+            setupUser("manager1", RoleEnum.MANAGER, 0);
+
+            Person client = new Person();
+            client.setId(7);
+            ShoppingCart cart = new ShoppingCart(2, client, ShoppingCartStatusEnum.ACTIVE, null, null, List.of());
+
+            when(shoppingCartRepository.findByClientIdAndStatus(7, ShoppingCartStatusEnum.ACTIVE))
+                    .thenReturn(Optional.of(cart));
+
+            ShoppingCartResponse response = cartService.getCartByClientId(7);
+
+            assertThat(response.getId()).isEqualTo(2);
+            assertThat(response.getClient_id()).isEqualTo(7);
+        }
+    }
+
+    @Nested
+    @DisplayName("updateCartItem")
+    class UpdateCartItem {
+
+        @Test
+        @DisplayName("updates price and quantity when stock is sufficient")
+        void updatesItemWhenStockSufficient() {
+            Product product = new Product();
+            product.setId(1);
+            ProductStock stock = new ProductStock();
+            stock.setQuantity(10);
+            product.setStock(List.of(stock));
+
+            ShoppingCartDetails item = ShoppingCartDetails.builder()
+                    .cart(null)
+                    .product(product)
+                    .price(BigDecimal.TEN)
+                    .quantity(2)
+                    .build();
+            item.setId(5);
+
+            List<ShoppingCartDetails> items = new ArrayList<>();
+            items.add(item);
+            ShoppingCart cart = new ShoppingCart(1, null, ShoppingCartStatusEnum.ACTIVE, null, null, items);
+            ShoppingCartResponse response = new ShoppingCartResponse();
+
+            when(shoppingCartRepository.findByIdAndStatus(1, ShoppingCartStatusEnum.ACTIVE))
+                    .thenReturn(Optional.of(cart));
+            when(cartMapper.toResponse(cart)).thenReturn(response);
+
+            CartProductRequest req = new CartProductRequest(new BigDecimal("15.00"), 3, 1);
+
+            ShoppingCartResponse result = cartService.updateCartItem(1, 5, req);
+
+            assertThat(result).isSameAs(response);
+            assertThat(item.getQuantity()).isEqualTo(3);
+            assertThat(item.getPrice()).isEqualByComparingTo("15.00");
+            verify(shoppingCartRepository).save(cart);
+        }
+
+        @Test
+        @DisplayName("throws ResourceNotFoundException when cart not found")
+        void throwsWhenCartNotFound() {
+            when(shoppingCartRepository.findByIdAndStatus(99, ShoppingCartStatusEnum.ACTIVE))
+                    .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> cartService.updateCartItem(99, 5,
+                    new CartProductRequest(BigDecimal.TEN, 1, 1)))
+                    .isInstanceOf(ResourceNotFoundException.class)
+                    .hasMessageContaining("Active cart not found");
+            verify(shoppingCartRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("throws ResourceNotFoundException when cart item not found")
+        void throwsWhenItemNotFound() {
+            List<ShoppingCartDetails> items = new ArrayList<>();
+            ShoppingCart cart = new ShoppingCart(1, null, ShoppingCartStatusEnum.ACTIVE, null, null, items);
+
+            when(shoppingCartRepository.findByIdAndStatus(1, ShoppingCartStatusEnum.ACTIVE))
+                    .thenReturn(Optional.of(cart));
+
+            assertThatThrownBy(() -> cartService.updateCartItem(1, 5,
+                    new CartProductRequest(BigDecimal.TEN, 1, 1)))
+                    .isInstanceOf(ResourceNotFoundException.class)
+                    .hasMessageContaining("Cart item not found");
+            verify(shoppingCartRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("throws BadRequestException when new quantity exceeds available stock")
+        void throwsWhenInsufficientStock() {
+            Product product = new Product();
+            product.setId(1);
+            ProductStock stock = new ProductStock();
+            stock.setQuantity(2);
+            product.setStock(List.of(stock));
+
+            ShoppingCartDetails item = ShoppingCartDetails.builder()
+                    .cart(null)
+                    .product(product)
+                    .price(BigDecimal.TEN)
+                    .quantity(2)
+                    .build();
+            item.setId(5);
+
+            List<ShoppingCartDetails> items = new ArrayList<>();
+            items.add(item);
+            ShoppingCart cart = new ShoppingCart(1, null, ShoppingCartStatusEnum.ACTIVE, null, null, items);
+
+            when(shoppingCartRepository.findByIdAndStatus(1, ShoppingCartStatusEnum.ACTIVE))
+                    .thenReturn(Optional.of(cart));
+
+            CartProductRequest req = new CartProductRequest(BigDecimal.TEN, 5, 1);
+
+            assertThatThrownBy(() -> cartService.updateCartItem(1, 5, req))
+                    .isInstanceOf(BadRequestException.class)
+                    .hasMessageContaining("Insufficient stock");
+
             verify(shoppingCartRepository, never()).save(any());
         }
     }

@@ -59,11 +59,8 @@ class CategoryServiceTest {
         @Test
         @DisplayName("returns list of category responses")
         void returnsList() {
-            Category cat = new Category("Electronics", "Tech");
-            cat.setId(1);
-            CategoryResponse resp = new CategoryResponse();
-            resp.setId(1);
-            resp.setName("Electronics");
+            Category cat = Category.builder().id(1).name("Electronics").description("Tech").isActive(true).build();
+            CategoryResponse resp = new CategoryResponse(1, "Electronics", "Tech", Boolean.TRUE);
             when(categoryRepository.findByIsActiveTrue()).thenReturn(List.of(cat));
             when(categoryMapper.toResponse(cat)).thenReturn(resp);
 
@@ -102,12 +99,8 @@ class CategoryServiceTest {
             when(userRepository.findByUsernameAndIsActiveTrue("manager1")).thenReturn(Optional.of(user));
 
             CategoryCreateRequest request = new CategoryCreateRequest("Books", "All books");
-            Category entity = new Category("Books", "All books");
-            entity.setId(1);
-            entity.setCreatedBy(10);
-            CategoryResponse response = new CategoryResponse();
-            response.setId(1);
-            response.setName("Books");
+            Category entity = Category.builder().id(1).name("Books").description("All books").createdBy(10).build();
+            CategoryResponse response = new CategoryResponse(1, "Books", "All books", Boolean.TRUE);
 
             when(categoryMapper.toEntity(request)).thenReturn(entity);
             when(categoryRepository.save(any(Category.class))).thenReturn(entity);
@@ -129,12 +122,9 @@ class CategoryServiceTest {
         @Test
         @DisplayName("updates and returns category when found")
         void updatesWhenFound() {
-            Category category = new Category("Old", "Old desc");
-            category.setId(1);
+            Category category = Category.builder().id(1).name("Old").description("Old desc").build();
             CategoryUpdateRequest request = new CategoryUpdateRequest("New", "New desc");
-            CategoryResponse response = new CategoryResponse();
-            response.setId(1);
-            response.setName("New");
+            CategoryResponse response = new CategoryResponse(1, "New", "New desc", Boolean.TRUE);
 
             when(categoryRepository.findById(1)).thenReturn(Optional.of(category));
             doNothing().when(categoryMapper).updateFromRequest(request, category);
@@ -169,9 +159,7 @@ class CategoryServiceTest {
         @Test
         @DisplayName("deactivates category and removes from products when found")
         void deactivatesWhenFound() {
-            Category category = new Category("Cat", "Desc");
-            category.setId(1);
-            category.setActive(true);
+            Category category = Category.builder().id(1).name("Cat").description("Desc").isActive(true).build();
             when(categoryRepository.findById(1)).thenReturn(Optional.of(category));
             when(productRepository.findAllByCategories_Id(1)).thenReturn(List.of());
             when(categoryRepository.save(any(Category.class))).thenReturn(category);

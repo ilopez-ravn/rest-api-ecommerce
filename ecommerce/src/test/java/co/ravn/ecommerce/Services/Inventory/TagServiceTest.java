@@ -82,9 +82,7 @@ class TagServiceTest {
         @DisplayName("saves and returns tag response")
         void createsTag() {
             TagCreateRequest request = new TagCreateRequest("featured");
-            Tag entity = new Tag("featured");
-            entity.setId(1);
-            entity.setIsActive(true);
+            Tag entity = Tag.builder().id(1).name("featured").isActive(true).build();
             TagResponse response = new TagResponse();
             response.setId(1);
             response.setName("featured");
@@ -108,10 +106,7 @@ class TagServiceTest {
         @Test
         @DisplayName("updates and returns tag when found")
         void updatesWhenFound() {
-            Tag tag = new Tag();
-            tag.setId(1);
-            tag.setName("old");
-            tag.setIsActive(true);
+            Tag tag = Tag.builder().id(1).name("old").isActive(true).build();
             TagUpdateRequest request = new TagUpdateRequest("new");
             TagResponse response = new TagResponse();
             response.setId(1);

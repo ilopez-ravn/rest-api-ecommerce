@@ -1,8 +1,15 @@
 package co.ravn.ecommerce.Controllers.Inventory;
 
+import co.ravn.ecommerce.DTO.Request.Inventory.ProductImageUpdate;
 import co.ravn.ecommerce.DTO.Request.Inventory.ProductUpdateRequest;
+import co.ravn.ecommerce.DTO.Response.Inventory.CategoryResponse;
 import co.ravn.ecommerce.DTO.Response.Inventory.ProductCursorPage;
+import co.ravn.ecommerce.DTO.Response.Inventory.ProductImageResponse;
 import co.ravn.ecommerce.DTO.Response.Inventory.ProductResponse;
+import co.ravn.ecommerce.DTO.Response.Inventory.TagResponse;
+import co.ravn.ecommerce.Entities.Inventory.Category;
+import co.ravn.ecommerce.Entities.Inventory.ProductImage;
+import co.ravn.ecommerce.Entities.Inventory.Tag;
 import co.ravn.ecommerce.Exception.GlobalExceptionHandler;
 import co.ravn.ecommerce.Exception.ResourceNotFoundException;
 import co.ravn.ecommerce.Filters.JwtAuthFilter;
@@ -141,10 +148,7 @@ class ProductControllerTest {
         void createProduct_valid_returns200() throws Exception {
             String body = objectMapper.writeValueAsString(
                     new ProductUpdateRequest("New Product", "Desc", new BigDecimal("19.99"), null, null, null, null));
-            ProductResponse response = new ProductResponse();
-            response.setId(1);
-            response.setName("New Product");
-            response.setPrice(new BigDecimal("19.99"));
+            ProductResponse response = ProductResponse.builder().id(1).name("New Product").price(new BigDecimal("19.99")).build();
             when(productService.createProduct(any())).thenReturn(response);
 
             mockMvc.perform(post(BASE_URL)
@@ -166,22 +170,70 @@ class ProductControllerTest {
         @WithMockUser(roles = "MANAGER")
         @DisplayName("returns 200 and updated product when valid")
         void updateProduct_valid_returns200() throws Exception {
-            String body = objectMapper.writeValueAsString(
-                    new ProductUpdateRequest("Updated", "Updated desc", new BigDecimal("29.99"), null, null, null, null));
-            ProductResponse response = new ProductResponse();
-            response.setId(1);
-            response.setName("Updated");
-            response.setPrice(new BigDecimal("29.99"));
-            when(productService.updateProduct(eq(1), any())).thenReturn(response);
+            ProductResponse response = ProductResponse.builder()
+                    .id(1)
+                    .name("Updated")
+                    .description("Updated desc")
+                    .price(new BigDecimal("29.99"))
+                    .categories(List.of(CategoryResponse.builder()
+                            .id(1).name("Category 1").description("Category 1 description").build()))
+                    .tags(List.of(TagResponse.builder()
+                            .id(1).name("Tag 1").is_active(true).build()))
+                    .product_images(List.of(ProductImageResponse.builder()
+                            .id(1).image_url("https://example.com/image.jpg").build()))
+                    .build();
+
+            Category category = Category.builder().id(1).name("Category 1").description("Category 1 description").build();
+            Tag tag = Tag.builder().id(1).name("Tag 1").isActive(true).build();
+            ProductImage productImage = ProductImage.builder()
+                    .imageUrl("https://example.com/image.jpg")
+                    .isPrimaryImage(true)
+                    .publicId("img123")
+                    .build();
+
+            ProductUpdateRequest request = ProductUpdateRequest.builder()
+                    .name("Updated")
+                    .description("Updated desc")
+                    .price(new BigDecimal("29.99"))
+                    .categoryList(List.of(category.getId()))
+                    .tagList(List.of(tag.getId()))
+                    .imageList(List.of(new ProductImageUpdate(
+                            productImage.getImageUrl(),
+                            productImage.getIsPrimaryImage(),
+                            productImage.getPublicId())))
+                    .isActive(Boolean.TRUE)
+                    .build();
+
+            String body = objectMapper.writeValueAsString(request);
+
+            when(productService.updateProduct(eq(1), any(ProductUpdateRequest.class))).thenReturn(response);
 
             mockMvc.perform(patch(BASE_URL + "/1")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(body))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(1))
-                    .andExpect(jsonPath("$.name").value("Updated"));
+                    .andExpect(jsonPath("$.name").value("Updated"))
+                    .andExpect(jsonPath("$.description").value("Updated desc"))
+                    .andExpect(jsonPath("$.price").value(29.99))
+                    .andExpect(jsonPath("$.categories[0].id").value(1))
+                    .andExpect(jsonPath("$.categories[0].name").value("Category 1"))
+                    .andExpect(jsonPath("$.tags[0].id").value(1))
+                    .andExpect(jsonPath("$.tags[0].name").value("Tag 1"))
+                    .andExpect(jsonPath("$.product_images[0].id").value(1))
+                    .andExpect(jsonPath("$.product_images[0].image_url").value("https://example.com/image.jpg"));
 
-            verify(productService).updateProduct(eq(1), any());
+            verify(productService).updateProduct(eq(1), argThat(req ->
+                    "Updated".equals(req.getName())
+                            && "Updated desc".equals(req.getDescription())
+                            && new BigDecimal("29.99").compareTo(req.getPrice()) == 0
+                            && req.getCategoryList().equals(List.of(category.getId()))
+                            && req.getTagList().equals(List.of(tag.getId()))
+                            && req.getImageList() != null
+                            && req.getImageList().size() == 1
+                            && "https://example.com/image.jpg".equals(req.getImageList().getFirst().getImageUrl())
+                            && Boolean.TRUE.equals(req.getIsActive())
+            ));
         }
 
         @Test
