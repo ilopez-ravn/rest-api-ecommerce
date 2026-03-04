@@ -5,7 +5,7 @@ CREATE TYPE shopping_cart_status_enum AS ENUM ('ACTIVE', 'DELETED', 'PROCESSED')
 CREATE TYPE email_status_enum AS ENUM ('SENT', 'NOT_SENT');
 CREATE TYPE person_document_type_enum AS ENUM ('PERSON', 'BUSINESS');
 CREATE TYPE bill_document_type_enum AS ENUM ('RECEIPT', 'BILL');
-CREATE TYPE email_type_enum AS ENUM ('PASSWORD_RECOVERY', 'PRODUCT_LIKED_ALERT', 'ORDER_CONFIRMATION', 'DELIVERY_STATUS_UPDATE', 'REFUND_PROCESSED');
+CREATE TYPE email_type_enum AS ENUM ('PASSWORD_RECOVERY', 'PRODUCT_LIKED_ALERT', 'ORDER_CONFIRMATION', 'DELIVERY_STATUS_UPDATE', 'REFUND_PROCESSED', 'REFUND_REQUESTED', 'REFUND_APPROVED', 'REFUND_DENIED', 'RETURN_IN_TRANSIT', 'RETURN_RECEIVED');
 
 CREATE TABLE IF NOT EXISTS role (
     id SERIAL PRIMARY KEY,
@@ -315,6 +315,47 @@ CREATE TABLE IF NOT EXISTS order_tracking_log (
     changed_by INT REFERENCES sys_user(id) ON DELETE SET NULL,
     
     changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Refund & Return System
+CREATE TYPE refund_status_enum AS ENUM (
+    'PENDING_REVIEW',
+    'APPROVED',
+    'DENIED',
+    'CANCELLED',
+    'RETURN_IN_TRANSIT',
+    'PRODUCT_RECEIVED',
+    'REFUND_PROCESSED'
+);
+
+CREATE TABLE IF NOT EXISTS refund_requests (
+    id              SERIAL PRIMARY KEY,
+    order_id        INTEGER NOT NULL REFERENCES sale_order(id),
+    requested_by    INTEGER NOT NULL REFERENCES sys_user(id),
+    reviewed_by     INTEGER REFERENCES sys_user(id),
+    status          refund_status_enum NOT NULL DEFAULT 'PENDING_REVIEW',
+    requires_return BOOLEAN NOT NULL DEFAULT FALSE,
+    reason          TEXT NOT NULL,
+    manager_notes   TEXT,
+    stripe_refund_id VARCHAR(255),
+    refund_amount   NUMERIC(10, 2),
+    requested_at    TIMESTAMP,
+    reviewed_at     TIMESTAMP,
+    refunded_at     TIMESTAMP
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_refund_requests_active_order
+    ON refund_requests(order_id)
+    WHERE status NOT IN ('DENIED', 'CANCELLED');
+
+CREATE TABLE IF NOT EXISTS return_shipments (
+    id                SERIAL PRIMARY KEY,
+    refund_request_id INTEGER NOT NULL UNIQUE REFERENCES refund_requests(id),
+    tracking_number   VARCHAR(255) NOT NULL,
+    carrier_name      VARCHAR(255) NOT NULL,
+    shipped_at        TIMESTAMP,
+    received_at       TIMESTAMP,
+    received_by       INTEGER REFERENCES sys_user(id)
 );
 
 
