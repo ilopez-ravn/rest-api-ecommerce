@@ -19,120 +19,120 @@ ON CONFLICT DO NOTHING;
 INSERT INTO sys_user (username, hashed_password, role_id, is_active, created_at, last_updated_password) VALUES
 -- MANAGER role
 ('admin_manager', '$2a$10$sFB3sa0qNz8afW/pnpfyfOCb26fZC/3SH9Ut6/marjQ8MYqVvSP5y', 1, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('carlos_manager', '$2a$10$sFB3sa0qNz8afW/pnpfyfOCb26fZC/3SH9Ut6/marjQ8MYqVvSP5y', 1, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('charles_manager', '$2a$10$sFB3sa0qNz8afW/pnpfyfOCb26fZC/3SH9Ut6/marjQ8MYqVvSP5y', 1, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 -- WAREHOUSE role
 ('warehouse_admin', '$2a$10$sFB3sa0qNz8afW/pnpfyfOCb26fZC/3SH9Ut6/marjQ8MYqVvSP5y', 3, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('juan_warehouse', '$2a$10$sFB3sa0qNz8afW/pnpfyfOCb26fZC/3SH9Ut6/marjQ8MYqVvSP5y', 3, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('john_warehouse', '$2a$10$sFB3sa0qNz8afW/pnpfyfOCb26fZC/3SH9Ut6/marjQ8MYqVvSP5y', 3, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 -- SHIPPING role
 ('shipping_coordinator', '$2a$10$sFB3sa0qNz8afW/pnpfyfOCb26fZC/3SH9Ut6/marjQ8MYqVvSP5y', 4, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 -- CLIENT role
-('client_maria', '$2a$10$sFB3sa0qNz8afW/pnpfyfOCb26fZC/3SH9Ut6/marjQ8MYqVvSP5y', 2, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('client_pedro', '$2a$10$sFB3sa0qNz8afW/pnpfyfOCb26fZC/3SH9Ut6/marjQ8MYqVvSP5y', 2, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('client_ana', '$2a$10$sFB3sa0qNz8afW/pnpfyfOCb26fZC/3SH9Ut6/marjQ8MYqVvSP5y', 2, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+('client_mary', '$2a$10$sFB3sa0qNz8afW/pnpfyfOCb26fZC/3SH9Ut6/marjQ8MYqVvSP5y', 2, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('client_peter', '$2a$10$sFB3sa0qNz8afW/pnpfyfOCb26fZC/3SH9Ut6/marjQ8MYqVvSP5y', 2, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('client_ann', '$2a$10$sFB3sa0qNz8afW/pnpfyfOCb26fZC/3SH9Ut6/marjQ8MYqVvSP5y', 2, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 ON CONFLICT (username) DO NOTHING;
 
 -- Insert person records (linked to users)
 INSERT INTO person (user_id, first_name, last_name, email, phone, document, document_type, is_active, created_at) VALUES
 -- Manager
-(1, 'Ricardo', 'González Flores', 'ricardo.gonzalez@ecommerce.com', '+51978123456', '12345678', 'PERSON', TRUE, CURRENT_TIMESTAMP),
-(2, 'Carlos', 'Martínez López', 'carlos.martinez@ecommerce.com', '+51987654321', '87654321', 'PERSON', TRUE, CURRENT_TIMESTAMP),
+(1, 'Richard', 'Gonzalez Flores', 'richard.gonzalez@ecommerce.com', '+51978123456', '12345678', 'PERSON', TRUE, CURRENT_TIMESTAMP),
+(2, 'Charles', 'Martinez Lopez', 'charles.martinez@ecommerce.com', '+51987654321', '87654321', 'PERSON', TRUE, CURRENT_TIMESTAMP),
 -- Warehouse
-(3, 'Diego', 'Rodríguez Pérez', 'diego.rodriguez@warehouse.com', '+51912345678', '11223344', 'PERSON', TRUE, CURRENT_TIMESTAMP),
-(4, 'Juan', 'Sánchez Torres', 'juan.sanchez@warehouse.com', '+51923456789', '55667788', 'PERSON', TRUE, CURRENT_TIMESTAMP),
+(3, 'James', 'Rodriguez Perez', 'james.rodriguez@warehouse.com', '+51912345678', '11223344', 'PERSON', TRUE, CURRENT_TIMESTAMP),
+(4, 'John', 'Sanchez Torres', 'john.sanchez@warehouse.com', '+51923456789', '55667788', 'PERSON', TRUE, CURRENT_TIMESTAMP),
 -- Shipping
-(5, 'Fernando', 'Vega Morales', 'fernando.vega@shipping.com', '+51934567890', '99887766', 'PERSON', TRUE, CURRENT_TIMESTAMP),
+(5, 'Frank', 'Vega Morales', 'frank.vega@shipping.com', '+51934567890', '99887766', 'PERSON', TRUE, CURRENT_TIMESTAMP),
 -- Clients
-(6, 'María', 'García Ruiz', 'maria.garcia@gmail.com', '+51998765432', '13579246', 'PERSON', TRUE, CURRENT_TIMESTAMP),
-(7, 'Pedro', 'López Fernández', 'pedro.lopez@hotmail.com', '+51954321098', '24681357', 'PERSON', TRUE, CURRENT_TIMESTAMP),
-(8, 'Ana', 'Díaz Ramírez', 'ana.diaz@yahoo.com', '+51987123654', '35792468', 'PERSON', TRUE, CURRENT_TIMESTAMP)
+(6, 'Mary', 'Garcia Ruiz', 'mary.garcia@gmail.com', '+51998765432', '13579246', 'PERSON', TRUE, CURRENT_TIMESTAMP),
+(7, 'Peter', 'Lopez Fernandez', 'peter.lopez@hotmail.com', '+51954321098', '24681357', 'PERSON', TRUE, CURRENT_TIMESTAMP),
+(8, 'Ann', 'Diaz Ramirez', 'ann.diaz@yahoo.com', '+51987123654', '35792468', 'PERSON', TRUE, CURRENT_TIMESTAMP)
 ON CONFLICT DO NOTHING;
 
 -- ========== PRODUCT DATA SEEDING ==========
 
 -- Insert categories
 INSERT INTO category (created_by, name, description, is_active, created_at) VALUES
-(1, 'Electrónica', 'Dispositivos electrónicos y accesorios', TRUE, CURRENT_TIMESTAMP),
-(1, 'Ropa y Accesorios', 'Prendas de vestir y accesorios de moda', TRUE, CURRENT_TIMESTAMP),
-(1, 'Hogar y Jardín', 'Artículos para el hogar y jardín', TRUE, CURRENT_TIMESTAMP),
-(1, 'Deportes y Recreación', 'Equipos deportivos y de recreación', TRUE, CURRENT_TIMESTAMP),
-(1, 'Libros y Educación', 'Libros, material educativo y más', TRUE, CURRENT_TIMESTAMP)
+(1, 'POS Equipment and Terminals', 'Point of sale terminals and all-in-one solutions for checkout counters', TRUE, CURRENT_TIMESTAMP),
+(1, 'Printing and Labeling', 'Thermal printers, label printers and printing supplies for retail', TRUE, CURRENT_TIMESTAMP),
+(1, 'Scanners and Data Capture', 'Barcode readers and mobile devices for inventory', TRUE, CURRENT_TIMESTAMP),
+(1, 'Networks and Infrastructure', 'Routers, switches and network equipment for business', TRUE, CURRENT_TIMESTAMP),
+(1, 'Accessories and Supplies', 'Cash drawers, paper rolls and other point of sale accessories', TRUE, CURRENT_TIMESTAMP)
 ON CONFLICT DO NOTHING;
 
 -- Insert products
 INSERT INTO product (created_by, name, description, price, is_active, created_at, updated_at, deleted_at) VALUES
-(1, 'Laptop HP Pavilion 15.6"', 'Laptop HP Pavilion con procesador Intel i5, 8GB RAM, 256GB SSD. Perfecta para estudiantes y profesionales', 1299.99, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL),
-(1, 'Auriculares Inalámbricos Sony', 'Auriculares Bluetooth con cancelación de ruido activo, batería 24h', 249.50, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL),
-(1, 'USB-C Hub 7 en 1', 'Hub USB-C multifunción con HDMI, USB 3.0, lector de tarjetas', 45.99, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL),
-(1, 'Polo de Algodón Premium', 'Polo de algodón 100% puro, disponible en varios colores', 39.99, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL),
-(1, 'Zapatillas Deportivas Runner', 'Zapatillas técnicas para correr, con tecnología de amortiguación', 89.99, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL),
-(1, 'Lámpara LED de Escritorio', 'Lámpara LED ajustable con 3 modos de iluminación, control táctil', 34.50, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL),
-(1, 'Pelota de Fútbol Profesional', 'Balón de fútbol reglamentario, material sintético de alta calidad', 59.99, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL),
-(1, 'El Quijote - Cervantes', 'Edición de bolsillo del clásico de la literatura española', 12.99, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL),
-(1, 'Mochila Backpack Gris', 'Mochila resistente con compartimientos múltiples y puerto USB', 64.95, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL),
-(1, 'Monitor LG 24" IPS', 'Monitor 24 pulgadas Full HD, 75Hz, ideal para diseño y gaming', 199.99, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL)
+(1, 'POS All-in-One Terminal 15"', '15" touch POS terminal with Intel processor, 8GB RAM and 256GB SSD, ideal for retail checkout and restaurants', 1750.00, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL),
+(1, '80mm Thermal Receipt Printer', 'High-speed thermal printer for 80mm receipts, compatible with most POS software', 420.00, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL),
+(1, '2D Barcode Scanner USB', '1D/2D scanner with stand and USB connection, ideal for checkout and packing stations', 290.00, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL),
+(1, '4" Industrial Label Printer', 'Thermal label printer for 4" labels for warehouses and distribution centers', 1450.00, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL),
+(1, 'Metal Cash Drawer', 'Reinforced steel cash drawer with electrical opening and removable tray', 260.00, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL),
+(1, 'Barcode Label Rolls 57x32mm', 'Box of 50 rolls of adhesive labels for thermal and thermal transfer printers', 180.00, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL),
+(1, 'Android Handheld POS with Scanner', 'Mobile device with Android, integrated thermal printer and 1D/2D barcode reader', 980.00, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL),
+(1, 'Gigabit Business Router', 'High-performance router with 4 Gigabit ports and multi-VLAN support', 650.00, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL),
+(1, '80mm Thermal Paper Rolls', 'Box of 50 rolls of 80mm thermal paper for receipt printers', 240.00, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL),
+(1, 'Wireless Barcode Scanner', 'Wireless 2.4GHz/Bluetooth reader with charging base, ideal for warehouses and wholesale stores', 350.00, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL)
 ON CONFLICT DO NOTHING;
 
 -- Insert product-category mappings
 INSERT INTO product_category (product_id, category_id, created_at) VALUES
-(1, 1, CURRENT_TIMESTAMP),  -- Laptop -> Electrónica
-(2, 1, CURRENT_TIMESTAMP),  -- Auriculares -> Electrónica
-(3, 1, CURRENT_TIMESTAMP),  -- USB Hub -> Electrónica
-(4, 2, CURRENT_TIMESTAMP),  -- Polo -> Ropa
-(5, 2, CURRENT_TIMESTAMP),  -- Zapatillas -> Ropa
-(6, 3, CURRENT_TIMESTAMP),  -- Lámpara -> Hogar
-(7, 4, CURRENT_TIMESTAMP),  -- Pelota -> Deportes
-(8, 5, CURRENT_TIMESTAMP),  -- Libro -> Libros
-(9, 2, CURRENT_TIMESTAMP),  -- Mochila -> Ropa
-(10, 1, CURRENT_TIMESTAMP)  -- Monitor -> Electrónica
+(1, 1, CURRENT_TIMESTAMP),  -- POS Terminal -> POS Equipment and Terminals
+(2, 2, CURRENT_TIMESTAMP),  -- Thermal printer -> Printing and Labeling
+(3, 3, CURRENT_TIMESTAMP),  -- 2D Scanner -> Scanners and Data Capture
+(4, 2, CURRENT_TIMESTAMP),  -- Label printer -> Printing and Labeling
+(5, 5, CURRENT_TIMESTAMP),  -- Cash drawer -> Accessories and Supplies
+(6, 2, CURRENT_TIMESTAMP),  -- Label rolls -> Printing and Labeling
+(7, 1, CURRENT_TIMESTAMP),  -- Handheld POS -> POS Equipment and Terminals
+(8, 4, CURRENT_TIMESTAMP),  -- Business router -> Networks and Infrastructure
+(9, 5, CURRENT_TIMESTAMP),  -- Thermal paper rolls -> Accessories and Supplies
+(10, 3, CURRENT_TIMESTAMP)  -- Wireless scanner -> Scanners and Data Capture
 ON CONFLICT DO NOTHING;
 
 -- Insert tags
 INSERT INTO tag (name, is_active, created_at) VALUES
-('Nuevo', TRUE, CURRENT_TIMESTAMP),
+('New', TRUE, CURRENT_TIMESTAMP),
 ('Bestseller', TRUE, CURRENT_TIMESTAMP),
-('Oferta', TRUE, CURRENT_TIMESTAMP),
-('Eco-amigable', TRUE, CURRENT_TIMESTAMP),
+('On Sale', TRUE, CURRENT_TIMESTAMP),
+('Eco-friendly', TRUE, CURRENT_TIMESTAMP),
 ('Premium', TRUE, CURRENT_TIMESTAMP),
-('Envío Gratis', TRUE, CURRENT_TIMESTAMP),
-('En Stock', TRUE, CURRENT_TIMESTAMP),
-('Tendencia', TRUE, CURRENT_TIMESTAMP)
+('Free Shipping', TRUE, CURRENT_TIMESTAMP),
+('In Stock', TRUE, CURRENT_TIMESTAMP),
+('Trending', TRUE, CURRENT_TIMESTAMP)
 ON CONFLICT DO NOTHING;
 
 -- Insert product-tag mappings
 INSERT INTO product_tag (product_id, tag_id, created_at) VALUES
-(1, 1, CURRENT_TIMESTAMP),  -- Laptop -> Nuevo
-(1, 5, CURRENT_TIMESTAMP),  -- Laptop -> Premium
-(2, 2, CURRENT_TIMESTAMP),  -- Auriculares -> Bestseller
-(2, 6, CURRENT_TIMESTAMP),  -- Auriculares -> Envío Gratis
-(3, 3, CURRENT_TIMESTAMP),  -- USB Hub -> Oferta
-(4, 1, CURRENT_TIMESTAMP),  -- Polo -> Nuevo
-(4, 8, CURRENT_TIMESTAMP),  -- Polo -> Tendencia
-(5, 7, CURRENT_TIMESTAMP),  -- Zapatillas -> En Stock
-(6, 4, CURRENT_TIMESTAMP),  -- Lámpara -> Eco-amigable
-(7, 2, CURRENT_TIMESTAMP),  -- Pelota -> Bestseller
-(8, 1, CURRENT_TIMESTAMP),  -- Libro -> Nuevo
-(10, 5, CURRENT_TIMESTAMP)  -- Monitor -> Premium
+(1, 1, CURRENT_TIMESTAMP),  -- POS Terminal -> New
+(1, 5, CURRENT_TIMESTAMP),  -- POS Terminal -> Premium
+(2, 2, CURRENT_TIMESTAMP),  -- Thermal printer -> Bestseller
+(2, 6, CURRENT_TIMESTAMP),  -- Thermal printer -> Free Shipping
+(3, 3, CURRENT_TIMESTAMP),  -- 2D Scanner -> On Sale
+(4, 1, CURRENT_TIMESTAMP),  -- Label printer -> New
+(4, 8, CURRENT_TIMESTAMP),  -- Label printer -> Trending
+(5, 7, CURRENT_TIMESTAMP),  -- Cash drawer -> In Stock
+(6, 4, CURRENT_TIMESTAMP),  -- Label rolls -> Eco-friendly
+(7, 2, CURRENT_TIMESTAMP),  -- Handheld POS -> Bestseller
+(8, 1, CURRENT_TIMESTAMP),  -- Router -> New
+(10, 5, CURRENT_TIMESTAMP)  -- Wireless scanner -> Premium
 ON CONFLICT DO NOTHING;
 
 -- Insert product images
 INSERT INTO product_image (product_id, created_by, image_url, is_primary_image, is_active, created_at) VALUES
-(1, 1, 'https://via.placeholder.com/500x500?text=Laptop+HP', TRUE, TRUE, CURRENT_TIMESTAMP),
-(1, 1, 'https://via.placeholder.com/500x500?text=Laptop+Lateral', FALSE, TRUE, CURRENT_TIMESTAMP),
-(2, 1, 'https://via.placeholder.com/500x500?text=Auriculares+Sony', TRUE, TRUE, CURRENT_TIMESTAMP),
-(3, 1, 'https://via.placeholder.com/500x500?text=USB+Hub', TRUE, TRUE, CURRENT_TIMESTAMP),
-(4, 1, 'https://via.placeholder.com/500x500?text=Polo+Azul', TRUE, TRUE, CURRENT_TIMESTAMP),
-(5, 1, 'https://via.placeholder.com/500x500?text=Zapatillas', TRUE, TRUE, CURRENT_TIMESTAMP),
-(6, 1, 'https://via.placeholder.com/500x500?text=Lampara+LED', TRUE, TRUE, CURRENT_TIMESTAMP),
-(7, 1, 'https://via.placeholder.com/500x500?text=Pelota+Futbol', TRUE, TRUE, CURRENT_TIMESTAMP),
-(8, 1, 'https://via.placeholder.com/500x500?text=Libro+Quijote', TRUE, TRUE, CURRENT_TIMESTAMP),
-(9, 1, 'https://via.placeholder.com/500x500?text=Mochila', TRUE, TRUE, CURRENT_TIMESTAMP),
-(10, 1, 'https://via.placeholder.com/500x500?text=Monitor+LG', TRUE, TRUE, CURRENT_TIMESTAMP)
+(1, 1, 'https://via.placeholder.com/500x500?text=POS+Terminal', TRUE, TRUE, CURRENT_TIMESTAMP),
+(1, 1, 'https://via.placeholder.com/500x500?text=POS+Terminal+Side', FALSE, TRUE, CURRENT_TIMESTAMP),
+(2, 1, 'https://via.placeholder.com/500x500?text=Thermal+Receipt+Printer', TRUE, TRUE, CURRENT_TIMESTAMP),
+(3, 1, 'https://via.placeholder.com/500x500?text=2D+Barcode+Scanner', TRUE, TRUE, CURRENT_TIMESTAMP),
+(4, 1, 'https://via.placeholder.com/500x500?text=Industrial+Label+Printer', TRUE, TRUE, CURRENT_TIMESTAMP),
+(5, 1, 'https://via.placeholder.com/500x500?text=Cash+Drawer', TRUE, TRUE, CURRENT_TIMESTAMP),
+(6, 1, 'https://via.placeholder.com/500x500?text=Label+Rolls', TRUE, TRUE, CURRENT_TIMESTAMP),
+(7, 1, 'https://via.placeholder.com/500x500?text=Handheld+POS', TRUE, TRUE, CURRENT_TIMESTAMP),
+(8, 1, 'https://via.placeholder.com/500x500?text=Business+Router', TRUE, TRUE, CURRENT_TIMESTAMP),
+(9, 1, 'https://via.placeholder.com/500x500?text=Thermal+Paper+Rolls', TRUE, TRUE, CURRENT_TIMESTAMP),
+(10, 1, 'https://via.placeholder.com/500x500?text=Wireless+Scanner', TRUE, TRUE, CURRENT_TIMESTAMP)
 ON CONFLICT DO NOTHING;
 
 -- Insert warehouses
 INSERT INTO warehouse (created_by, name, location, is_active, created_at, last_updated) VALUES
-(1, 'Almacén Principal Lima', 'Av. Prolongación Primavera 1234, Lima 15047, Perú', TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(1, 'Centro de Distribución Arequipa', 'Calle Comercio 567, Arequipa 04000, Perú', TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+(1, 'Main Warehouse Lima', '1234 Spring Ave Extension, Lima 15047, Peru', TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(1, 'Arequipa Distribution Center', '567 Commerce St, Arequipa 04000, Peru', TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 ON CONFLICT DO NOTHING;
 
 -- Insert product stock for each warehouse
@@ -173,20 +173,20 @@ VALUES ('PENDING', 1),
 
 -- Insert client addresses
 INSERT INTO client_address (client_id, address_line1, address_line2, city, state, postal_code, country, created_at, updated_at) VALUES
-(6, 'Calle Sucre 456', 'Apartamento 302', 'Lima', 'Lima', '15001', 'Peru', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(6, 'Av. Larco 1289', 'Piso 5', 'Lima', 'Lima', '15047', 'Peru', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(7, 'Carrera 7 No. 123', 'Edificio Comercial', 'Arequipa', 'Arequipa', '04000', 'Peru', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(1, 'Jr. Junín 789', 'Casa 45', 'Lima', 'Lima', '15002', 'Peru', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+(6, '456 Sucre Street', 'Apt 302', 'Lima', 'Lima', '15001', 'Peru', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(6, '1289 Larco Ave', 'Floor 5', 'Lima', 'Lima', '15047', 'Peru', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(7, '123 7th Avenue', 'Commercial Building', 'Arequipa', 'Arequipa', '04000', 'Peru', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(1, '789 Junin Street', 'House 45', 'Lima', 'Lima', '15002', 'Peru', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 ON CONFLICT DO NOTHING;
 
 -- Insert product liked by clients (for product alerts)
 INSERT INTO product_liked (user_id, product_id, has_been_notified, liked_at) VALUES
-(6, 1, FALSE, CURRENT_TIMESTAMP),   -- María likes Laptop
-(6, 5, FALSE, CURRENT_TIMESTAMP),   -- María likes Zapatillas
-(7, 2, FALSE, CURRENT_TIMESTAMP),   -- Pedro likes Auriculares
-(7, 10, FALSE, CURRENT_TIMESTAMP),  -- Pedro likes Monitor
-(8, 4, FALSE, CURRENT_TIMESTAMP),   -- Ana likes Polo
-(8, 6, FALSE, CURRENT_TIMESTAMP)    -- Ana likes Lámpara
+(6, 1, FALSE, CURRENT_TIMESTAMP),   -- Mary likes POS Terminal
+(6, 5, FALSE, CURRENT_TIMESTAMP),   -- Mary likes Cash drawer
+(7, 2, FALSE, CURRENT_TIMESTAMP),   -- Peter likes Thermal printer
+(7, 10, FALSE, CURRENT_TIMESTAMP),  -- Peter likes Wireless scanner
+(8, 4, FALSE, CURRENT_TIMESTAMP),   -- Ann likes Label printer
+(8, 6, FALSE, CURRENT_TIMESTAMP)    -- Ann likes Label rolls
 ON CONFLICT DO NOTHING;
 
 -- ========== VERIFICATION QUERIES ==========
