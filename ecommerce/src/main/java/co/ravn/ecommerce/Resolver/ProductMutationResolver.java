@@ -70,7 +70,7 @@ public class ProductMutationResolver {
     }
 
     @MutationMapping
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasAnyRole('CLIENT','MANAGER')")
     @Transactional
     public Boolean likeAProduct(@Argument int productId) {
         MessageResponse response = productService.updateProductLiked(productId);
@@ -78,7 +78,7 @@ public class ProductMutationResolver {
     }
 
     @MutationMapping
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasAnyRole('CLIENT','MANAGER')")
     @Transactional
     public Boolean removeLikeFromProduct(@Argument int productId) {
         MessageResponse response = productService.deleteProductLiked(productId);
