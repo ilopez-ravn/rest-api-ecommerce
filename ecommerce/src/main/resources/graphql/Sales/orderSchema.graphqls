@@ -1,16 +1,41 @@
 extend type Query {
     """
-    Retrieve a page of orders with the whole list metadata. page is 1-based; default 1. size default 10.
+    Retrieve a page of orders with optional filters. Managers can filter by clientId; others see only their own.
+    page is 1-based (default 1). size default 10.
+    status = delivery status name. sortBy: "order_date" or "id". sortOrder: "asc" or "desc". dateFrom/dateTo: ISO date (YYYY-MM-DD).
     """
-    orders(page: Int, size: Int): OrderPage!
+    orders(
+        page: Int
+        size: Int
+        clientId: ID
+        status: String
+        sortBy: String
+        sortOrder: String
+        dateFrom: String
+        dateTo: String
+    ): OrderPage!
     """
     Retrieve an order details by its ID
     """
     getOrderById(id: ID!): Order
     """
-    Retrieve a page of orders for the currently authenticated client. page is 1-based; default 1. size default 10.
+    Retrieve a page of orders for the currently authenticated client. Same filters as orders (clientId ignored).
+    page is 1-based (default 1). size default 10.
     """
-    myOrders(page: Int, size: Int): OrderPage!
+    myOrders(
+        page: Int
+        size: Int
+        status: String
+        sortBy: String
+        sortOrder: String
+        dateFrom: String
+        dateTo: String
+    ): OrderPage!
+    """
+    Get order status by shopping cart ID (e.g. payment status, refund reason, order details).
+    Requires the cart to belong to the authenticated user.
+    """
+    getOrderStatus(shoppingCartId: ID!): OrderStatusResponse!
 }
 
 extend type Mutation {
@@ -26,6 +51,15 @@ type OrderPage {
     totalElements: Int!
     number: Int!
     size: Int!
+}
+
+"""
+Order status by shopping cart (payment status, refund reason, full order).
+"""
+type OrderStatusResponse {
+    status: String!
+    refund_reason: String
+    order: Order
 }
 
 """
