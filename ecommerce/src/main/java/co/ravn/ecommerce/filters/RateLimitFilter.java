@@ -8,6 +8,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.hc.core5.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -67,10 +69,10 @@ public class RateLimitFilter extends OncePerRequestFilter {
         }
 
         log.debug("Rate limit exceeded for client key: {}", clientKey);
-        response.setStatus(429); // Too Many Requests
+        response.setStatus(HttpStatus.SC_TOO_MANY_REQUESTS); // Too Many Requests
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         String path = request.getRequestURI().replace("\"", "\\\"");
-        response.getWriter().write("{\"status\":429,\"error\":\"Too Many Requests\",\"message\":\"Rate limit exceeded. Try again later.\",\"path\":\"" + path + "\"}");
+        response.getWriter().write("{\"status\":" + HttpStatus.SC_TOO_MANY_REQUESTS + ",\"error\":\"Too Many Requests\",\"message\":\"Rate limit exceeded. Try again later.\",\"path\":\"" + path + "\"}");
     }
 
     private String resolveClientKey(HttpServletRequest request) {
