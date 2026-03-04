@@ -1,57 +1,48 @@
 extend type Query {
     """
-    Get the shipping details from an order, including the status changes like 'pending' or 'in_transit'
+    Get the shipping details for an order, including its status history.
     """
-    getOrderShippingDetails(id: ID!): DeliveryTrackingDetails!
+    getOrderShippingDetails(orderId: ID!): ShippingDetails!
+    """
+    Get the full list of delivery statuses in execution order.
+    """
+    getDeliveryStatuses: [DeliveryStatusInfo!]!
 }
 
 extend type Mutation {
     """
-    Update the status of an order from status A to status B.
-    This will create a change log visible in the getOrderShippingDetails
+    Update the delivery status for an order. Returns the updated shipping details.
     """
-    updateShippingStatus(deliveryId: ID!, newStatusId: ID!): DeliveryTracking!
+    updateShippingStatus(orderId: ID!, statusId: ID!): ShippingDetails!
 }
 
+"""
+Shipping details aligned with ShippingDetailsResponse DTO.
+"""
+type ShippingDetails {
+    delivery_tracking: OrderDeliveryTracking!
+    history: [OrderTrackingLog!]!
+    address: OrderAddress!
+}
 
-type DeliveryTracking {
+"""
+Tracking log entry aligned with TrackingLogResponse DTO.
+"""
+type OrderTrackingLog {
     id: ID!
-    trackingNumber: String!
-    estimatedDeliveryDate: LocalDateTime
-    address: Address!
-    carrier: Carrier!
-    assignedTo: User!
-    orderTrackingLogs: [DeliveryTrackingLog!]!
-    status: DeliveryStatus!
-    createdAt: LocalDateTime!
-    updatedAt: LocalDateTime!
+    previous_status: String
+    new_status: String!
+    changed_by: Int
+    changed_at: LocalDateTime!
 }
 
-type DeliveryTrackingDetails {
-    deliveryTracking: DeliveryTracking!
-    history: [DeliveryTrackingLog!]!
-    address: Address!
-
-}
-
-type DeliveryStatus {
+"""
+Delivery status information, aligned with DeliveryStatusResponse DTO.
+"""
+type DeliveryStatusInfo {
     id: ID!
     name: String!
-    stepOrder: Int!
+    step_order: Int!
     description: String
 }
 
-type DeliveryTrackingLog {
-    id: ID!
-    deliveryTracking: DeliveryTracking!
-    previousStatus: DeliveryStatus
-    changedBy: User
-    newStatus: DeliveryStatus!
-    createdAt: LocalDateTime!
-}
-
-type Carrier {
-    id: ID!
-    name: String!
-    contactInfo: String
-}

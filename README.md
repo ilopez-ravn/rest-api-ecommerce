@@ -1,6 +1,6 @@
 # E-Commerce REST API
 
-A general porpuse e-commerce REST API built with Spring Boot 4.0.1 and Java 21, designed for managing products, orders, shopping carts, and user operations.
+A supermarket e-commerce REST API built with Spring Boot 4.0.1 and Java 21, designed for managing products, orders, shopping carts, and user operations.
 
 ## Table of Contents
 
@@ -9,6 +9,7 @@ A general porpuse e-commerce REST API built with Spring Boot 4.0.1 and Java 21, 
 - [Technology Stack](#technology-stack)
 - [Diagrams](#diagrams)
 - [API Documentation](#api-documentation)
+- [GCP deployment](#gcp-deploy)
 - [Getting Started](#getting-started)
 
 ## Overview
@@ -38,19 +39,18 @@ This is a production-ready RESTful API for an e-commerce platform that provides 
   - Persistent cart storage on database
 
 - **User Management**
-  - Client and employee user types
+  - Client, Manager, Warehouse and Shipping user types
   - User authentication and authorization
   - Password recovery tokens
   - User roles and permissions
   - Refresh token support
 
 - **Inventory & Warehouse**
-  - Multi-warehouse support
-  - Stock kardex/ledger tracking
-  - Product changes logging
+  - Single warehouse management with foundations for multi warehouse support
+  - Product/Stock changes tracking
 
 - **Payment Integration**
-  - Stripe payment integration
+  - Stripe payment/refund integration
   - Payment method management
   - Payment event logging
 
@@ -87,6 +87,11 @@ We can use the visualization tool [Swagger Visual tool](https://explore.swaggerh
 http://localhost:8080/api/v1
 ```
 
+### Production URL
+```
+https://rest-api-ecommerce-153995496116.us-central1.run.app/api/v1
+```
+
 ## Getting Started
 
 ### Installation
@@ -97,16 +102,25 @@ http://localhost:8080/api/v1
    cd rest-api-ecommerce/ecommerce
    ```
 
-2. **Configure database connection**
-   
-   Edit `src/main/resources/application.properties` with your database credentials:
+2. **Configure environment variables**
+   Copy `src/main/resources/application-local.example.properties` into `src/main/resources/application-local.properties`.
+
+   Edit `src/main/resources/application-local.properties` with your testing credentials:
    ```properties
    spring.datasource.url=jdbc:postgresql://localhost:5432/ecommerce
    spring.datasource.username=your_username
    spring.datasource.password=your_password
+
+   ...
    ```
 
 3. **Open on IntelliJ IDEA**
    ```bash
-   run the project on IntelliJ IDEA and use the endpoints
+   Configure the IntelliJ run configuration for local environment to use src/main/resources/application-local.properties
    ```
+
+
+
+## GCP Deployment
+
+For detailed instructions on deploying to Google Cloud Platform (GCP), see the [GCP Deployment Plan](documentation/gcp-deployment-plan.md).

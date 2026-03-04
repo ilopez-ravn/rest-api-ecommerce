@@ -1,0 +1,46 @@
+extend type Query {
+    """
+    Get all addresses for the given client.
+    The backend will verify that the authenticated user owns this client id.
+    """
+    addresses(clientId: ID!): [OrderAddress!]!
+}
+
+extend type Mutation {
+    """
+    Create a new address for the given client.
+    The backend will verify that the authenticated user owns this client id.
+    """
+    createAddress(clientId: ID!, input: CreateClientAddressInput!): OrderAddress!
+
+    """
+    Update an existing address owned by the given client.
+    The backend will verify that the authenticated user owns this client id and address.
+    """
+    updateAddress(clientId: ID!, id: ID!, input: UpdateClientAddressInput!): OrderAddress!
+
+    """
+    Delete an address owned by the given client.
+    The backend will verify that the authenticated user owns this client id and address.
+    """
+    deleteAddress(clientId: ID!, id: ID!): Boolean!
+}
+
+input CreateClientAddressInput {
+    address_line1: String!
+    address_line2: String
+    city: String!
+    state: String!
+    postal_code: String!
+    country: String!
+}
+
+input UpdateClientAddressInput {
+    address_line1: String
+    address_line2: String
+    city: String
+    state: String
+    postal_code: String
+    country: String
+}
+

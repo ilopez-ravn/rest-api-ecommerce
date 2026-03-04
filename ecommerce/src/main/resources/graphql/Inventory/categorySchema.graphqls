@@ -30,7 +30,6 @@ A category is a classifier for products. Every product can have one or many cate
 type Category {
     id: ID!
     name: String!
-    user: User
     description: String
     isActive: Boolean!
 }

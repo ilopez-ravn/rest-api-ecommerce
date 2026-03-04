@@ -40,3 +40,6 @@ release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
+
+# Local config with secrets (copy from application-local.example.properties)
+src/main/resources/application-local.properties

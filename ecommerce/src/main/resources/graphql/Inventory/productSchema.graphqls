@@ -33,13 +33,13 @@ extend type Mutation {
     updateProductStatus(id: ID!, status: Boolean!): Product!
 
     """
-    Register the product a clients likes
+    Register the product a client likes for the currently authenticated user
     """
-    likeAProduct(productId: ID!, userId: ID!): Boolean!
+    likeAProduct(productId: ID!): Boolean!
     """
-    Unregisters the product a clients removes the like
+    Unregister the product a client has liked for the currently authenticated user
     """
-    removeLikeFromProduct(productId: ID!, userId: ID!): Boolean!
+    removeLikeFromProduct(productId: ID!): Boolean!
 }
 
 
@@ -94,10 +94,10 @@ input ProductFilter {
 
 type ProductImage {
     id: ID!
-    product: Product!
-    createdBy: User!
     imageUrl: String!
-    isPrimary: Boolean!
+    productId: ID!
+    publicId: String
+    isPrimaryImage: Boolean!
     isActive: Boolean!
     createdAt: LocalDateTime!
 }
@@ -111,10 +111,9 @@ type Product {
     isActive: Boolean!
     categories: [Category!]
     tags: [Tag!]
-    images: [ProductImage!]
-    stockByWarehouse: [ProductStock!]
+    productImages: [ProductImage!]
+    stock: [ProductStock]!
     createdAt: LocalDateTime!
-    updatedAt: LocalDateTime!
     deletedAt: LocalDateTime
 }
 

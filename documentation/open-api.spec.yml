@@ -267,7 +267,215 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
-                
+    
+  /clients/{clientId}/addresses:
+    get:
+      tags:
+        - clients
+      summary: Get addresses for a client
+      description: Retrieve all addresses associated with a given client. The authenticated user must own this client.
+      operationId: getClientAddresses
+      parameters:
+        - name: clientId
+          in: path
+          description: ID of the client whose addresses are being requested
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: List of addresses for the client
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Address'
+        '403':
+          description: Forbidden - authenticated user does not own this client
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '404':
+          description: Client not found
+        '429':
+          description: Too many requests - rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '500':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    post:
+      tags:
+        - clients
+      summary: Create a new address for a client
+      description: Create a new address associated with a given client. The authenticated user must own this client.
+      operationId: createClientAddress
+      parameters:
+        - name: clientId
+          in: path
+          description: ID of the client for whom the address is created
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Address data to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewClientAddressRequest'
+      responses:
+        '201':
+          description: Address created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Address'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '403':
+          description: Forbidden - authenticated user does not own this client
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '404':
+          description: Client not found
+        '429':
+          description: Too many requests - rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '500':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /clients/{clientId}/addresses/{addressId}:
+    put:
+      tags:
+        - clients
+      summary: Update an existing address for a client
+      description: Update an address associated with a given client. The authenticated user must own this client and address.
+      operationId: updateClientAddress
+      parameters:
+        - name: clientId
+          in: path
+          description: ID of the client who owns the address
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: addressId
+          in: path
+          description: ID of the address to update
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Address data to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateClientAddressRequest'
+      responses:
+        '200':
+          description: Address updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Address'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '403':
+          description: Forbidden - authenticated user does not own this client or address
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '404':
+          description: Client or address not found
+        '429':
+          description: Too many requests - rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '500':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    delete:
+      tags:
+        - clients
+      summary: Delete an address for a client
+      description: Delete an address associated with a given client. The authenticated user must own this client and address.
+      operationId: deleteClientAddress
+      parameters:
+        - name: clientId
+          in: path
+          description: ID of the client who owns the address
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: addressId
+          in: path
+          description: ID of the address to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Address deleted successfully
+        '403':
+          description: Forbidden - authenticated user does not own this client or address
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '404':
+          description: Client or address not found
+        '429':
+          description: Too many requests - rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidQueryResponse"
+        '500':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+            
   /products:
     get:
       tags:
@@ -422,6 +630,97 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+
+  /api/v1/products/{id}/images:
+    post:
+      tags:
+        - products
+      summary: Upload product images for an existing product
+      operationId: uploadProductImages
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        '200':
+          description: Images uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductImage'
+
+  /api/v1/products/{productId}/images/{imageId}:
+    delete:
+      tags:
+        - products
+      summary: Delete a product image
+      operationId: deleteProductImage
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: imageId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Image deleted successfully
+
+  /api/v1/products/images/upload:
+    post:
+      tags:
+        - products
+      summary: Upload images without binding to a product
+      operationId: uploadImages
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        '200':
+          description: Images uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    url:
+                      type: string
+                    public_id:
+                      type: string
 
       
 
@@ -2799,19 +3098,17 @@ components:
     NewProductImage:
       type: object
       required:
-        - product_id
         - image_url
       properties:
-        product_id:
-          type: integer
-          format: int64
-          example: 10
         image_url:
           type: string
           example: "https://example.com/image.jpg"
         is_primary_image:
           type: boolean
           example: true
+        public_id:
+          type: string
+          example: "sample_public_id"
         
       
     NewOrder:
@@ -3019,7 +3316,7 @@ components:
         phone:
           type: string
           example: '12345'
-        user_id: 
+        person_id: 
           type: integer
           format: int64
           example: 5
@@ -3041,7 +3338,7 @@ components:
           example: StrongPassword123
         role: 
           type: string
-          example: manager
+          example: MANAGER
         first_name:
           type: string
           example: Israel
@@ -3404,8 +3701,8 @@ components:
         type:
           type: string
           enum:
-            - increase
-            - decrease
+            - ADD
+            - SUBTRACT
         quantity:
           type: integer
 

@@ -2,30 +2,15 @@
 
 CREATE TYPE role_enum AS ENUM ('MANAGER', 'CLIENT', 'WAREHOUSE', 'SHIPPING');
 CREATE TYPE shopping_cart_status_enum AS ENUM ('ACTIVE', 'DELETED', 'PROCESSED');
-CREATE TYPE email_status_enum AS ENUM ('sent', 'not_sent');
+CREATE TYPE email_status_enum AS ENUM ('SENT', 'NOT_SENT');
 CREATE TYPE person_document_type_enum AS ENUM ('PERSON', 'BUSINESS');
-CREATE TYPE email_type_enum AS ENUM ('password_recovery', 'product_liked_alert');
+CREATE TYPE bill_document_type_enum AS ENUM ('RECEIPT', 'BILL');
+CREATE TYPE email_type_enum AS ENUM ('PASSWORD_RECOVERY', 'PRODUCT_LIKED_ALERT', 'ORDER_CONFIRMATION', 'DELIVERY_STATUS_UPDATE', 'REFUND_PROCESSED', 'REFUND_REQUESTED', 'REFUND_APPROVED', 'REFUND_DENIED', 'RETURN_IN_TRANSIT', 'RETURN_RECEIVED');
 
 CREATE TABLE IF NOT EXISTS role (
     id SERIAL PRIMARY KEY,
     name role_enum NOT NULL,
     is_active BOOLEAN DEFAULT TRUE
-);
-
-CREATE TABLE IF NOT EXISTS person (
-    id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES sys_user(id) ON DELETE SET NULL,
-
-    first_name VARCHAR(100) NOT NULL,
-    last_name VARCHAR(100) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    phone VARCHAR(20),
-
-    document VARCHAR(20)
-    document_type
-    
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS sys_user (
@@ -38,6 +23,23 @@ CREATE TABLE IF NOT EXISTS sys_user (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_updated_password TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS person (
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES sys_user(id) ON DELETE SET NULL,
+
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    phone VARCHAR(20),
+
+    document VARCHAR(20),
+    document_type person_document_type_enum NOT NULL DEFAULT 'PERSON',
+    
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 
 CREATE TABLE IF NOT EXISTS user_refresh_token (
     id SERIAL PRIMARY KEY,
@@ -63,14 +65,6 @@ CREATE TABLE IF NOT EXISTS category (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS product_category (
-    product_id INT REFERENCES product(id) ON DELETE CASCADE,
-    category_id INT REFERENCES category(id) ON DELETE CASCADE,
-
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (product_id, category_id)
-)
-
 CREATE TABLE IF NOT EXISTS product (
     id SERIAL PRIMARY KEY,
     created_by INT REFERENCES sys_user(id) ON DELETE SET NULL,
@@ -85,6 +79,16 @@ CREATE TABLE IF NOT EXISTS product (
     deleted_at TIMESTAMP DEFAULT NULL -- "Hard delete" flag
 );
 
+CREATE TABLE IF NOT EXISTS product_category (
+    id SERIAL PRIMARY KEY,
+    product_id INT REFERENCES product(id) ON DELETE CASCADE,
+    category_id INT REFERENCES category(id) ON DELETE CASCADE,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(product_id, category_id)
+);
+
+
 CREATE TABLE IF NOT EXISTS tag (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -94,21 +98,23 @@ CREATE TABLE IF NOT EXISTS tag (
 );
 
 CREATE TABLE IF NOT EXISTS product_tag (
+    id SERIAL PRIMARY KEY,
     product_id INT REFERENCES product(id) ON DELETE CASCADE,
     tag_id INT REFERENCES tag(id) ON DELETE CASCADE,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (product_id, tag_id)
+    UNIQUE(product_id, tag_id)
 );
 
 
 CREATE TABLE IF NOT EXISTS product_changes_log (
+    id SERIAL PRIMARY KEY,
     product_id INT REFERENCES product(id) ON DELETE CASCADE,
     change_description TEXT NOT NULL,
 
     changed_by INT REFERENCES sys_user(id) ON DELETE SET NULL,
     changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (product_id, changed_at)
+    UNIQUE(product_id, changed_at)
 );
 
 CREATE TABLE IF NOT EXISTS product_image (
@@ -117,6 +123,7 @@ CREATE TABLE IF NOT EXISTS product_image (
     created_by INT REFERENCES sys_user(id) ON DELETE SET NULL,
 
     image_url TEXT NOT NULL,
+    public_id VARCHAR(255),
     is_primary_image BOOLEAN DEFAULT FALSE,
     is_active BOOLEAN DEFAULT TRUE,
     
@@ -136,13 +143,14 @@ CREATE TABLE IF NOT EXISTS warehouse (
 );
 
 CREATE TABLE IF NOT EXISTS product_stock (
+    id SERIAL PRIMARY KEY,
     product_id INT REFERENCES product(id) ON DELETE CASCADE,
     warehouse_id INT REFERENCES warehouse(id) ON DELETE CASCADE,
 
     quantity INT NOT NULL CHECK (quantity >= 0),
 
     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (product_id, warehouse_id)
+    UNIQUE(product_id, warehouse_id)
 );
 
 
@@ -190,13 +198,14 @@ CREATE TABLE IF NOT EXISTS shopping_cart_details (
 );
 
 CREATE TABLE IF NOT EXISTS product_liked (
+    id SERIAL PRIMARY KEY,
     user_id INT REFERENCES sys_user(id) ON DELETE CASCADE,
     product_id INT REFERENCES product(id) ON DELETE CASCADE,
 
     has_been_notified BOOLEAN DEFAULT FALSE,
 
     liked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (user_id, product_id)
+    UNIQUE(user_id, product_id)
 );
 
 CREATE TABLE IF NOT EXISTS sale_order (
@@ -206,14 +215,16 @@ CREATE TABLE IF NOT EXISTS sale_order (
     warehouse_id INT REFERENCES warehouse(id) ON DELETE SET NULL,
     
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    is_active BOOLEAN NOT NULL DEFAULT TRUE
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    cancelled_at TIMESTAMP,
+    refund_reason VARCHAR(255)
 );
 
 CREATE TABLE IF NOT EXISTS order_bill (
     id SERIAL PRIMARY KEY,
     order_id INT REFERENCES sale_order(id) ON DELETE CASCADE NOT NULL,
 
-    document_type document_type_enum NOT NULL,
+    document_type bill_document_type_enum NOT NULL,
     document_number VARCHAR(100) UNIQUE NOT NULL,
     tax_percent INT NOT NULL DEFAULT 18,
     total_amount DECIMAL(10, 2) NOT NULL,
@@ -261,6 +272,11 @@ CREATE TABLE IF NOT EXISTS stripe_payment_event_log (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS processed_stripe_event (
+    id VARCHAR(255) PRIMARY KEY,
+    processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS carrier (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -299,6 +315,47 @@ CREATE TABLE IF NOT EXISTS order_tracking_log (
     changed_by INT REFERENCES sys_user(id) ON DELETE SET NULL,
     
     changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Refund & Return System
+CREATE TYPE refund_status_enum AS ENUM (
+    'PENDING_REVIEW',
+    'APPROVED',
+    'DENIED',
+    'CANCELLED',
+    'RETURN_IN_TRANSIT',
+    'PRODUCT_RECEIVED',
+    'REFUND_PROCESSED'
+);
+
+CREATE TABLE IF NOT EXISTS refund_requests (
+    id              SERIAL PRIMARY KEY,
+    order_id        INTEGER NOT NULL REFERENCES sale_order(id),
+    requested_by    INTEGER NOT NULL REFERENCES sys_user(id),
+    reviewed_by     INTEGER REFERENCES sys_user(id),
+    status          refund_status_enum NOT NULL DEFAULT 'PENDING_REVIEW',
+    requires_return BOOLEAN NOT NULL DEFAULT FALSE,
+    reason          TEXT NOT NULL,
+    manager_notes   TEXT,
+    stripe_refund_id VARCHAR(255),
+    refund_amount   NUMERIC(10, 2),
+    requested_at    TIMESTAMP,
+    reviewed_at     TIMESTAMP,
+    refunded_at     TIMESTAMP
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_refund_requests_active_order
+    ON refund_requests(order_id)
+    WHERE status NOT IN ('DENIED', 'CANCELLED');
+
+CREATE TABLE IF NOT EXISTS return_shipments (
+    id                SERIAL PRIMARY KEY,
+    refund_request_id INTEGER NOT NULL UNIQUE REFERENCES refund_requests(id),
+    tracking_number   VARCHAR(255) NOT NULL,
+    carrier_name      VARCHAR(255) NOT NULL,
+    shipped_at        TIMESTAMP,
+    received_at       TIMESTAMP,
+    received_by       INTEGER REFERENCES sys_user(id)
 );
 
 
@@ -356,7 +413,7 @@ BEGIN
     FROM warehouse w;
     RETURN NEW;
 END;
-$$
+$$;
 
 CREATE TRIGGER trigger_create_warehouse_stock
 AFTER INSERT 
@@ -377,7 +434,7 @@ BEGIN
     FROM product p;
     RETURN NEW;
 END;
-$$
+$$;
 
 CREATE TRIGGER trigger_create_product_stock
 AFTER INSERT 
